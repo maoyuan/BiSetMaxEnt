@@ -1,0 +1,213 @@
+{% extends "projects/base.html" %}
+{% load staticfiles %}
+{% block content %}
+<input id="csrf_token" type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    {%if pCount == 0 %} 
+        <script>
+            alert("You don't have any private projects, the page will be redirected to project creating page.");
+            window.location.replace(window.SERVER_PATH + 'projects/add/');
+        </script>
+    {%endif%}
+	<div class="container-fluid">
+		<div class="col-md-2">
+			<div>
+				<label>Project List</label>
+	            <select class="selectpicker" data-live-search="true" data-width="100%" id="vis_sel_project">
+                    <option value=""></option>
+                    <optgroup label="My Own Project" id="vis_own_project">
+                {% for project in projects %}	            
+                        <option value="{{project.id}}" {%if project.id|add:'0' = prePid|add:'0' %} selected{%endif%}>{{project.name}}</option>
+                {% endfor %}
+                </optgroup>
+	            <optgroup label="Shared with Me" id="vis_shared_project">
+                    {% for project in shareProjects %}	                
+	                    <option value="{{project.id}}" {%if project.id|add:'0' = prePid|add:'0' %} selected{%endif%}>{{project.name}}</option>
+                    {% endfor %}
+                    </optgroup>
+	            </select>
+			</div>
+        	<hr>
+
+			<div>
+				<label>Visualization List</label>
+	             <select class="selectpicker" data-live-search="true" data-width="100%" id="vis_list" {% if preVisList|length = 0 %}disabled{%endif%}>
+                    <option value=""></option>
+                    {%for vis in preVisList%}
+                        <option value="{{vis.id}}">{{vis.vis_name}}</option>
+                    {%endfor%}
+	            </select>				
+			</div>
+			<hr>
+
+			<div class="hide_this" id="vis_name_config">
+                <label>Visualization Name</label> 
+				<input type="text" id="vis_name" data-toggle="tooltip">
+				<hr>
+			</div>
+
+            <div id="vis_dim_select"> <!--  class="hide_this" -->
+                <label>Dimension List</label>
+                <fieldset id="dataDimensionList"></fieldset>
+                <hr>
+            </div>
+
+			<div id="vis_config_ctrl">
+				<input id="btn_new_vis" class="btn btn-info btn-xs" type="button" value="New Vis Config" {%if not prePid %} disabled {% endif %}>
+                <input id="btn_save_config" class="btn btn-info btn-xs" type="button" value="Save Config" disabled>
+    			<hr>
+			</div>
+
+            <div id="vis_ctrl" class="hide_this">
+				<label>Visualization Control</label><br />
+				<input id="btn_vis_save" class="btn btn-info btn-xs" type="button" value="Save" >
+            	<input id="btn_vis_del" class="btn btn-info btn-xs" type="button" value="Delete" >
+            	<hr>
+            </div>
+
+			<!-- a popup to ask user to confirm the deletion vis -->
+			<div class="modal fade" id="vis_delete_alert" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+							<h4 class="modal-title" id="myModalLabel">Delete This Visualization</h4>
+						</div>
+						<!-- content -->
+						<div class="modal-body">
+							<div class="alert alert-warning"><span class="glyphicon glyphicon-warning-sign"></span> Are you sure you want to delete this visualization?</div>
+						</div>
+
+						<div class="modal-footer">
+							<button type="button" class="btn btn-warning" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> No</button>
+							<button type="button" class="btn btn-warning" id="btn_vis_delete"><span class="glyphicon glyphicon-ok-sign"></span> Yes</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div id="vis_wiki_summary" class="ui-widget-content shade-container">
+				<h5 id="vis_wiki_title">Wiki Summary</h5>
+				<p id="vis_wiki_text"></p>
+			</div>
+		</div>
+
+		<div class="col-md-10" id="biset_vis_container">
+			<div id="biset_control"></div>
+			<div id="biset_canvas"></div>
+			<div id="biset_doc" class="shade-container-light">
+				<span class="glyphicon glyphicon-folder-close btn btn-xs" id="doc_ctrl_icon"></span>
+			    <div id="doc_vis">
+			    	<div class="col-md-3" id="biset_doc_relevent_info">
+						<div class="panel panel-default biset_docView_panel" id="biset_doc_from_bic">
+							<div class="panel-heading biset_docView_panelTitle" id="biset_checked_bicID">
+								<h3 class="panel-title">Current Visited Bicluster</h3>
+							</div>
+							<div class="panel-body biset_doc_view_panel_body" id="biset_checked_bic_list">
+								<p id="bic_current_visit">Bicluster ID</p>
+								<hr>
+								<p>Related Documents</p>
+								<p id="bic_related_docs"></p>
+								<hr>
+								<p>Entities</p>
+								<p id="bic_related_ents"></p>
+							</div>
+						</div>			    		
+			    	</div>
+
+			    	<div class="col-md-5" id="biset_doc_content">
+						<div class="panel panel-info biset_docView_panel" id="biset_doc_panel">
+							<div class="panel-heading biset_docView_panelTitle" id="biset_doc_title">
+								<h3 class="panel-title">Document ID</h3>
+							</div>
+							<div class="panel-body biset_doc_view_panel_body" id="biset_doc_body"></div>
+						</div>
+			    	</div>
+
+			    	<div class="col-md-3" id="biset_doc_list">
+			    		<form role="form">
+				    		<div class="input-group"> 
+								<span class="input-group-addon">Doc ID</span>
+								<input class="form-control" id="doc_name_search" type="search" placeholder="Search..."/>
+							</div>
+							<div id="doc_name_list" class="list-group"></div>
+						</form>
+			    	</div>
+			    </div>
+			</div>
+		</div>
+
+		<div id="bic-context-menu">
+			<ul class="dropdown-menu" role="menu">
+<!-- 				<li>
+					<a tabindex="-1" data-index="top">
+						<span class="glyphicon glyphicon-arrow-up" data-index="top"></span> Move to Top
+					</a>
+				</li>
+				<li class="divider"></li> -->
+				<li>
+					<a tabindex="-1" data-index="doc">
+						<span class="glyphicon glyphicon-file" data-index="doc"></span> Show Document
+					</a>
+				</li>
+				<li class="divider"></li>
+				<li>
+					<a tabindex="-1" data-index="selection">
+						<span class="glyphicon glyphicon-bookmark" data-index="selection"></span> Mark
+						<input type="checkbox" name="bicSelectSwitch" data-size="mini" data-on-color="info">
+					</a>
+				</li>
+				<li class="divider"></li>
+				<li>
+					<a tabindex="-1" data-index="hide">
+						<span class="glyphicon glyphicon-remove" data-index="hide"></span> Delete
+					</a>
+				</li>
+				<li class="divider"></li>
+				<li>
+					<a tabindex="-1" data-index="hideLine">
+						<span class="glyphicon glyphicon-eye-close" data-index="hide"></span> Hide Edges
+					</a>
+				</li>
+				<li class="divider"></li>
+				<li>
+					<a tabindex="-1" data-index="showLine">
+						<span class="glyphicon glyphicon-eye-open" data-index="hide"></span> Show Edges
+					</a>
+				</li>
+<!--				<li class="divider"></li>
+				<li>
+					<a tabindex="-1" data-index="del">
+						<span class="glyphicon glyphicon-remove" data-index="del"></span> Remove
+					</a>
+				</li>
+ 				<li class="divider"></li>
+				<li>
+					<a tabindex="-1" data-index="bottom">
+						<span class="glyphicon glyphicon-arrow-down" data-index="bottom"></span> Move to Bottom
+					</a>
+				</li> -->
+			</ul>
+		</div>
+
+		<div id="ent-context-menu">
+			<ul class="dropdown-menu" role="menu">
+				<li>
+					<a tabindex="-1" data-index="del">
+						<span class="glyphicon glyphicon-remove" data-index="del"></span> Remove
+					</a>
+				</li>
+			</ul>
+		</div>
+
+
+	</div>
+
+	<script type="text/javascript" src="{%static 'vis/js/lib/bootstrap-contextmenu.js'%}"></script>
+
+	<script type="text/javascript" src="{%static 'vis/js/lib/bootstrap-switch.min.js'%}"></script>
+
+	<script type="text/javascript" src="{%static 'vis/js/lib/jquery-ui.min.js'%}"></script>
+	<script type="text/javascript" src="{%static 'vis/js/colorset.js'%}"></script>
+	<script type="text/javascript" src="{%static 'vis/js/biset.js'%}"></script>
+	<script type="text/javascript" src="{%static 'vis/js/visctrl.js'%}"></script>
+{% endblock %}
