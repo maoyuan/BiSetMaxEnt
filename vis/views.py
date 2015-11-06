@@ -14,27 +14,24 @@ from MaxEnt import MaxEnt
 import maxent_utils
 
 # initialize the maxent model as a global variable
-initialRowNum = 5
-initialColNum = 5
+initialRowNum = 3
+initialColNum = 3
 obj_maxent = MaxEnt(initialRowNum, initialColNum)
 
-gTotalEntity = 0
-gTotalDocs = 0
-
 # a global variable for all doc IDs
-docIDList = []
+gDocIDList = []
 # a glabal variable for all docIDs + each entID + ent fequency as python tiles
-list_colTiles = []
+glist_colTiles = []
 # a global variable for indiviual docID + domain based entIDs + ent frequency as python tiles 
-list_rowTiles = []
+glist_rowTiles = []
 # a global variable for all docIDs + all EntIDs in each domain + total frequency
-list_domainTile = []
+glist_domainTile = []
 # a global dictionray to store all entity ids for each domain
 gEntIDsDict = {}
 # a dictionary to store all ents for each doc
-dict_transactions = {}
+gdict_transactions = {}
 # a global dictionary to store all bics with their entity ids
-bic_dictionary = {}
+gbic_dictionary = {}
 
 @login_required 
 def analytics(request):
@@ -308,7 +305,14 @@ def loadVis(request):
    
     theProject = get_object_or_404(Project, pk = project_id)
     
-    
+    # all the following variables used as global variables
+    global gDocIDList
+    global glist_colTiles
+    global glist_rowTiles
+    global glist_domainTile
+    global gEntIDsDict
+    global gdict_transactions
+    global gbic_dictionary    
     
     # Only the project creator, super user can delete the project
     has_permission = theProject.is_creator(theUser) or theProject.is_collaborator(theUser) or theUser.is_superuser
@@ -397,9 +401,6 @@ def loadVis(request):
         domainList.append(row[1])
         domainIDShift[row[1]] = row[4]
 
-
-
-
     # add all bic with its entities in the dictionary
     for bic in bics:
         tmpArray = []
@@ -410,16 +411,16 @@ def loadVis(request):
 
         bicID = rowType + "_" + colType + "_bic_" + str(bics[bic]["bicID"])
 
-        bic_dictionary[bicID] = {}
-        bic_dictionary[bicID]["id"] = str(bics[bic]["bicID"])
-        bic_dictionary[bicID]["rowType"] = rowType
-        bic_dictionary[bicID]["colType"] = colType
+        gbic_dictionary[bicID] = {}
+        gbic_dictionary[bicID]["id"] = str(bics[bic]["bicID"])
+        gbic_dictionary[bicID]["rowType"] = rowType
+        gbic_dictionary[bicID]["colType"] = colType
 
-        bic_dictionary[bicID]["rowEntIDs"] = set()
-        bic_dictionary[bicID]["colEntIDs"] = set()
+        gbic_dictionary[bicID]["rowEntIDs"] = set()
+        gbic_dictionary[bicID]["colEntIDs"] = set()
 
-        bic_dictionary[bicID]["relRowEntIDs"] = set()
-        bic_dictionary[bicID]["relColEntIDs"] = set()
+        gbic_dictionary[bicID]["relRowEntIDs"] = set()
+        gbic_dictionary[bicID]["relColEntIDs"] = set()
 
         # get all row id
         for row in rows:
@@ -432,8 +433,8 @@ def loadVis(request):
             linkName.add(tmpLinkName)
 
             rowEntID = int(row) + domainIDShift[str(rowType)]
-            bic_dictionary[bicID]["rowEntIDs"].add(rowEntID)
-            bic_dictionary[bicID]["relRowEntIDs"].add(int(row))
+            gbic_dictionary[bicID]["rowEntIDs"].add(rowEntID)
+            gbic_dictionary[bicID]["relRowEntIDs"].add(int(row))
 
         for col in cols:
             colID = str(colType) + "_" + str(col)
@@ -445,8 +446,8 @@ def loadVis(request):
             linkName.add(tmpLinkName)
 
             colID = int(col) + domainIDShift[str(colType)]
-            bic_dictionary[bicID]["colEntIDs"].add(colID)
-            bic_dictionary[bicID]["relColEntIDs"].add(int(col)) 
+            gbic_dictionary[bicID]["colEntIDs"].add(colID)
+            gbic_dictionary[bicID]["relColEntIDs"].add(int(col)) 
 
         # get a list of docs for a bic
         tmpDocList = Set()
@@ -465,8 +466,6 @@ def loadVis(request):
         bics[bic]['docs'] = list(tmpDocList)
 
         networkData[bicID] = tmpArray
-
-    # print(bic_dictionary)
 
     # all all entities with their bics in the dictionary
     for lst in lists:
@@ -507,7 +506,7 @@ def loadVis(request):
     sql_str = "SELECT * FROM datamng_docname"       
     cursor.execute(sql_str)
     doc_table_rows = cursor.fetchall()
-    # docIdList = []
+
     # generate objects for doc
     for row in doc_table_rows:
         thisDocID = "Doc_" + str(row[0])
@@ -517,7 +516,8 @@ def loadVis(request):
         docs[thisDocID]["docContent"] = row[3]
         docs[thisDocID]["bicRelevent"] = {}
         docs[thisDocID]["bicNum"] = 0
-        docIDList.append(int(row[0]) - 1)
+
+        gDocIDList.append(int(row[0]) - 1)
 
     # get relevent bics for each doc
     for bic in bics:
@@ -548,8 +548,8 @@ def loadVis(request):
     obj_maxent = MaxEnt(4, 7)
 
     # initialize the dictionary
-    for dID in docIDList:
-        dict_transactions[dID] = set()
+    for dID in gDocIDList:
+        gdict_transactions[dID] = set()
 
     for d in domainList:
         cursor = connection.cursor()
@@ -563,7 +563,7 @@ def loadVis(request):
             tmpDocToEnt = []
             tmpDocEntToFreq = []
             tmpID = []
-            tmpDocToEnt.append(docIDList)
+            tmpDocToEnt.append(gDocIDList)
 
             tmpID.append(int(row[0]) + domainIDShift[d])
             tmpDocToEnt.append(tmpID)
@@ -573,11 +573,11 @@ def loadVis(request):
             tmpDocEntToFreq.append(tmpDocToEnt)
             tmpDocEntToFreq.append(int(row[2]))
 
-            list_colTiles.append(tmpDocEntToFreq)
+            glist_colTiles.append(tmpDocEntToFreq)
 
 
         tmpDocFreq = {}
-        for dID in docIDList:
+        for dID in gDocIDList:
             tmpDocFreq[dID] = 0
 
         sql_str = "SELECT * FROM datamng_" + d + "doc"
@@ -598,10 +598,10 @@ def loadVis(request):
             tmpDocFreq[ind] += 1
             tmpTotalFre += 1
 
-            dict_transactions[ind].add(entID)
+            gdict_transactions[ind].add(entID)
 
 
-        for docID in docIDList:
+        for docID in gDocIDList:
             tmp1 = []
             tmp2 = []
             tmp3 = []
@@ -613,22 +613,22 @@ def loadVis(request):
             tmp3.append(tmp2)
             tmp3.append(tmpDocFreq[docID])
 
-            list_rowTiles.append(tmp3)
+            glist_rowTiles.append(tmp3)
 
         tmpDocIdsEntIds = []
         tmpDocsEntsFreq = []
 
-        tmpDocIdsEntIds.append(docIDList)
+        tmpDocIdsEntIds.append(gDocIDList)
         tmpDocIdsEntIds.append(gEntIDsDict[d])
 
         tmpDocsEntsFreq.append(tmpDocIdsEntIds)
         tmpDocsEntsFreq.append(tmpTotalFre)
 
-        list_domainTile.append(tmpDocsEntsFreq)
+        glist_domainTile.append(tmpDocsEntsFreq)
 
     # total number of entity
     totalEntity = 0
-    totalDocs = len(docIDList)
+    totalDocs = len(gDocIDList)
     for e in gEntIDsDict:
         totalEntity += len(gEntIDsDict[e])
 
@@ -647,9 +647,9 @@ def loadVis(request):
     into the binary MaxEnt model by calling its member function
     add_background_tiles.
     '''
-    obj_maxent.add_background_tiles(list_colTiles)
-    obj_maxent.add_background_tiles(list_rowTiles)
-    obj_maxent.add_background_tiles(list_domainTile)
+    obj_maxent.add_background_tiles(glist_colTiles)
+    obj_maxent.add_background_tiles(glist_rowTiles)
+    obj_maxent.add_background_tiles(glist_domainTile)
 
     '''
     Call MaxEnt model's member function train_maxent(thresh, maxiter) to infer
@@ -741,39 +741,62 @@ def loadVis(request):
     # obj_maxent.update_maxent(list_biTiles)
 
     # get the inital evaluated score for each bic
-    initBicScore = bicsEval(bic_dictionary, dict_transactions, obj_maxent)
+    initBicScore = bicsEval(gbic_dictionary, gdict_transactions, obj_maxent)
 
     # print(initBicScore)
 
     return HttpResponse(json.dumps(lstsBisetsJson))
 
 
-# load the MaxEnt model based on user selection
+''' 
+load the MaxEnt model based on user selection
+    @param request, the user selected bic ID
+    @return the surprising score based on the maxEnt model
+'''
 def loadMaxEntModel(request):
     # get the request from front end
     rq = json.loads(request.body)
     searchterm = rq['query']
 
-    thisBicRowIDs = bic_dictionary[searchterm]["rowEntIDs"]
-    thisBicColIDs = bic_dictionary[searchterm]["colEntIDs"]
+    global obj_maxent
+    global gbic_dictionary
+    global gdict_transactions
 
-    thisBicTiles = maxent_utils.convert2TileListEachPair(dict_transactions, \
+    thisBicRowIDs = gbic_dictionary[searchterm]["rowEntIDs"]
+    thisBicColIDs = gbic_dictionary[searchterm]["colEntIDs"]
+
+    thisBicTiles = maxent_utils.convert2TileListEachPair(gdict_transactions, \
             thisBicRowIDs, thisBicColIDs)
 
-    global obj_maxent
-    
     # update the model with current select bicluster
     obj_maxent.update_maxent(thisBicTiles)
 
     # evaluate all bics based on the update knowledge
-    bicScore = bicsEval(bic_dictionary, dict_transactions, obj_maxent)
+    bicScore = bicsEval(gbic_dictionary, gdict_transactions, obj_maxent)
 
-    resultDict = {"sumtxt":'',"option":'', "empty":''}
-    resultDict["empty"] = "No further information"
+    # print(bicScore)
+    # print(len(bicScore))
+
+    resultDict = {}
+    if len(bicScore) > 0:
+        resultDict["msg"] = "success"
+        resultDict["bicScore"] = bicScore
+    else:
+        resultDict["msg"] = "fail"
+        resultDict["bicScore"] = {}
+
+    print(resultDict)
+
     return HttpResponse(json.dumps(resultDict), content_type = "application/json")
 
 
-# evaulate all bics with MaxEnt model and order the score
+'''
+evaulate all bics with MaxEnt model and order the score
+    @param bicDict, the dictionary contains all bics
+    @param tranDict, the dictionary contains all transactions
+    @param modelObj, the maxEnt model object
+    @return sorted_bic_score, a dictionary contains score for all bics
+'''
 def bicsEval(bicDict, tranDict, modelObj):
     bic_score = {}
     for b in bicDict:
@@ -786,12 +809,16 @@ def bicsEval(bicDict, tranDict, modelObj):
         f_local = modelObj.evaluate_biTiles(list_biTiles, "local")
         f_global = modelObj.evaluate_biTiles(list_biTiles, "global")
 
-        bic_score[b] = {}
-        bic_score[b]['local_score'] = f_local
-        bic_score[b]['global_score'] = f_global
+        # bic_score[b] = {}
+        # bic_score[b]['local_score'] = f_local
+        # bic_score[b]['global_score'] = f_global
 
-    sorted_bic_score = sorted(bic_score.items(), key=lambda x: x[1]['global_score'])
-    return sorted_bic_score
+        bic_score[b] = f_global
+
+    # sorted_bic_score = sorted(bic_score.items(), key=lambda x: x[1]['global_score'])
+    # sorted_bic_score = sorted(bic_score.items(), key=lambda x: x[1])
+
+    return bic_score
 
 
 # All available pairs

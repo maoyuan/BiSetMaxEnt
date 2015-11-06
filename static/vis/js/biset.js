@@ -1580,25 +1580,13 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
 			        data: JSON.stringify(requestJSON),
 			        contentType: "application/json",
 			        success: function(data){
-			        	var //sumtxt = data.sumtxt,
+			        	// var //sumtxt = data.sumtxt,
 			 // //        		optiontxt = data.option,
-			        		empTxt = data.empty;
+			        		// empTxt = data.bicScore;
 
 		        		console.log("communication succeed!");
-		        		console.log(empTxt);
+		        		console.log(data);
 
-		  // //       		$("#vis_wiki_title").html(requestVal);
-
-		  // //       		if (sumtxt.length != 0)
-		  // //       			$("#vis_wiki_text").html(sumtxt);
-		  // //       		else {
-		  // //       			if (optiontxt.length != 0) {
-		  // //       				var text = "Do you mean: " + optiontxt[0] + ", or "  + optiontxt[1] + "?";
-			 // //        			$("#vis_wiki_text").html(text);
-		  // //       			}
-		  // //       			else
-		  // //       				$("#vis_wiki_text").html(empTxt);
-		  //       		// }
 			        },
 			        beforeSend: function(xhr, settings) {
 			            if (!csrfSafeMethod(settings.type) && !this.crossDomain)
