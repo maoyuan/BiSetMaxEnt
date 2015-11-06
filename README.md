@@ -1,9 +1,9 @@
-BiSet
+BiSetMaxEnt
 =========
 
 A visual analytics tool with biclusters
 
-Installation:
+Installation for Wiki function:
 
 Install boto:
 
@@ -14,3 +14,9 @@ Install boto:
 Install wikipedia for python:
 
 		$ pip install wikipedia
+
+
+Include MaxEnt model to evaluate bicluster, the evaluation
+is based on the "surpriseness" of the information in each
+bicluster. The model would dynamically update as a user
+select a bicluster.
