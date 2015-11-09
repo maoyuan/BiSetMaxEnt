@@ -1580,12 +1580,21 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
 			        data: JSON.stringify(requestJSON),
 			        contentType: "application/json",
 			        success: function(data){
-			        	// var //sumtxt = data.sumtxt,
-			 // //        		optiontxt = data.option,
-			        		// empTxt = data.bicScore;
 
-		        		console.log("communication succeed!");
-		        		console.log(data);
+			        	var msg = data.msg;
+
+			        	if (msg == "success") {
+			        		var bicScore = data.bicScore;
+
+			        		for (var b in bicScore) {
+			        			console.log(b);
+			        			var opacVal = bicScore[b] * 0.01;
+			        			d3.select("#" + b + "_frame")
+			        				.attr("fill", "rgba(51, 204, 51, " + opacVal + ")");
+			        		}
+
+
+			        	}
 
 			        },
 			        beforeSend: function(xhr, settings) {

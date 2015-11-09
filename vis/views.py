@@ -771,11 +771,12 @@ def loadMaxEntModel(request):
     # update the model with current select bicluster
     obj_maxent.update_maxent(thisBicTiles)
 
+    # check the jaccard coefficient for each bicluster
+    for b in gbic_dictionary:
+        jIndex = jacIndex(searchterm, b, gbic_dictionary)
+
     # evaluate all bics based on the update knowledge
     bicScore = bicsEval(gbic_dictionary, gdict_transactions, obj_maxent)
-
-    # print(bicScore)
-    # print(len(bicScore))
 
     resultDict = {}
     if len(bicScore) > 0:
@@ -785,9 +786,49 @@ def loadMaxEntModel(request):
         resultDict["msg"] = "fail"
         resultDict["bicScore"] = {}
 
-    print(resultDict)
+    # print(resultDict)
 
     return HttpResponse(json.dumps(resultDict), content_type = "application/json")
+
+
+'''
+calculate the jaccard index for a two given bics
+    @param bic1, the ID of the 1st biclsuter
+    @param bic2, the ID of the 2nd bicluster
+    @param bicDict, the dictionary of all bics with IDs as keys 
+'''
+def jacIndex(bic1, bic2, bicDict):
+    bic1_entIDs = bicDict[bic1]["rowEntIDs"].union(bicDict[bic1]["colEntIDs"])
+    bic2_entIDs = bicDict[bic2]["rowEntIDs"].union(bicDict[bic2]["colEntIDs"])
+
+    intersectionEntIDs = bic1_entIDs.intersection(bic2_entIDs)
+    unionEntIDs = bic1_entIDs.union(bic2_entIDs)
+
+    print("==========start==========")
+    # print(bic1_entIDs)
+    # print(len(bic1_entIDs))
+    # print("==========")
+
+    # print(bic2_entIDs)
+    # print(len(bic2_entIDs))
+    # print("==========")
+
+    print(intersectionEntIDs)
+    print(len(intersectionEntIDs))
+    print("==========")
+
+    print(unionEntIDs)
+    print(len(unionEntIDs))
+
+
+    print("JACCARD INDEX: ")
+    jaccard_index = float(len(intersectionEntIDs)) / float(len(unionEntIDs))
+    if jaccard_index > 0:
+        print(jaccard_index)
+        
+    print("==========END==========")
+
+    return jaccard_index
 
 
 '''
