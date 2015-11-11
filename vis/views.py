@@ -642,9 +642,30 @@ def loadVis(request):
         totalEntity += len(gEntIDsDict[e])
 
     np_trans = np.zeros((totalDocs, totalEntity))
-    print(totalDocs)
-    print(totalEntity)
-    print(np_trans)
+    # print(totalDocs)
+    # print(totalEntity)
+    # print(np_trans)
+
+    # search all tables to generate the edge matrix
+    for d in domainList:
+        cursor = connection.cursor()
+        sql_str = "SELECT * FROM datamng_" + d + "doc"
+        cursor.execute(sql_str)
+        entdoc_table_rows = cursor.fetchall()
+
+        for row in entdoc_table_rows:
+            if d == 'person' or d == 'date':
+                docID = int(row[2]) - 1
+                entID = int(row[1]) + domainIDShift[d]
+            else:
+                docID = int(row[1]) - 1
+                entID = int(row[2]) + domainIDShift[d]
+
+            np_trans[docID, entID] += 1.
+            print(np_trans[docID, entID])
+
+    # print(np_trans)
+
 
     # re-initialize the MaxEnt model, details from Hao Wu
     # train the background binary maxent model
@@ -675,9 +696,6 @@ def loadVis(request):
                   algorithm. The default value is 100000.
     '''
     obj_maxent.train_maxent(0.001, 10000)
-
-
-    print(obj_maxent)
 
 # evaluate a entity-entity bicluster
     '''

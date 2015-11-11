@@ -28,151 +28,154 @@ def parseRawData(request):
 
 		# print doc.tag, doc.attrib  # Child of root are documents
 		curDocId = doc.find('docID').text
-		print(curDocId)
+		# print(curDocId)
+
+        curDocText = doc.find('docText').text
+        print(curDocText)
+
 		if not DocName.objects.filter(doc_name = curDocId):
 			curD = DocName(doc_name = curDocId)
 			curD.save()
 
-		people = doc.findall('Person')
+		# people = doc.findall('Person')
+		# for person in people:
 
-		for person in people:
+		# 	if person.text is not None:
+		# 		# print(person.text)
+		# 		# curPerson = Person.objects.get(person_name = person.text)
 
-			if person.text is not None:
-				print(person.text)
-				# curPerson = Person.objects.get(person_name = person.text)
+		# 		if not Person.objects.filter(person_name = person.text):
+		# 			personObj = Person(person_name = person.text, person_count= 1)
+		# 			personObj.save()
+		# 		else:
+		# 			curPerson = Person.objects.get(person_name = person.text)
+		# 			# print(curPerson.person_count)
+		# 			curPerson.person_count = curPerson.person_count + 1
+		# 			curPerson.save()
 
-				if not Person.objects.filter(person_name = person.text):
-					personObj = Person(person_name = person.text, person_count= 1)
-					personObj.save()
-				else:
-					curPerson = Person.objects.get(person_name = person.text)
-					print(curPerson.person_count)
-					curPerson.person_count = curPerson.person_count + 1
-					curPerson.save()
-
-				personDocObj = PersonDoc(person_name = Person.objects.get(person_name = person.text), doc_id = DocName.objects.get(doc_name = curDocId))
-				personDocObj.save()
+		# 		personDocObj = PersonDoc(person_name = Person.objects.get(person_name = person.text), doc_id = DocName.objects.get(doc_name = curDocId))
+		# 		personDocObj.save()
 
 
-		locations = doc.findall('Location')
-		for location in locations:
+		# locations = doc.findall('Location')
+		# for location in locations:
 
-			if location.text is not None:
-				print(location.text)
+		# 	if location.text is not None:
+		# 		# print(location.text)
 
-				if not Location.objects.filter(location_name = location.text):
-					locationObj = Location(location_name = location.text, location_count= 1)
-					locationObj.save()
-				else:
-					curLocation = Location.objects.get(location_name = location.text)
-					print(curLocation.location_count)
-					curLocation.location_count = curLocation.location_count + 1
-					curLocation.save()
+		# 		if not Location.objects.filter(location_name = location.text):
+		# 			locationObj = Location(location_name = location.text, location_count= 1)
+		# 			locationObj.save()
+		# 		else:
+		# 			curLocation = Location.objects.get(location_name = location.text)
+		# 			# print(curLocation.location_count)
+		# 			curLocation.location_count = curLocation.location_count + 1
+		# 			curLocation.save()
 
-				locationDocObj = LocationDoc(location_name = Location.objects.get(location_name = location.text), doc_id = DocName.objects.get(doc_name = curDocId))
-				locationDocObj.save()
-
+		# 		locationDocObj = LocationDoc(location_name = Location.objects.get(location_name = location.text), doc_id = DocName.objects.get(doc_name = curDocId))
+		# 		locationDocObj.save()
 
 
 
-		phones = doc.findall('Phone')
 
-		for phone in phones:
+		# phones = doc.findall('Phone')
+		# for phone in phones:
 
-			if phone.text is not None:
-				print(phone.text)
-				# curPhone = Phone.objects.get(phone_number = phone.text)
+		# 	if phone.text is not None:
+		# 		# print(phone.text)
+		# 		# curPhone = Phone.objects.get(phone_number = phone.text)
 
-				if not Phone.objects.filter(phone_number = phone.text):
-					phoneObj = Phone(phone_number = phone.text, phone_count= 1)
-					phoneObj.save()
-				else:
-					curPhone = Phone.objects.get(phone_number = phone.text)
-					print(curPhone.phone_count)
-					curPhone.phone_count = curPhone.phone_count + 1
-					curPhone.save()
+		# 		if not Phone.objects.filter(phone_number = phone.text):
+		# 			phoneObj = Phone(phone_number = phone.text, phone_count= 1)
+		# 			phoneObj.save()
+		# 		else:
+		# 			curPhone = Phone.objects.get(phone_number = phone.text)
+		# 			# print(curPhone.phone_count)
+		# 			curPhone.phone_count = curPhone.phone_count + 1
+		# 			curPhone.save()
 
-				phoneDocObj = PhoneDoc(phone_number = Phone.objects.get(phone_number = phone.text), doc_id = DocName.objects.get(doc_name = curDocId))
-				phoneDocObj.save()
-
-
-		dates = doc.findall('Date')
-		for date in dates:
-
-			if date.text is not None:
-				print(date.text)
-
-				if not Date.objects.filter(date_string = date.text):
-					dateObj = Date(date_string = date.text, date_count= 1)
-					dateObj.save()
-				else:
-					curDate = Date.objects.get(date_string = date.text)
-					print(curDate.date_count)
-					curDate.date_count = curDate.date_count + 1
-					curDate.save()
-
-				dateDocObj = DateDoc(date_string = Date.objects.get(date_string = date.text), doc_id = DocName.objects.get(doc_name = curDocId))
-				dateDocObj.save()
+		# 		phoneDocObj = PhoneDoc(phone_number = Phone.objects.get(phone_number = phone.text), doc_id = DocName.objects.get(doc_name = curDocId))
+		# 		phoneDocObj.save()
 
 
+		# dates = doc.findall('Date')
+		# for date in dates:
 
-		orgs = doc.findall('Organization')
-		for org in orgs:
+		# 	if date.text is not None:
+		# 		# print(date.text)
 
-			if org.text is not None:
-				print(org.text)
+		# 		if not Date.objects.filter(date_string = date.text):
+		# 			dateObj = Date(date_string = date.text, date_count= 1)
+		# 			dateObj.save()
+		# 		else:
+		# 			curDate = Date.objects.get(date_string = date.text)
+		# 			# print(curDate.date_count)
+		# 			curDate.date_count = curDate.date_count + 1
+		# 			curDate.save()
 
-				if not Org.objects.filter(org_name = org.text):
-					orgObj = Org(org_name = org.text, org_count= 1)
-					orgObj.save()
-				else:
-					curOrg = Org.objects.get(org_name = org.text)
-					print(curOrg.org_count)
-					curOrg.org_count = curOrg.org_count + 1
-					curOrg.save()
-
-				orgDocObj = OrgDoc(org_name = Org.objects.get(org_name = org.text), doc_id = DocName.objects.get(doc_name = curDocId))
-				orgDocObj.save()
+		# 		dateDocObj = DateDoc(date_string = Date.objects.get(date_string = date.text), doc_id = DocName.objects.get(doc_name = curDocId))
+		# 		dateDocObj.save()
 
 
 
-		miscs = doc.findall('Misc')
-		for misc in miscs:
+		# orgs = doc.findall('Organization')
+		# for org in orgs:
 
-			if misc.text is not None:
-				print(misc.text)
+		# 	if org.text is not None:
+		# 		# print(org.text)
 
-				if not Misc.objects.filter(misc_string = misc.text):
-					miscObj = Misc(misc_string = misc.text, misc_count= 1)
-					miscObj.save()
-				else:
-					curMisc = Misc.objects.get(misc_string = misc.text)
-					print(curMisc.misc_count)
-					curMisc.misc_count = curMisc.misc_count + 1
-					curMisc.save()
+		# 		if not Org.objects.filter(org_name = org.text):
+		# 			orgObj = Org(org_name = org.text, org_count= 1)
+		# 			orgObj.save()
+		# 		else:
+		# 			curOrg = Org.objects.get(org_name = org.text)
+		# 			# print(curOrg.org_count)
+		# 			curOrg.org_count = curOrg.org_count + 1
+		# 			curOrg.save()
 
-				miscDocObj = MiscDoc(misc_string = Misc.objects.get(misc_string = misc.text), doc_id = DocName.objects.get(doc_name = curDocId))
-				miscDocObj.save()	
+		# 		orgDocObj = OrgDoc(org_name = Org.objects.get(org_name = org.text), doc_id = DocName.objects.get(doc_name = curDocId))
+		# 		orgDocObj.save()
 
 
+
+		# miscs = doc.findall('Misc')
+		# for misc in miscs:
+
+		# 	if misc.text is not None:
+		# 		# print(misc.text)
+
+		# 		if not Misc.objects.filter(misc_string = misc.text):
+		# 			miscObj = Misc(misc_string = misc.text, misc_count= 1)
+		# 			miscObj.save()
+		# 		else:
+		# 			curMisc = Misc.objects.get(misc_string = misc.text)
+		# 			# print(curMisc.misc_count)
+		# 			curMisc.misc_count = curMisc.misc_count + 1
+		# 			curMisc.save()
+
+		# 		miscDocObj = MiscDoc(misc_string = Misc.objects.get(misc_string = misc.text), doc_id = DocName.objects.get(doc_name = curDocId))
+		# 		miscDocObj.save()	
 
 
 		moneys = doc.findall('Money')
 		for money in moneys:
 
 			if money.text is not None:
-				print(money.text)
+				# print(money.text)
 
 				if not Money.objects.filter(money_string = money.text):
 					moneyObj = Money(money_string = money.text, money_count= 1)
 					moneyObj.save()
 				else:
 					curMoney = Money.objects.get(money_string = money.text)
-					print(curMoney.money_count)
+					# print(curMoney.money_count)
 					curMoney.money_count = curMoney.money_count + 1
 					curMoney.save()
 
-				moneyDocObj = MoneyDoc(money_string = Money.objects.get(money_string = money.text), doc_id = DocName.objects.get(doc_name = curDocId))
+                count = curDocText.count(money.text)
+                print(count)
+
+                moneyDocObj = MoneyDoc(money_string = Money.objects.get(money_string = money.text), doc_id = DocName.objects.get(doc_name = curDocId))
 				moneyDocObj.save()
 
 	output = 'after parse Raw data'

@@ -79,6 +79,7 @@ class Money(models.Model):
 class MoneyDoc(models.Model):
 	money = models.ForeignKey(Money)
 	doc = models.ForeignKey(DocName)
+	money_count = models.IntegerField(default=0)
 
 ####
 
