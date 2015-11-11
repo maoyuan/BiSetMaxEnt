@@ -10,13 +10,21 @@ from projects.models import Project, Collaborationship
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 
+# import the binary model
 from MaxEnt import MaxEnt
-import maxent_utils
+import MaxEntMV
+import maxent_utils, numpy as np
 
 # initialize the maxent model as a global variable
 initialRowNum = 3
 initialColNum = 3
+# initial the object for binary model
 obj_maxent = MaxEnt(initialRowNum, initialColNum)
+
+# the initial transaction matrix for real value model
+initDocNum = 4
+initEntNum = 7
+np_trans = np.zeros((initDocNum, initEntNum))
 
 # a global variable for all doc IDs
 gDocIDList = []
@@ -312,7 +320,8 @@ def loadVis(request):
     global glist_domainTile
     global gEntIDsDict
     global gdict_transactions
-    global gbic_dictionary    
+    global gbic_dictionary
+    global np_trans    
     
     # Only the project creator, super user can delete the project
     has_permission = theProject.is_creator(theUser) or theProject.is_collaborator(theUser) or theUser.is_superuser
@@ -632,6 +641,11 @@ def loadVis(request):
     for e in gEntIDsDict:
         totalEntity += len(gEntIDsDict[e])
 
+    np_trans = np.zeros((totalDocs, totalEntity))
+    print(totalDocs)
+    print(totalEntity)
+    print(np_trans)
+
     # re-initialize the MaxEnt model, details from Hao Wu
     # train the background binary maxent model
     '''
@@ -825,7 +839,7 @@ def jacIndex(bic1, bic2, bicDict):
     jaccard_index = float(len(intersectionEntIDs)) / float(len(unionEntIDs))
     if jaccard_index > 0:
         print(jaccard_index)
-        
+
     print("==========END==========")
 
     return jaccard_index
