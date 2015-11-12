@@ -651,9 +651,6 @@ def loadVis(request):
         totalEntity += len(gEntIDsDict[e])
 
     np_trans = np.zeros((totalDocs, totalEntity))
-    # print(totalDocs)
-    # print(totalEntity)
-    # print(np_trans)
 
     # search all tables to generate the edge matrix
     for d in domainList:
@@ -703,12 +700,38 @@ def loadVis(request):
         tmp_row_out.append(cur_col_sum)
         tmp_row_out.append(cur_col_square_sum)
 
-        # print(tmp_row_out)
-
         glist_colTiles_real.append(tmp_row_out)
-        # print(e)
-    print(glist_colTiles_real[0])
-    # print(np_trans[:,0])
+
+
+    for d in domainList:
+        cur_ent_list = gEntIDsDict[d]
+        stat_ent_id = cur_ent_list[0]
+        end_ent_id = cur_ent_list[len(cur_ent_list) - 1]
+
+        for e in gDocIDList:
+            tmp_row = []
+            tmp_row_out = []
+
+            cur_doc = []
+            cur_doc.append(e)
+
+            tmp_row.append(cur_doc)
+            tmp_row.append(cur_ent_list)
+
+            cur_matrix_row = np_trans[e:e+1, stat_ent_id:end_ent_id]
+
+            tmp_row.append(cur_matrix_row.tolist())
+
+            cur_matrix_sum = cur_matrix_row.sum()
+            cur_matrix_square_sum = np.sum(map(lambda x: x*x, cur_matrix_row))
+
+            tmp_row_out.append(tmp_row)
+            tmp_row_out.append(cur_matrix_sum)
+            tmp_row_out.append(cur_matrix_square_sum)
+
+            glist_rowTiles_real.append(tmp_row_out)    
+
+    print(glist_rowTiles_real[2])
 
 
 
