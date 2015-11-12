@@ -731,7 +731,30 @@ def loadVis(request):
 
             glist_rowTiles_real.append(tmp_row_out)    
 
-    print(glist_rowTiles_real[2])
+
+    for d in domainList:
+        cur_ent_list = gEntIDsDict[d]
+        stat_ent_id = cur_ent_list[0]
+        end_ent_id = cur_ent_list[len(cur_ent_list) - 1]
+
+        tmp_row = []
+        tmp_row_out = []
+
+        tmp_row.append(gDocIDList)
+        tmp_row.append(cur_ent_list)
+
+        cur_submatrix = np_trans[:,stat_ent_id:end_ent_id]
+        tmp_row.append(cur_submatrix.tolist())
+
+        tmp_row_out.append(tmp_row)
+
+        cur_submatrix_sum = cur_submatrix.sum()
+        cur_submatrix_square_sum = np.sum(map(lambda x: x*x, cur_submatrix))
+
+        tmp_row_out.append(cur_submatrix_sum)
+        tmp_row_out.append(cur_submatrix_square_sum)
+
+        glist_domainTiles_real.append(tmp_row_out)
 
 
 
