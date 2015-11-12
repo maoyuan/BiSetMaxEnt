@@ -41,6 +41,11 @@ gdict_transactions = {}
 # a global dictionary to store all bics with their entity ids
 gbic_dictionary = {}
 
+
+glist_colTiles_real = []
+glist_rowTiles_real = []
+glist_domainTiles_real = []
+
 @login_required 
 def analytics(request):
     '''
@@ -321,7 +326,11 @@ def loadVis(request):
     global gEntIDsDict
     global gdict_transactions
     global gbic_dictionary
-    global np_trans    
+
+    global np_trans
+    global glist_colTiles_real
+    global glist_rowTiles_real
+    global glist_domainTiles_real 
     
     # Only the project creator, super user can delete the project
     has_permission = theProject.is_creator(theUser) or theProject.is_collaborator(theUser) or theUser.is_superuser
@@ -661,10 +670,46 @@ def loadVis(request):
                 docID = int(row[1]) - 1
                 entID = int(row[2]) + domainIDShift[d]
 
-            np_trans[docID, entID] += 1.
-            print(np_trans[docID, entID])
+            np_trans[docID, entID] = float(row[3])
+    # normalize the value in this matrix
+    np_trans = np_trans / np.amax(np_trans)
+    print(np_trans)
 
-    # print(np_trans)
+    for e in range(0, totalEntity):
+        tmp_row = []
+        tmp_row_out = []
+
+        cur_id = []
+        cur_id.append(e)
+
+        cur_col = np_trans[:,e]
+        cur_col_list = []
+
+        cur_col_sum = 0
+        cur_col_square_sum = 0
+        for val in cur_col:
+            tmp_val = []
+            tmp_val.append(val)
+            cur_col_list.append(tmp_val)
+
+            cur_col_sum += val
+            cur_col_square_sum += val * val
+
+        tmp_row.append(gDocIDList)
+        tmp_row.append(cur_id)
+        tmp_row.append(cur_col_list)
+
+        tmp_row_out.append(tmp_row)
+        tmp_row_out.append(cur_col_sum)
+        tmp_row_out.append(cur_col_square_sum)
+
+        # print(tmp_row_out)
+
+        glist_colTiles_real.append(tmp_row_out)
+        # print(e)
+    print(glist_colTiles_real[0])
+    # print(np_trans[:,0])
+
 
 
     # re-initialize the MaxEnt model, details from Hao Wu
@@ -804,8 +849,8 @@ def loadMaxEntModel(request):
     obj_maxent.update_maxent(thisBicTiles)
 
     # check the jaccard coefficient for each bicluster
-    for b in gbic_dictionary:
-        jIndex = jacIndex(searchterm, b, gbic_dictionary)
+    # for b in gbic_dictionary:
+    #     jIndex = jacIndex(searchterm, b, gbic_dictionary)
 
     # evaluate all bics based on the update knowledge
     bicScore = bicsEval(gbic_dictionary, gdict_transactions, obj_maxent)
@@ -827,7 +872,9 @@ def loadMaxEntModel(request):
 calculate the jaccard index for a two given bics
     @param bic1, the ID of the 1st biclsuter
     @param bic2, the ID of the 2nd bicluster
-    @param bicDict, the dictionary of all bics with IDs as keys 
+    @param bicDict, the dictionary of all bics with IDs as keys
+
+    TO DO: check this function
 '''
 def jacIndex(bic1, bic2, bicDict):
     bic1_entIDs = bicDict[bic1]["rowEntIDs"].union(bicDict[bic1]["colEntIDs"])
