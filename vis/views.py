@@ -15,16 +15,21 @@ from MaxEnt import MaxEnt
 import MaxEntMV
 import maxent_utils, numpy as np
 
+import pickle
+
 # initialize the maxent model as a global variable
 initialRowNum = 3
 initialColNum = 3
 # initial the object for binary model
-obj_maxent = MaxEnt(initialRowNum, initialColNum)
+# obj_maxent = MaxEnt(initialRowNum, initialColNum)
 
 # the initial transaction matrix for real value model
 initDocNum = 4
 initEntNum = 7
+initThreshold = 0.001
 np_trans = np.zeros((initDocNum, initEntNum))
+
+obj_maxentmv = MaxEntMV.maxent_mv(initDocNum, initEntNum, initThreshold)
 
 # a global variable for all doc IDs
 gDocIDList = []
@@ -45,6 +50,8 @@ gbic_dictionary = {}
 glist_colTiles_real = []
 glist_rowTiles_real = []
 glist_domainTiles_real = []
+
+gJaccard_index_threshold = 0.1
 
 @login_required 
 def analytics(request):
@@ -330,7 +337,7 @@ def loadVis(request):
     global np_trans
     global glist_colTiles_real
     global glist_rowTiles_real
-    global glist_domainTiles_real 
+    global glist_domainTiles_real
     
     # Only the project creator, super user can delete the project
     has_permission = theProject.is_creator(theUser) or theProject.is_collaborator(theUser) or theUser.is_superuser
@@ -586,7 +593,7 @@ def loadVis(request):
             tmpID.append(int(row[0]) + domainIDShift[d])
             tmpDocToEnt.append(tmpID)
 
-            gEntIDsDict[d].append(int(row[0]) + domainIDShift[d])
+            gEntIDsDict[d].append(int(row[0]) + int(domainIDShift[d]))
 
             tmpDocEntToFreq.append(tmpDocToEnt)
             tmpDocEntToFreq.append(int(row[2]))
@@ -650,6 +657,9 @@ def loadVis(request):
     for e in gEntIDsDict:
         totalEntity += len(gEntIDsDict[e])
 
+
+    #====================================================
+
     np_trans = np.zeros((totalDocs, totalEntity))
 
     # search all tables to generate the edge matrix
@@ -670,8 +680,8 @@ def loadVis(request):
             np_trans[docID, entID] = float(row[3])
     # normalize the value in this matrix
     np_trans = np_trans / np.amax(np_trans)
-    print(np_trans)
 
+    # prepare three required tiles
     for e in range(0, totalEntity):
         tmp_row = []
         tmp_row_out = []
@@ -756,6 +766,48 @@ def loadVis(request):
 
         glist_domainTiles_real.append(tmp_row_out)
 
+    # print(glist_colTiles_real[0])
+    # print(glist_rowTiles_real[0])
+    # print(glist_domainTiles_real[2])
+
+    # use pickle to serialize the object to a file
+    # pickle.dump(glist_colTiles_real, open("list_colTiles.txt", "w"))
+    # pickle.dump(glist_rowTiles_real, open("list_rowTiles.txt", "w"))
+    # pickle.dump(glist_domainTiles_real, open("list_domainTiles.txt", "w"))
+    # pickle.dump(np_trans, open("np_trans.txt", "w"))
+
+    # load the serialized object from a file
+    # obj1 = pickle.load(open("list_colTiles.txt", "r"))
+    # obj2 = pickle.load(open("list_rowTiles.txt", "r"))
+    # obj3 = pickle.load(open("list_domainTiles.txt", "r"))
+    # obj4 = pickle.load(open("np_trans.txt", "r"))
+
+    #==============================================================
+
+    # global obj_maxentmv
+    # obj_maxentmv = MaxEntMV.maxent_mv(totalDocs, totalEntity, 0.001)
+
+    # obj_maxentmv.add_background_tiles(glist_colTiles_real)
+    # obj_maxentmv.add_background_tiles(glist_rowTiles_real)
+    # obj_maxentmv.add_background_tiles(glist_domainTiles_real)
+
+    # obj_maxentmv.train_maxent(0.1, 1)
+
+    # set_rowID = set([29,21,36])
+    # set_colID = set([102,103])
+
+    # list_biTiles = maxent_utils.convert2TileListReal(np_trans, set_rowID, \
+    #         set_colID)
+    # print "bicluster tiles: "
+    # print list_biTiles
+
+    # f_global = obj_maxentmv.evaluate_biTiles(list_biTiles, "global")
+    # f_local = obj_maxentmv.evaluate_biTiles(list_biTiles, "local")
+    # print "The global score: " + str(f_global)
+    # print "The local score: " + str(f_local)
+
+    # obj_maxentmv.update_maxent(list_biTiles)
+
 
 
     # re-initialize the MaxEnt model, details from Hao Wu
@@ -788,7 +840,6 @@ def loadVis(request):
     '''
     obj_maxent.train_maxent(0.001, 10000)
 
-# evaluate a entity-entity bicluster
     '''
     In the toy dataset, we can easily derive that in the Person-Orginiaztion
     entity-entity relation, there exists the following entity-entity bicluster:
@@ -866,8 +917,6 @@ def loadVis(request):
     # get the inital evaluated score for each bic
     initBicScore = bicsEval(gbic_dictionary, gdict_transactions, obj_maxent)
 
-    # print(initBicScore)
-
     return HttpResponse(json.dumps(lstsBisetsJson))
 
 
@@ -895,11 +944,18 @@ def loadMaxEntModel(request):
     obj_maxent.update_maxent(thisBicTiles)
 
     # check the jaccard coefficient for each bicluster
-    # for b in gbic_dictionary:
-    #     jIndex = jacIndex(searchterm, b, gbic_dictionary)
+    overlappedBics = {}
+    global gJaccard_index_threshold
+    for b in gbic_dictionary:
+        jIndex = jacIndex(searchterm, b, gbic_dictionary)
+        if jIndex > gJaccard_index_threshold:
+            overlappedBics[b] = gbic_dictionary[b]
 
     # evaluate all bics based on the update knowledge
-    bicScore = bicsEval(gbic_dictionary, gdict_transactions, obj_maxent)
+    # bicScore = bicsEval(gbic_dictionary, gdict_transactions, obj_maxent)
+
+    # evaluate only bics that shared entities with current selected one 
+    bicScore = bicsEval(overlappedBics, gdict_transactions, obj_maxent)
 
     resultDict = {}
     if len(bicScore) > 0:
@@ -909,8 +965,6 @@ def loadMaxEntModel(request):
         resultDict["msg"] = "fail"
         resultDict["bicScore"] = {}
 
-    # print(resultDict)
-
     return HttpResponse(json.dumps(resultDict), content_type = "application/json")
 
 
@@ -919,8 +973,6 @@ calculate the jaccard index for a two given bics
     @param bic1, the ID of the 1st biclsuter
     @param bic2, the ID of the 2nd bicluster
     @param bicDict, the dictionary of all bics with IDs as keys
-
-    TO DO: check this function
 '''
 def jacIndex(bic1, bic2, bicDict):
     bic1_entIDs = bicDict[bic1]["rowEntIDs"].union(bicDict[bic1]["colEntIDs"])
@@ -929,29 +981,7 @@ def jacIndex(bic1, bic2, bicDict):
     intersectionEntIDs = bic1_entIDs.intersection(bic2_entIDs)
     unionEntIDs = bic1_entIDs.union(bic2_entIDs)
 
-    print("==========start==========")
-    # print(bic1_entIDs)
-    # print(len(bic1_entIDs))
-    # print("==========")
-
-    # print(bic2_entIDs)
-    # print(len(bic2_entIDs))
-    # print("==========")
-
-    print(intersectionEntIDs)
-    print(len(intersectionEntIDs))
-    print("==========")
-
-    print(unionEntIDs)
-    print(len(unionEntIDs))
-
-
-    print("JACCARD INDEX: ")
     jaccard_index = float(len(intersectionEntIDs)) / float(len(unionEntIDs))
-    if jaccard_index > 0:
-        print(jaccard_index)
-
-    print("==========END==========")
 
     return jaccard_index
 
@@ -969,10 +999,9 @@ def bicsEval(bicDict, tranDict, modelObj):
         set_rowID = bicDict[b]["rowEntIDs"]
         set_colID = bicDict[b]["colEntIDs"]
 
-        list_biTiles = maxent_utils.convert2TileListEachPair(tranDict, \
-            set_rowID, set_colID)
+        list_biTiles = maxent_utils.convert2TileListEachPair(tranDict, set_rowID, set_colID)
 
-        f_local = modelObj.evaluate_biTiles(list_biTiles, "local")
+        # f_local = modelObj.evaluate_biTiles(list_biTiles, "local")
         f_global = modelObj.evaluate_biTiles(list_biTiles, "global")
 
         # bic_score[b] = {}
