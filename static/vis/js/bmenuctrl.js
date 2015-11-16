@@ -69,8 +69,6 @@ addMenuToBic = function(bicCssClass) {
                     cNameStr += allEnts[tmp].entValue + ", ";
                 }
 
-                console.log(docNames);
-
                 var docID = docNameIndex[0];
                 for (e in docNames) {
                     if (docNames[e].bicNum > docNames[docNameIndex[0]].bicNum)
@@ -116,6 +114,11 @@ addMenuToBic = function(bicCssClass) {
                 console.log("here");
             }
 
+            // user choose to evaluate this bicluster
+            if (selItem == "modelEva") {
+                biset.bicModelEvaluate(thisBicID);
+            }
+
             // enable selection for this bic
             if (selItem == "selOn") {
                 allBics[thisBicID].bicSelectOn = true;
@@ -126,28 +129,26 @@ addMenuToBic = function(bicCssClass) {
             }
 
             if (selItem == "hide") {
-                d3.select("#" + thisBicID).attr("visibility", "hidden");
-
+                biset.setVisibility(thisBicID, "hidden");
                 for (e in connections) {
-                    if (e.indexOf(thisBicID) >= 0) {
-                        d3.select("#" + e).attr("visibility", "hidden");
-                    }
+                    if (e.indexOf(thisBicID) >= 0)
+                        biset.setVisibility(e, "hidden");
                 }
             }
 
+            // hide the connected edges
             if (selItem == "hideLine") {
                 for (e in connections) {
-                    if (e.indexOf(thisBicID) >= 0) {
-                        d3.select("#" + e).attr("visibility", "hidden");
-                    }
+                    if (e.indexOf(thisBicID) >= 0)
+                        biset.setVisibility(e, "hidden");
                 }
             }
 
+            // show connected edges
             if (selItem == "showLine") {
                 for (e in connections) {
-                    if (e.indexOf(thisBicID) >= 0) {
-                        d3.select("#" + e).attr("visibility", "visable");
-                    }
+                    if (e.indexOf(thisBicID) >= 0)
+                        biset.setVisibility(e, "visable");
                 }
             }
         }
