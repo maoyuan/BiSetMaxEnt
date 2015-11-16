@@ -1,4 +1,27 @@
 /*
+ * set the mark selection in the bic menu
+ * @param bicMenuID, string, the id of ctrl menu on bics
+ * @param markCtrlName, string, the mark ctrl name
+ */
+bicMenuMark = function(bicMenuID, markCtrlName) {
+    $('#' + bicMenuID).on('show.bs.context', function(context, e) {
+
+        var thisBicID = $(context.target).attr("id"),
+            thisBicSelOption = allBics[thisBicID].bicSelectOn;
+
+        // set the switch for each bic
+        if (thisBicSelOption == false)
+            $("[name='" + markCtrlName + "']").bootstrapSwitch('state', false, true);
+        else
+            $("[name='" + markCtrlName + "']").bootstrapSwitch('state', true, true);
+
+        $("input[name='" + markCtrlName + "']").on('switchChange.bootstrapSwitch', function(event, state) {
+            allBics[thisBicID].bicSelectOn = state;
+        });
+    });
+}
+
+/*
  * add menu to bics
  * @param bicCssClass, string, the css class of bic objects
  */

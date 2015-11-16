@@ -1187,27 +1187,8 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
 
 	$("[name='bicSelectSwitch']").bootstrapSwitch();
 
-	
 	// event handler when showing the menu
-	$('#bic-context-menu').on('show.bs.context',function(context, e) {
-
-		var thisBicID = $(context.target).attr("id"),
-			thisBicSelOption = allBics[thisBicID].bicSelectOn;
-
-		// set the switch for each bic
-		if (thisBicSelOption == false)
-			$("[name='bicSelectSwitch']").bootstrapSwitch('state', false, true);
-		else
-			$("[name='bicSelectSwitch']").bootstrapSwitch('state', true, true);
-
-
-		$('input[name="bicSelectSwitch"]').on('switchChange.bootstrapSwitch', function(event, state) {
-			allBics[thisBicID].bicSelectOn = state;
-
-			console.log(allBics[thisBicID].bicSelectOn);
-		});
-
-	});
+	bicMenuMark("bic-context-menu", "bicSelectSwitch");
 
 	// add contextmenu to bics
 	addMenuToBic("bics");
