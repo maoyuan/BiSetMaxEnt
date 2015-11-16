@@ -923,7 +923,7 @@ def loadVis(request):
     # obj_maxent.update_maxent(list_biTiles)
 
     # get the inital evaluated score for each bic
-    initBicScore = bicsEval(gbic_dictionary, gdict_transactions, obj_maxent)
+    # initBicScore = bicsEval(gbic_dictionary, gdict_transactions, obj_maxent)
 
     return HttpResponse(json.dumps(lstsBisetsJson))
 

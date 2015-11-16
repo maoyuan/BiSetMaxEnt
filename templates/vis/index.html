@@ -158,6 +158,12 @@
 				</li>
 				<li class="divider"></li>
 				<li>
+					<a tabindex="-1" data-index="modelEva">
+						<span class="glyphicon glyphicon-filter" data-index="del"></span> Evaluation
+					</a>
+				</li>
+				<li class="divider"></li>
+				<li>
 					<a tabindex="-1" data-index="hide">
 						<span class="glyphicon glyphicon-remove" data-index="hide"></span> Delete
 					</a>
@@ -174,18 +180,12 @@
 						<span class="glyphicon glyphicon-eye-open" data-index="hide"></span> Show Edges
 					</a>
 				</li>
-<!--				<li class="divider"></li>
-				<li>
-					<a tabindex="-1" data-index="del">
-						<span class="glyphicon glyphicon-remove" data-index="del"></span> Remove
-					</a>
-				</li>
- 				<li class="divider"></li>
+ 				<!-- <li class="divider"></li>
 				<li>
 					<a tabindex="-1" data-index="bottom">
 						<span class="glyphicon glyphicon-arrow-down" data-index="bottom"></span> Move to Bottom
 					</a>
-				</li> -->
+				</li> --> 
 			</ul>
 		</div>
 
@@ -203,11 +203,10 @@
 	</div>
 
 	<script type="text/javascript" src="{%static 'vis/js/lib/bootstrap-contextmenu.js'%}"></script>
-
 	<script type="text/javascript" src="{%static 'vis/js/lib/bootstrap-switch.min.js'%}"></script>
-
 	<script type="text/javascript" src="{%static 'vis/js/lib/jquery-ui.min.js'%}"></script>
 	<script type="text/javascript" src="{%static 'vis/js/colorset.js'%}"></script>
 	<script type="text/javascript" src="{%static 'vis/js/biset.js'%}"></script>
 	<script type="text/javascript" src="{%static 'vis/js/visctrl.js'%}"></script>
+	<script type="text/javascript" src="{%static 'vis/js/bmenuctrl.js'%}"></script>
 {% endblock %}
