@@ -21,15 +21,17 @@ import pickle
 initialRowNum = 3
 initialColNum = 3
 # initial the object for binary model
-# obj_maxent = MaxEnt(initialRowNum, initialColNum)
+obj_maxent = MaxEnt(initialRowNum, initialColNum)
 
+'''
+Initial preparation for the real-valued model
+'''
 # the initial transaction matrix for real value model
-initDocNum = 4
-initEntNum = 7
-initThreshold = 0.001
-np_trans = np.zeros((initDocNum, initEntNum))
-
-obj_maxentmv = MaxEntMV.maxent_mv(initDocNum, initEntNum, initThreshold)
+# initDocNum = 4
+# initEntNum = 7
+# initThreshold = 0.001
+# np_trans = np.zeros((initDocNum, initEntNum))
+# obj_maxentmv = MaxEntMV.maxent_mv(initDocNum, initEntNum, initThreshold)
 
 # a global variable for all doc IDs
 gDocIDList = []
@@ -728,7 +730,7 @@ def loadVis(request):
             tmp_row.append(cur_doc)
             tmp_row.append(cur_ent_list)
 
-            cur_matrix_row = np_trans[e:e+1, stat_ent_id:end_ent_id]
+            cur_matrix_row = np_trans[e:e+1, stat_ent_id:end_ent_id + 1]
 
             tmp_row.append(cur_matrix_row.tolist())
 
@@ -753,7 +755,7 @@ def loadVis(request):
         tmp_row.append(gDocIDList)
         tmp_row.append(cur_ent_list)
 
-        cur_submatrix = np_trans[:,stat_ent_id:end_ent_id]
+        cur_submatrix = np_trans[:,stat_ent_id:end_ent_id + 1]
         tmp_row.append(cur_submatrix.tolist())
 
         tmp_row_out.append(tmp_row)
@@ -766,10 +768,10 @@ def loadVis(request):
 
         glist_domainTiles_real.append(tmp_row_out)
 
-    # print(glist_colTiles_real[0])
-    # print(glist_rowTiles_real[0])
-    # print(glist_domainTiles_real[2])
-
+    
+    '''
+    save data to disc for the real-valued model 
+    '''
     # use pickle to serialize the object to a file
     # pickle.dump(glist_colTiles_real, open("list_colTiles.txt", "w"))
     # pickle.dump(glist_rowTiles_real, open("list_rowTiles.txt", "w"))
@@ -791,23 +793,29 @@ def loadVis(request):
     # obj_maxentmv.add_background_tiles(glist_rowTiles_real)
     # obj_maxentmv.add_background_tiles(glist_domainTiles_real)
 
-    # obj_maxentmv.train_maxent(0.1, 1)
+    # obj_maxentmv.train_maxent(0.001, 1000)
 
+
+    '''
+    Below: an example to evaluate a bicluster
+    '''
     # set_rowID = set([29,21,36])
     # set_colID = set([102,103])
 
-    # list_biTiles = maxent_utils.convert2TileListReal(np_trans, set_rowID, \
-    #         set_colID)
-    # print "bicluster tiles: "
-    # print list_biTiles
+    # list_biTiles = maxent_utils.convert2TileListReal(np_trans, set_rowID, set_colID)
+    # print("===================================")
 
     # f_global = obj_maxentmv.evaluate_biTiles(list_biTiles, "global")
     # f_local = obj_maxentmv.evaluate_biTiles(list_biTiles, "local")
     # print "The global score: " + str(f_global)
-    # print "The local score: " + str(f_local)
+    # print("===================================")
 
     # obj_maxentmv.update_maxent(list_biTiles)
-
+    # print("model update!")
+    # print("===================================")
+    '''
+    END: an example to evaluate a bicluster
+    '''
 
 
     # re-initialize the MaxEnt model, details from Hao Wu
@@ -819,7 +827,7 @@ def loadVis(request):
     '''
     global obj_maxent 
     obj_maxent = MaxEnt(totalDocs, totalEntity)
-
+    
     '''
     Add the background tiles list_colTiles, list_rowTiles and list_domainTiles
     into the binary MaxEnt model by calling its member function
@@ -931,14 +939,17 @@ def loadMaxEntModel(request):
     searchterm = rq['query']
 
     global obj_maxent
+    # global obj_maxentmv
     global gbic_dictionary
     global gdict_transactions
 
     thisBicRowIDs = gbic_dictionary[searchterm]["rowEntIDs"]
     thisBicColIDs = gbic_dictionary[searchterm]["colEntIDs"]
 
-    thisBicTiles = maxent_utils.convert2TileListEachPair(gdict_transactions, \
-            thisBicRowIDs, thisBicColIDs)
+    '''
+    START: this section is the evaluation based on binary model
+    '''
+    thisBicTiles = maxent_utils.convert2TileListEachPair(gdict_transactions, thisBicRowIDs, thisBicColIDs)
 
     # update the model with current select bicluster
     obj_maxent.update_maxent(thisBicTiles)
@@ -949,6 +960,7 @@ def loadMaxEntModel(request):
     for b in gbic_dictionary:
         jIndex = jacIndex(searchterm, b, gbic_dictionary)
         if jIndex > gJaccard_index_threshold:
+            print(jIndex)
             overlappedBics[b] = gbic_dictionary[b]
 
     # evaluate all bics based on the update knowledge
@@ -964,6 +976,28 @@ def loadMaxEntModel(request):
     else:
         resultDict["msg"] = "fail"
         resultDict["bicScore"] = {}
+    '''
+    END: Binary model section 
+    '''
+
+
+    '''
+    START: real-valued model evaluation
+    '''
+    # list_biTiles = maxent_utils.convert2TileListReal(np_trans, thisBicRowIDs, thisBicColIDs)
+    # f_global = obj_maxentmv.evaluate_biTiles(list_biTiles, "global")
+    # obj_maxentmv.update_maxent(list_biTiles)
+
+    # resultDict = {}
+    # if len(bicScore) > 0:
+    # resultDict["msg"] = "success"
+    # resultDict["bicScore"] = f_global
+    # else:
+    #     resultDict["msg"] = "fail"
+    #     resultDict["bicScore"] = {}
+    '''
+    END: real-valued model evaluation
+    '''
 
     return HttpResponse(json.dumps(resultDict), content_type = "application/json")
 
