@@ -114,9 +114,15 @@ var addMenuToBic = function(bicCssClass) {
                 console.log("here");
             }
 
-            // user choose to evaluate this bicluster
+            // user choose to do stepwise evaluations
             if (selItem == "modelEvaStep") {
-                biset.bicModelEvaluate(thisBicID);
+                biset.bicStepModelEvaluate(thisBicID);
+            }
+
+            // user choose to full path evaluation
+            if (selItem == "modelEvaPath") {
+                // biset.bicModelEvaluate(thisBicID);
+                console.log("full path!");
             }
 
             // enable selection for this bic

@@ -1700,10 +1700,10 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
 
 
 /*
- * evaluate user selected bic using max ent model
+ * stepwise evaluate user selected bic using max ent model
  * @param bicID, the id of user selected bic
  */
-biset.bicModelEvaluate = function(bicID) {
+biset.bicStepModelEvaluate = function(bicID) {
     var requestVal = bicID,
         requestJSON = {
             "query": requestVal
@@ -1713,7 +1713,7 @@ biset.bicModelEvaluate = function(bicID) {
 
     // retrieve information from MaxEnt Model
     $.ajax({
-        url: window.SERVER_PATH + 'vis/loadMaxEntModel/',
+        url: window.SERVER_PATH + 'vis/loadMaxEntModelStep/',
         type: "POST",
         data: JSON.stringify(requestJSON),
         contentType: "application/json",

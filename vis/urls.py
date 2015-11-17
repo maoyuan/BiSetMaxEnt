@@ -13,6 +13,6 @@ urlpatterns = patterns('',
     url(r'^deleteVis/$', views.deleteVis, name='deleteVis'),
     url(r'^addVis/$', views.addVisConfig, name='addVisConfig'),
     url(r'^loadVisList/$', views.loadVisList, name='loadVisList'),
-    url(r'^loadMaxEntModel/$', views.loadMaxEntModel, name='loadMaxEntModel'),
+    url(r'^loadMaxEntModelStep/$', views.loadMaxEntModelStep, name='loadMaxEntModelStep'),
 )
 

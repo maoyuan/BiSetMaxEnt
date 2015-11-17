@@ -933,7 +933,7 @@ load the MaxEnt model based on user selection
     @param request, the user selected bic ID
     @return the surprising score based on the maxEnt model
 '''
-def loadMaxEntModel(request):
+def loadMaxEntModelStep(request):
     # get the request from front end
     rq = json.loads(request.body)
     searchterm = rq['query']
@@ -998,6 +998,8 @@ def loadMaxEntModel(request):
     '''
     END: real-valued model evaluation
     '''
+
+    print("stepwise function!")
 
     return HttpResponse(json.dumps(resultDict), content_type = "application/json")
 
