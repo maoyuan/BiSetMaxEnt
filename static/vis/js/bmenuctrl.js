@@ -3,7 +3,7 @@
  * @param bicMenuID, string, the id of ctrl menu on bics
  * @param markCtrlName, string, the mark ctrl name
  */
-bicMenuMark = function(bicMenuID, markCtrlName) {
+var bicMenuMark = function(bicMenuID, markCtrlName) {
     $('#' + bicMenuID).on('show.bs.context', function(context, e) {
 
         var thisBicID = $(context.target).attr("id"),
@@ -25,7 +25,7 @@ bicMenuMark = function(bicMenuID, markCtrlName) {
  * add menu to bics
  * @param bicCssClass, string, the css class of bic objects
  */
-addMenuToBic = function(bicCssClass) {
+var addMenuToBic = function(bicCssClass) {
     // add contextmenu to bics
     $("." + bicCssClass).contextmenu({
         target: '#bic-context-menu',
@@ -115,7 +115,8 @@ addMenuToBic = function(bicCssClass) {
             }
 
             // user choose to evaluate this bicluster
-            if (selItem == "modelEva") {
+            if (selItem == "modelEvaStep") {
+            	console.log("add stepwise evaluation!");
                 biset.bicModelEvaluate(thisBicID);
             }
 

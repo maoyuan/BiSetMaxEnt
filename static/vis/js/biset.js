@@ -1711,8 +1711,6 @@ biset.bicModelEvaluate = function(bicID) {
 
     var csrftoken = $('#csrf_token').val();
 
-    console.log("here, haha");
-
     // retrieve information from MaxEnt Model
     $.ajax({
         url: window.SERVER_PATH + 'vis/loadMaxEntModel/',
@@ -1720,29 +1718,31 @@ biset.bicModelEvaluate = function(bicID) {
         data: JSON.stringify(requestJSON),
         contentType: "application/json",
         success: function(data) {
-
             var msg = data.msg;
 
             if (msg == "success") {
-                var bicScore = data.bicScore;
+                var bicScore = data.bicScore,
+					tmpScores = [];
+
+                for (var b in bicScore)
+                    tmpScores.push(bicScore[b]);                	
+
+                var opcScale = vis.linearScale(tmpScores, 0, 0.8);
 
                 for (var b in bicScore) {
-                    console.log(b);
-                    var opacVal = bicScore[b] * 0.01;
-                    d3.select("#" + b + "_frame")
-                        .attr("fill", "rgba(51, 204, 51, " + opacVal + ")");
+                	console.log(opcScale(bicScore[b]));
+                	// do not change the color of the one being evaluated
+                	if (opcScale(bicScore[b]) != 0) {
+                		vis.setSvgOpacitybyID(b + "_frame", "rgba(51, 204, 51, ", opcScale(bicScore[b]));
+                	}
                 }
-
-
             }
-
         },
         beforeSend: function(xhr, settings) {
             if (!csrfSafeMethod(settings.type) && !this.crossDomain)
                 xhr.setRequestHeader("X-CSRFToken", csrftoken);
         }
     });
-
 }
 
 
