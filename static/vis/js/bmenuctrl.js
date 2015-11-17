@@ -121,8 +121,10 @@ var addMenuToBic = function(bicCssClass) {
 
             // user choose to full path evaluation
             if (selItem == "modelEvaPath") {
-                // biset.bicModelEvaluate(thisBicID);
+
+                biset.bicFullPathModelEvaluate(thisBicID);
                 console.log("full path!");
+                
             }
 
             // enable selection for this bic

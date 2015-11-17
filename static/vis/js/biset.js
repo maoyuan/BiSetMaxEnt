@@ -1743,6 +1743,56 @@ biset.bicStepModelEvaluate = function(bicID) {
 }
 
 
+
+/*
+ * full path evaluation for user selected bic using max ent model
+ * @param bicID, the id of user selected bic
+ */
+biset.bicFullPathModelEvaluate = function(bicID) {
+    var requestVal = bicID,
+        requestJSON = {
+            "query": requestVal
+        };
+
+    var csrftoken = $('#csrf_token').val();
+
+    console.log(requestJSON);
+
+    // retrieve information from MaxEnt Model
+    $.ajax({
+        url: window.SERVER_PATH + 'vis/maxEntModelFullPath/',
+        type: "POST",
+        data: JSON.stringify(requestJSON),
+        contentType: "application/json",
+        success: function(data) {
+            var msg = data.msg;
+
+            console.log(msg);
+
+            // if (msg == "success") {
+            //     var bicScore = data.bicScore,
+            //         tmpScores = [];
+
+            //     for (var b in bicScore)
+            //         tmpScores.push(bicScore[b]);
+
+            //     var opcScale = vis.linearScale(tmpScores, 0, 0.8);
+
+            //     for (var b in bicScore)
+            //     // do not change the color of the one being evaluated
+            //         if (opcScale(bicScore[b]) != 0)
+            //         vis.setSvgOpacitybyID(b + "_frame", "rgba(51, 204, 51, ", opcScale(bicScore[b]));
+            // }
+        },
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain)
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    });
+}
+
+
+
 /*
  * update the document view by selecting a docID in the list
  * @param docListItem {string}, the css class of a doc list item

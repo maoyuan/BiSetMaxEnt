@@ -999,9 +999,34 @@ def loadMaxEntModelStep(request):
     END: real-valued model evaluation
     '''
 
-    print("stepwise function!")
+    return HttpResponse(json.dumps(resultDict), content_type = "application/json")
+
+
+
+''' 
+load the MaxEnt model based on user selection
+    @param request, the user selected bic ID
+    @return the surprising score based on the maxEnt model
+        for the full paths
+'''
+def maxEntModelFullPath(request):
+    # get the request from front end
+    rq = json.loads(request.body)
+    searchterm = rq['query']
+
+    print(searchterm)
+
+    global obj_maxent
+    # global obj_maxentmv
+    global gbic_dictionary
+    global gdict_transactions
+
+
+    resultDict = {}
+    resultDict["msg"] = "success"
 
     return HttpResponse(json.dumps(resultDict), content_type = "application/json")
+
 
 
 '''

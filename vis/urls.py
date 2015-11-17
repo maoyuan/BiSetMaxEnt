@@ -14,5 +14,6 @@ urlpatterns = patterns('',
     url(r'^addVis/$', views.addVisConfig, name='addVisConfig'),
     url(r'^loadVisList/$', views.loadVisList, name='loadVisList'),
     url(r'^loadMaxEntModelStep/$', views.loadMaxEntModelStep, name='loadMaxEntModelStep'),
+    url(r'^maxEntModelFullPath/$', views.maxEntModelFullPath, name='maxEntModelFullPath'),
 )
 
