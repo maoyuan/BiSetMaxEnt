@@ -1700,9 +1700,9 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
 
 
 /*
-* evaluate user selected bic using max ent model
-* @param bicID, the id of user selected bic
-*/
+ * evaluate user selected bic using max ent model
+ * @param bicID, the id of user selected bic
+ */
 biset.bicModelEvaluate = function(bicID) {
     var requestVal = bicID,
         requestJSON = {
@@ -1722,20 +1722,17 @@ biset.bicModelEvaluate = function(bicID) {
 
             if (msg == "success") {
                 var bicScore = data.bicScore,
-					tmpScores = [];
+                    tmpScores = [];
 
                 for (var b in bicScore)
-                    tmpScores.push(bicScore[b]);                	
+                    tmpScores.push(bicScore[b]);
 
                 var opcScale = vis.linearScale(tmpScores, 0, 0.8);
 
-                for (var b in bicScore) {
-                	console.log(opcScale(bicScore[b]));
-                	// do not change the color of the one being evaluated
-                	if (opcScale(bicScore[b]) != 0) {
-                		vis.setSvgOpacitybyID(b + "_frame", "rgba(51, 204, 51, ", opcScale(bicScore[b]));
-                	}
-                }
+                for (var b in bicScore)
+                // do not change the color of the one being evaluated
+                    if (opcScale(bicScore[b]) != 0)
+                    vis.setSvgOpacitybyID(b + "_frame", "rgba(51, 204, 51, ", opcScale(bicScore[b]));
             }
         },
         beforeSend: function(xhr, settings) {

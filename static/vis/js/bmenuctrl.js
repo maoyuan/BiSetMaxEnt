@@ -116,7 +116,6 @@ var addMenuToBic = function(bicCssClass) {
 
             // user choose to evaluate this bicluster
             if (selItem == "modelEvaStep") {
-            	console.log("add stepwise evaluation!");
                 biset.bicModelEvaluate(thisBicID);
             }
 
