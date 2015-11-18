@@ -1023,18 +1023,52 @@ def maxEntModelFullPath(request):
     rq = json.loads(request.body)
     searchterm = rq['query']
 
-    print(searchterm)
-
     global obj_maxent
     # global obj_maxentmv
     global gbic_dictionary
     global gdict_transactions
+    global gJaccard_index_threshold
 
     global networkData
     global entPathCaled
 
     relInfo = findAllCons(searchterm, networkData, entPathCaled)
-    print(relInfo)
+    entsInPath = relInfo["ents"]
+
+
+    print(searchterm)
+    # print(entsInPath)
+
+    # a dictionary of bics on paths by types
+    bicTypedDict = {}
+    for e in entsInPath:
+        entType = getKeyfromNode(e)
+        if "_" in entType:
+            if bicTypedDict.has_key(entType) == False:
+                bicTypedDict[entType] = []
+            bicTypedDict[entType].append(e)
+    
+    curBicType = getKeyfromNode(searchterm)
+
+    print("CURRENT: " + searchterm)
+
+    # # bicsToEvaluate = {}
+    for bType in bicTypedDict:
+        curBicGroup = bicTypedDict[bType]
+        bicsToEvaluate = {}
+
+        if bType == curBicType:
+            for bic in curBicGroup:
+                print(bic)
+                jIndex = jacIndex(searchterm, bic, gbic_dictionary)
+                print(jIndex)
+                if jIndex > gJaccard_index_threshold:
+                    bicsToEvaluate[bic] = gbic_dictionary[bic]
+
+
+
+
+    # print(bicTypedDict)
 
 
     resultDict = {}
@@ -1171,7 +1205,7 @@ def findAllConsHelper(expandSet, consDict, nodeSet, key, paths):
         if consDict.has_key(value) == True:
             if getKeyfromNode(value) not in key:
                 tmpArray = consDict[value]
-                for i in range(0, len(tmpArray)):
+                for i in range(len(tmpArray)):
                     found = False
 
                     for kval in key:
