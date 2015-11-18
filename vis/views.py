@@ -17,6 +17,12 @@ import maxent_utils, numpy as np
 
 import pickle
 
+# global variables to find path of a certain entity
+networkData = {}
+entPathCaled = set()
+entPathLinkedEnts = {}
+entPathLinkedLinks = {}
+
 # initialize the maxent model as a global variable
 initialRowNum = 3
 initialColNum = 3
@@ -388,8 +394,10 @@ def loadVis(request):
     # origial relations reduced replicate ones in the dataset
     lstsBisetsJson["oriRelationsReduced"] = getReducedLstsRelations(listNames)
 
-
+    # use this relationship parameter as global
+    global networkData
     networkData = lstsBisetsJson["relNetwork"]
+
     relDocs = lstsBisetsJson["relatedDocs"]
     links = lstsBisetsJson["links"]
     docs = lstsBisetsJson["docs"]
@@ -976,6 +984,7 @@ def loadMaxEntModelStep(request):
     else:
         resultDict["msg"] = "fail"
         resultDict["bicScore"] = {}
+    resultDict["curBicID"] = searchterm
     '''
     END: Binary model section 
     '''
@@ -1020,6 +1029,12 @@ def maxEntModelFullPath(request):
     # global obj_maxentmv
     global gbic_dictionary
     global gdict_transactions
+
+    global networkData
+    global entPathCaled
+
+    relInfo = findAllCons(searchterm, networkData, entPathCaled)
+    print(relInfo)
 
 
     resultDict = {}
@@ -1075,6 +1090,122 @@ def bicsEval(bicDict, tranDict, modelObj):
     # sorted_bic_score = sorted(bic_score.items(), key=lambda x: x[1])
 
     return bic_score
+
+
+'''
+ Given an entity, find its all related nodes and links
+    @param entID, the id of an entity
+    @param consDict, a dictionary of all relations
+    @param entPathCaled, a set of ents that have been calculated their paths 
+    @return {obj}, a object contains related nodes and links
+'''
+def findAllCons(entID, consDict, entPathCaled):
+    global entPathLinkedEnts
+    global entPathLinkedLinks
+
+    if entID not in entPathCaled:
+        nodes = set()
+        # keyword of the node (e.g., people, location)
+        kwdSet = set()
+        # a set of nodes to be expanded
+        expEntSet = set()
+        # a set of links between these related nodes 
+        allLinks = set()
+
+        expEntSet.add(entID)
+        findAllConsHelper(expEntSet, consDict, nodes, kwdSet, allLinks)
+
+        entPathCaled.add(entID)
+
+        # add all related nodes and links
+        entPathLinkedEnts[entID] = nodes
+        entPathLinkedLinks[entID] = allLinks
+    else:
+        nodes = entPathLinkedEnts[entID]
+        allLinks = entPathLinkedLinks[entID]
+
+    obj = {}
+    obj["ents"] = nodes
+    obj["paths"] = allLinks
+
+    return obj
+
+
+'''
+Get key value based on node type
+    @param node, the id of a node
+    @return {string}, the type of this node
+'''
+def getKeyfromNode(node):
+    nodeType = node.split("_")[0]
+    idSize = len(node.split("_"))
+
+    if idSize == 2:
+        result = nodeType
+    else:
+        type2 = node.split("_")[1]
+        result = nodeType + "_" + type2
+
+    return result
+
+
+'''
+Given an entity, find its all related nodes and links
+    @param expandSet, a set of entity to be expanded for exam
+    @param consDict, a dictionary of relations for all entities
+    @param key, a set of keywords of entity types
+    @param paths, a set of paths from the given entity to all connected nodes
+'''
+def findAllConsHelper(expandSet, consDict, nodeSet, key, paths):
+
+    toBeExpanded = set()
+    found = False
+
+    if len(expandSet) == 0:
+        return
+
+    for value in expandSet:
+        if value not in nodeSet:
+            nodeSet.add(value)
+
+        if consDict.has_key(value) == True:
+            if getKeyfromNode(value) not in key:
+                tmpArray = consDict[value]
+                for i in range(0, len(tmpArray)):
+                    found = False
+
+                    for kval in key:
+                        typewd = tmpArray[i].split("_")
+                        if len(typewd) == 2:
+                            if kval == typewd[0]:
+                                found = True
+                        else:
+                            tmpKey = typewd[0] + "_" + typewd[1]
+                            if tmpKey == kval:
+                                found = True
+
+                    if found == False:
+                        toBeExpanded.add(tmpArray[i])
+
+                        a = value
+                        b = tmpArray[i]
+
+                        if a < b:
+                            tmp = b
+                            b = a
+                            a = tmp
+
+                        curPath = a + "__" + b
+                        paths.add(curPath)
+
+    if len(nodeSet) != 1:
+        for node in nodeSet:
+            key.add(getKeyfromNode(node))
+
+    if len(toBeExpanded) == 0:
+        return;
+
+    findAllConsHelper(toBeExpanded, consDict, nodeSet, key, paths)
 
 
 # All available pairs

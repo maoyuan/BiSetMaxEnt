@@ -10,12 +10,25 @@ var vis = {
 
 
 /*
+ * set border of a svg object
+ * @param svgID, string, the id of svg object
+ * @param bColor, string, the css color of stroke
+ * @param bWidth, float, the width of stroke
+ */
+vis.setSvgBorderByID = function(svgID, bColor, bWidth) {
+    d3.select("#" + svgID)
+        .style("stroke", bColor)
+        .style("stroke-width", bWidth);
+}
+
+
+/*
  * set opacity of a svg object
  * @param svgID, string, the id of svg object
  * @param preColor, string, the css string of rgba color
  * @param opaVal, float, the value of opacity
  */
-vis.setSvgOpacitybyID = function(svgID, preColor, opaVal) {
+vis.setSvgOpacityByID = function(svgID, preColor, opaVal) {
     d3.select("#" + svgID)
         .attr("fill", preColor + opaVal + ")");
 }

@@ -177,9 +177,6 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
     // for (var i = 0; i < 12; i++)
     // 	tmpSet.concat(entSet); 
 
-    // console.log(entSet);
-    // // console.log("done!!!");
-    // console.log(tmpSet);
     // entSet = tmpSet;
 
     // all entities
@@ -1473,7 +1470,6 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
                 biset.barUpdate("#" + thisFrameID, "", biset.colors.entMouseOverBorder, biset.entity.moBorder);
                 d.bicSelected = false;
             }
-
         }
 
 
@@ -1722,6 +1718,7 @@ biset.bicStepModelEvaluate = function(bicID) {
 
             if (msg == "success") {
                 var bicScore = data.bicScore,
+                    curBicID = data.curBicID,
                     tmpScores = [];
 
                 for (var b in bicScore)
@@ -1729,10 +1726,14 @@ biset.bicStepModelEvaluate = function(bicID) {
 
                 var opcScale = vis.linearScale(tmpScores, 0, 0.8);
 
-                for (var b in bicScore)
-                // do not change the color of the one being evaluated
-                    if (opcScale(bicScore[b]) != 0)
-                    vis.setSvgOpacitybyID(b + "_frame", "rgba(51, 204, 51, ", opcScale(bicScore[b]));
+                for (var b in bicScore) {
+                    // do not change the color of the one being evaluated
+                    if (opcScale(bicScore[b]) != 0) {
+                        vis.setSvgOpacityByID(b + "_frame", "rgba(51, 204, 51, ", opcScale(bicScore[b]));
+                    } else if (b == curBicID) {
+                        vis.setSvgBorderByID(b + "_frame", "rgba(0, 0, 0, 0.9)", "4");
+                    }
+                }
             }
         },
         beforeSend: function(xhr, settings) {
