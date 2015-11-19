@@ -1036,7 +1036,7 @@ def maxEntModelFullPath(request):
     entsInPath = relInfo["ents"]
 
 
-    print(searchterm)
+    # print(searchterm)
     # print(entsInPath)
 
     # a dictionary of bics on paths by types
@@ -1052,18 +1052,26 @@ def maxEntModelFullPath(request):
 
     print("CURRENT: " + searchterm)
 
-    # # bicsToEvaluate = {}
-    for bType in bicTypedDict:
-        curBicGroup = bicTypedDict[bType]
-        bicsToEvaluate = {}
+    depthSearch(searchterm, networkData)
 
-        if bType == curBicType:
-            for bic in curBicGroup:
-                print(bic)
-                jIndex = jacIndex(searchterm, bic, gbic_dictionary)
-                print(jIndex)
-                if jIndex > gJaccard_index_threshold:
-                    bicsToEvaluate[bic] = gbic_dictionary[bic]
+    # print(bicTypedDict)
+
+    # # bicsToEvaluate = {}
+    # for bType in bicTypedDict:
+    #     curBicGroup = bicTypedDict[bType]
+    #     bicsToEvaluate = {}
+
+    #     print(bType)
+    #     print(curBicType)
+    #     print(bType != curBicType)
+
+    #     if bType != curBicType:
+    #         for bic in curBicGroup:
+    #             print(bic)
+    #             jIndex = jacIndex(searchterm, bic, gbic_dictionary)
+    #             print(jIndex)
+    #             if jIndex > gJaccard_index_threshold:
+    #                 bicsToEvaluate[bic] = gbic_dictionary[bic]
 
 
 
@@ -1124,6 +1132,106 @@ def bicsEval(bicDict, tranDict, modelObj):
     # sorted_bic_score = sorted(bic_score.items(), key=lambda x: x[1])
 
     return bic_score
+
+
+
+def depthSearch(bicID, consDict):
+
+    thisBicType = getKeyfromNode(bicID)
+
+    type1 = thisBicType.split("_")[0]
+    type2 = thisBicType.split("_")[1]
+
+    pathLeft = getHalfPath(type1, consDict, bicID)
+    pathRight = getHalfPath(type2, consDict, bicID)
+
+
+    print("=====DICT=====")
+    for p in pathRight:
+        print(p)
+
+def getHalfPath(direction, consDict, bicID):
+    bicTypeSet = set()
+    entTypeSet = set()
+
+    thisBicType = getKeyfromNode(bicID)
+    bicTypeSet.add(thisBicType)
+
+    thisBicEnts = consDict[bicID]
+
+    entStack = []
+    for e in thisBicEnts:
+        if getKeyfromNode(e) == direction:
+            entStack.append(e)
+    entTypeSet.add(direction)
+    
+    bicSet = set()
+    path = []
+    pathDict = {}
+
+    curPath = []
+    curPath.append(bicID)
+
+    curPathKey = bicID
+
+    for e in entStack:
+        bics = consDict[e]
+        for b in bics:
+            if getKeyfromNode(b) not in bicTypeSet:
+
+                curPath.append(b)
+                tmpPathKey = curPathKey
+                curPathKey += "$" + b
+
+                bicTypeSet.add(getKeyfromNode(b))
+                depthSearchHelper(curPath, curPathKey, path, pathDict, consDict, bicTypeSet, entTypeSet, b)
+                bicTypeSet.remove(getKeyfromNode(b))
+
+                curPath.pop()
+                curPathKey = tmpPathKey
+
+    return pathDict
+
+
+def depthSearchHelper(curPath, curPathKey, path, pathDict, consDict, bicTypeSet, entTypeSet, bic):
+    curBicEnts = consDict[bic]
+
+    expandEntNum = 0
+    for e in curBicEnts:
+        if getKeyfromNode(e) not in entTypeSet:
+            expandEntNum += 1
+
+            bicForCurEnt = consDict[e]
+            expandBicNum = 0
+            for b in bicForCurEnt:
+                if getKeyfromNode(b) not in bicTypeSet:
+                    expandBicNum += 1
+
+                    entTypeSet.add(getKeyfromNode(e))
+                    bicTypeSet.add(getKeyfromNode(b))
+
+                    # to update......
+                    curPath.append(b)
+                    tmpPathKey = curPathKey
+                    curPathKey += "$" + b
+                    path.append(curPath)
+                    pathDict[curPathKey] = curPath
+
+                    depthSearchHelper(curPath, curPathKey, path, pathDict, consDict, bicTypeSet, entTypeSet, b)
+
+                    curPath.pop()
+                    curPathKey = tmpPathKey
+                    entTypeSet.remove(getKeyfromNode(e))
+                    bicTypeSet.remove(getKeyfromNode(b))
+
+            if expandBicNum == 0:
+                path.append(curPath)
+                pathDict[curPathKey] = curPath
+
+    if expandEntNum == 0:
+        path.append(curPath)
+        pathDict[curPathKey] = curPath
+
 
 
 '''
