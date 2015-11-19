@@ -16,6 +16,7 @@ import MaxEntMV
 import maxent_utils, numpy as np
 
 import pickle
+import copy
 
 # global variables to find path of a certain entity
 networkData = {}
@@ -1074,11 +1075,6 @@ def maxEntModelFullPath(request):
     #                 bicsToEvaluate[bic] = gbic_dictionary[bic]
 
 
-
-
-    # print(bicTypedDict)
-
-
     resultDict = {}
     resultDict["msg"] = "success"
 
@@ -1145,10 +1141,22 @@ def depthSearch(bicID, consDict):
     pathLeft = getHalfPath(type1, consDict, bicID)
     pathRight = getHalfPath(type2, consDict, bicID)
 
+    path = {}
 
-    print("=====DICT=====")
-    for p in pathRight:
-        print(p)
+    if len(pathLeft) == 0:
+        path = pathRight
+    elif len(pathRight) == 0:
+        path = pathLeft
+    else:
+        for p in pathLeft:
+            if len(pathLeft[p]) > 0:
+                pathLeft[p].reverse()
+                pathLeft[p].pop()
+            for q in pathRight:
+                thisPath = pathLeft[p] + pathRight[q]
+                curKey = p + "$$" + q
+                path[curKey] = thisPath
+
 
 def getHalfPath(direction, consDict, bicID):
     bicTypeSet = set()
@@ -1176,24 +1184,31 @@ def getHalfPath(direction, consDict, bicID):
 
     for e in entStack:
         bics = consDict[e]
+        expandBic = 0
         for b in bics:
             if getKeyfromNode(b) not in bicTypeSet:
+                expandBic += 1
 
-                curPath.append(b)
+                curPath.append(str(b))
                 tmpPathKey = curPathKey
                 curPathKey += "$" + b
 
                 bicTypeSet.add(getKeyfromNode(b))
-                depthSearchHelper(curPath, curPathKey, path, pathDict, consDict, bicTypeSet, entTypeSet, b)
+                depthSearchHelper(curPath, curPathKey, pathDict, consDict, bicTypeSet, entTypeSet, b)
                 bicTypeSet.remove(getKeyfromNode(b))
 
                 curPath.pop()
                 curPathKey = tmpPathKey
 
+        if expandBic == 0:
+            if curPathKey not in pathDict:
+                tmp = copy.deepcopy(curPath)
+                pathDict[curPathKey] = tmp
+
     return pathDict
 
 
-def depthSearchHelper(curPath, curPathKey, path, pathDict, consDict, bicTypeSet, entTypeSet, bic):
+def depthSearchHelper(curPath, curPathKey, pathDict, consDict, bicTypeSet, entTypeSet, bic):
     curBicEnts = consDict[bic]
 
     expandEntNum = 0
@@ -1211,13 +1226,11 @@ def depthSearchHelper(curPath, curPathKey, path, pathDict, consDict, bicTypeSet,
                     bicTypeSet.add(getKeyfromNode(b))
 
                     # to update......
-                    curPath.append(b)
+                    curPath.append(str(b))
+
                     tmpPathKey = curPathKey
                     curPathKey += "$" + b
-                    path.append(curPath)
-                    pathDict[curPathKey] = curPath
-
-                    depthSearchHelper(curPath, curPathKey, path, pathDict, consDict, bicTypeSet, entTypeSet, b)
+                    depthSearchHelper(curPath, curPathKey, pathDict, consDict, bicTypeSet, entTypeSet, b)
 
                     curPath.pop()
                     curPathKey = tmpPathKey
@@ -1225,12 +1238,14 @@ def depthSearchHelper(curPath, curPathKey, path, pathDict, consDict, bicTypeSet,
                     bicTypeSet.remove(getKeyfromNode(b))
 
             if expandBicNum == 0:
-                path.append(curPath)
-                pathDict[curPathKey] = curPath
-
+                if curPathKey not in pathDict:
+                    tmp = copy.deepcopy(curPath)
+                    pathDict[curPathKey] = tmp
+                 
     if expandEntNum == 0:
-        path.append(curPath)
-        pathDict[curPathKey] = curPath
+       if curPathKey not in pathDict:
+            tmp = copy.deepcopy(curPath)
+            pathDict[curPathKey] = tmp
 
 
 
