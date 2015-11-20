@@ -1766,9 +1766,51 @@ biset.bicFullPathModelEvaluate = function(bicID) {
         data: JSON.stringify(requestJSON),
         contentType: "application/json",
         success: function(data) {
-            var msg = data.msg;
+            var msg = data.msg,
+            	bicIDs = data.maxScoredChain,
+            	entIDs = data.maxChainEnts,
+            	edgeIDs = data.maxChainEdges;
 
-            console.log(msg);
+            	// minBicIDs = data.minScoredChain,
+            	// minEntIDs = data.minChainEnts,
+            	// minEdgeIDs = data.minChainEdges;
+
+            // console.log(msg);
+
+            console.log(entIDs);
+			if (msg == "success") {
+				for (var i = 0; i < bicIDs.length; i++) {
+					d3.select("#" + bicIDs[i] + "_frame")
+						.attr("fill", "rgba(255,0,0,0.4)");
+				}
+
+				for (var i = 0; i < entIDs.length; i++) {
+					d3.select("#" + entIDs[i] + "_frame")
+						.attr("fill", "rgba(255,0,0,0.4)");					
+				}
+
+				for (var i = 0; i < edgeIDs.length; i++) {
+					d3.select("#" + edgeIDs[i])
+						.style("stroke", "rgba(255,0,0,0.4)");					
+				}
+
+
+				// for (var i = 0; i < minBicIDs.length; i++) {
+				// 	d3.select("#" + minBicIDs[i] + "_frame")
+				// 		.attr("fill", "rgba(0,255,0,0.4)");
+				// }
+
+				// for (var i = 0; i < minEntIDs.length; i++) {
+				// 	d3.select("#" + minEntIDs[i] + "_frame")
+				// 		.attr("fill", "rgba(0,255,0,0.4)");					
+				// }
+
+				// for (var i = 0; i < minEdgeIDs.length; i++) {
+				// 	d3.select("#" + minEdgeIDs[i])
+				// 		.style("stroke", "rgba(0,255,0,0.4)");					
+				// }
+			}
+
 
             // if (msg == "success") {
             //     var bicScore = data.bicScore,

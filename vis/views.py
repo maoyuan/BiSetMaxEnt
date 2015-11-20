@@ -17,6 +17,7 @@ import maxent_utils, numpy as np
 
 import pickle
 import copy
+import operator
 
 # global variables to find path of a certain entity
 networkData = {}
@@ -60,7 +61,7 @@ glist_colTiles_real = []
 glist_rowTiles_real = []
 glist_domainTiles_real = []
 
-gJaccard_index_threshold = 0.1
+gJaccard_index_threshold = 0.05
 
 @login_required 
 def analytics(request):
@@ -187,7 +188,7 @@ def addVisConfig(request):
             listNames.append("location")
         if 'phone' in requestJson:
             phoneField = 1       
-            listNames.append("phone")            
+            listNames.append("phone")
         if 'date' in requestJson:
             dateField = 1
             listNames.append("date")
@@ -198,6 +199,7 @@ def addVisConfig(request):
             miscField = 1
             listNames.append("misc")
             
+        print("=============LINE 205==========")
         lstsBisetsJson = getLstsBisets(listNames)
         
         newVis = Vis(user = theUser, project = theProject, name = visconfigName, personIn = personField, locationIn = locationField, phoneIn = phoneField, dateIn = dateField, orgIn = orgField, miscIn = miscField, create_time = timezone.now())
@@ -357,6 +359,9 @@ def loadVis(request):
     visID = requestJson['vis_id']
     listNames = []
     theVis = Vis.objects.get(id = visID)
+
+    print(theVis)
+
     if theVis.personIn:
         listNames.append("person")
     if theVis.locationIn:
@@ -370,7 +375,7 @@ def loadVis(request):
     if theVis.miscIn:
         listNames.append("misc")
     
-    
+    print("=============LINE 381==========")    
     lstsBisetsJson = getLstsBisets(listNames)  
     
     selectedNodes = VisNodes.objects.filter(vis = visID)
@@ -1012,6 +1017,20 @@ def loadMaxEntModelStep(request):
     return HttpResponse(json.dumps(resultDict), content_type = "application/json")
 
 
+def chainEvaPrep(pathList, bicInfoDict, transDict):
+    thisBicTiles = None
+
+    for p in pathList:
+        thisBicRowIDs = bicInfoDict[p]["rowEntIDs"]
+        thisBicColIDs = bicInfoDict[p]["colEntIDs"]
+
+        if thisBicTiles == None:
+            thisBicTiles = maxent_utils.convert2TileListEachPair(transDict, thisBicRowIDs, thisBicColIDs)
+        else:
+            thisBicTiles += maxent_utils.convert2TileListEachPair(transDict, thisBicRowIDs, thisBicColIDs)
+
+    return thisBicTiles
+
 
 ''' 
 load the MaxEnt model based on user selection
@@ -1053,7 +1072,28 @@ def maxEntModelFullPath(request):
 
     print("CURRENT: " + searchterm)
 
-    depthSearch(searchterm, networkData)
+    allPaths = depthSearch(searchterm, networkData)
+
+    pathScore = {}
+    for p in allPaths:
+        tiles = chainEvaPrep(allPaths[p], gbic_dictionary, gdict_transactions)
+        gscore = obj_maxent.evaluate_biTiles(tiles, "global")
+        pathScore[p] = gscore
+        # print(p)
+        # print(gscore)
+
+    sortedScore = sorted(pathScore.items(), key=operator.itemgetter(1))
+    # print(sortedScore)
+
+    maxScoredChain = sortedScore[len(sortedScore) - 1][0]
+    # minScoredChain = sortedScore[0][0]
+    # print(allPaths[maxScoredChain])
+
+    overlaps = findBicOverlaps(allPaths[maxScoredChain], networkData)
+
+    # minOverlaps = findBicOverlaps(allPaths[minScoredChain], networkData)
+
+    # print(overlaps)
 
     # print(bicTypedDict)
 
@@ -1077,9 +1117,53 @@ def maxEntModelFullPath(request):
 
     resultDict = {}
     resultDict["msg"] = "success"
+    resultDict["maxScoredChain"] = allPaths[maxScoredChain]
+    resultDict["maxChainEnts"] = list(overlaps["entIDs"])
+    resultDict["maxChainEdges"] = overlaps["edgeIDs"]
+
+    # resultDict["minScoredChain"] = allPaths[minScoredChain]
+    # resultDict["minChainEnts"] = list(minOverlaps["entIDs"])
+    # resultDict["minChainEdges"] = minOverlaps["edgeIDs"]
 
     return HttpResponse(json.dumps(resultDict), content_type = "application/json")
 
+
+def findBicOverlaps(bicList, consDict):
+
+    entsIDSet = set()
+    edgesIDSet = []
+    results = {}
+
+    for i in range(1, len(bicList)):
+        bic1ID = bicList[i - 1]
+        bic2ID = bicList[i]
+
+        relEntsBic1 = set(consDict[bic1ID])
+        relEntsBic2 = set(consDict[bic2ID])
+
+        tmpEntIDs = relEntsBic1.intersection(relEntsBic2)
+        entsIDSet = entsIDSet.union(tmpEntIDs)
+
+        for e in tmpEntIDs:
+            tmpEdge1ID = ''
+            tmpEdge2ID = ''
+
+            if e > bic1ID:
+                tmpEdge1ID = e + "__" + bic1ID
+            else:
+                tmpEdge1ID = bic1ID + "__" + e
+            edgesIDSet.append(tmpEdge1ID)
+
+            if e > bic2ID:
+                tmpEdge2ID = e + "__" + bic2ID
+            else:
+                tmpEdge2ID = bic2ID + "__" + e
+            edgesIDSet.append(tmpEdge2ID)
+
+    results["entIDs"] = entsIDSet
+    results["edgeIDs"] = edgesIDSet
+
+    return results
 
 
 '''
@@ -1156,6 +1240,7 @@ def depthSearch(bicID, consDict):
                 thisPath = pathLeft[p] + pathRight[q]
                 curKey = p + "$$" + q
                 path[curKey] = thisPath
+    return path
 
 
 def getHalfPath(direction, consDict, bicID):
@@ -1387,6 +1472,10 @@ def getVisJson(request, table1 = "person", table2 = "location", table3 = "org", 
     
   
 def getLstsBisets(lstNames):
+
+    print("====================list names:::::")
+    print(lstNames)
+
     '''
     Returns a json object for visualization. 
     The json contains lists and bicsets objects.
@@ -1483,6 +1572,12 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
     @param table: the current list name
     @param tableRight: right list name
     ''' 
+
+    print("================TABLE ORDERS=================")
+    print(tableLeft)
+    print(table)
+    print(tableRight)
+
     # retrieve data for field1
     if not table == "EMPTY":
         cursor = connection.cursor()
@@ -1521,16 +1616,24 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
         
         cursor.execute(sql_str)
         list1 = cursor.fetchall()
-        
+
+        orderList = []
         if table + "_" + tableRight in PAIRS:
+            orderList.append(table)
+            orderList.append(tableRight)
+        else:
+            orderList.append(tableRight)
+            orderList.append(table)            
+        
+        if table + "_" + tableRight in PAIRS or tableRight + "_" + table in PAIRS:
             isInOrder = True            
         
             # retrieve data from cluster row for field1
-            sql_str = "SELECT * FROM datamng_clusterrow as A, datamng_cluster as B where A.cluster_id = B.id and B.field1 = '" + table + "' and B.field2 = '" + tableRight + "' order by B.id"
+            sql_str = "SELECT * FROM datamng_clusterrow as A, datamng_cluster as B where A.cluster_id = B.id and B.field1 = '" + orderList[0] + "' and B.field2 = '" + orderList[1] + "' order by B.id"
             cursor.execute(sql_str)
             t1_t2_ClusRows = cursor.fetchall()
             # retrieve data from cluster col for field1
-            sql_str = "SELECT * FROM datamng_clustercol as A, datamng_cluster as B where A.cluster_id = B.id and B.field1 = '" + table + "' and B.field2 = '" + tableRight + "' order by B.id"
+            sql_str = "SELECT * FROM datamng_clustercol as A, datamng_cluster as B where A.cluster_id = B.id and B.field1 = '" + orderList[0] + "' and B.field2 = '" + orderList[1] + "' order by B.id"
             cursor.execute(sql_str)
             t1_t2_ClusCols = cursor.fetchall()
             
