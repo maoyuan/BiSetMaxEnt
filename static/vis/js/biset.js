@@ -172,13 +172,6 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
         // entities in this list
         entSet = listData.entities;
 
-    // tmpSet = listData.entities;
-
-    // for (var i = 0; i < 12; i++)
-    // 	tmpSet.concat(entSet); 
-
-    // entSet = tmpSet;
-
     // all entities
     for (var i = 0; i < entSet.length; i++)
         allEnts[entSet[i].entityIDCmp] = entSet[i];
@@ -314,7 +307,6 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
     $("." + type).contextmenu({
         target: '#ent-context-menu',
         onItem: function(context, e) {
-            // console.log(context.attr("id"));
             var thisID = context.attr("id"),
                 thisFrameID = thisID + "_frame";
 
@@ -403,7 +395,7 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
                     nodes.forEach(function(e) {
                         if (e.indexOf("_bic_") < 0)
                             vis.setFontSize(e + "_text", hEntFontforPaper);
-                        	vis.setSvgCssClass(e + "_text", lEntFontClass, true);
+                        vis.setSvgCssClass(e + "_text", lEntFontClass, true);
                     });
                 }
             }
@@ -491,7 +483,7 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
                     nodes.forEach(function(e) {
                         if (e.indexOf("_bic_") < 0)
                             vis.setFontSize(e + "_text", nEntFontforPaper);
-                        	vis.setSvgCssClass(e + "_text", lEntFontClass, false);
+                        vis.setSvgCssClass(e + "_text", lEntFontClass, false);
                     });
                 }
             }
@@ -1308,7 +1300,7 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
                 nodes.forEach(function(e) {
                     if (e.indexOf("_bic_") < 0)
                         vis.setFontSize(e + "_text", hEntFontforPaper);
-                        vis.setSvgCssClass(e + "_text", lEntFontClass, true);
+                    vis.setSvgCssClass(e + "_text", lEntFontClass, true);
                 });
             }
         }
@@ -1417,7 +1409,7 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
                 nodes.forEach(function(e) {
                     if (e.indexOf("_bic_") < 0)
                         vis.setFontSize(e + "_text", nEntFontforPaper);
-                        vis.setSvgCssClass(e + "_text", lEntFontClass, false);
+                    vis.setSvgCssClass(e + "_text", lEntFontClass, false);
                 });
             }
         }
@@ -1425,9 +1417,6 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
 
     // click event for bic
     bics.on("click", function(d) {
-
-        // check the mark flag is turned on or off
-        console.log(d.bicSelectOn);
 
         if (d.bicSelectOn == true) {
 
@@ -1751,8 +1740,6 @@ biset.bicFullPathModelEvaluate = function(bicID) {
 
     var csrftoken = $('#csrf_token').val();
 
-    console.log(requestJSON);
-
     // retrieve information from MaxEnt Model
     $.ajax({
         url: window.SERVER_PATH + 'vis/maxEntModelFullPath/',
@@ -1761,49 +1748,46 @@ biset.bicFullPathModelEvaluate = function(bicID) {
         contentType: "application/json",
         success: function(data) {
             var msg = data.msg,
-            	bicIDs = data.maxScoredChain,
-            	entIDs = data.maxChainEnts,
-            	edgeIDs = data.maxChainEdges;
+                bicIDs = data.maxScoredChain,
+                entIDs = data.maxChainEnts,
+                edgeIDs = data.maxChainEdges;
 
-            	// minBicIDs = data.minScoredChain,
-            	// minEntIDs = data.minChainEnts,
-            	// minEdgeIDs = data.minChainEdges;
+            // minBicIDs = data.minScoredChain,
+            // minEntIDs = data.minChainEnts,
+            // minEdgeIDs = data.minChainEdges;
 
-            // console.log(msg);
+            if (msg == "success") {
+                for (var i = 0; i < bicIDs.length; i++) {
+                    d3.select("#" + bicIDs[i] + "_frame")
+                        .attr("fill", "rgba(255,0,0,0.4)");
+                }
 
-            console.log(entIDs);
-			if (msg == "success") {
-				for (var i = 0; i < bicIDs.length; i++) {
-					d3.select("#" + bicIDs[i] + "_frame")
-						.attr("fill", "rgba(255,0,0,0.4)");
-				}
+                for (var i = 0; i < entIDs.length; i++) {
+                    d3.select("#" + entIDs[i] + "_frame")
+                        .attr("fill", "rgba(255,0,0,0.4)");
+                }
 
-				for (var i = 0; i < entIDs.length; i++) {
-					d3.select("#" + entIDs[i] + "_frame")
-						.attr("fill", "rgba(255,0,0,0.4)");					
-				}
-
-				for (var i = 0; i < edgeIDs.length; i++) {
-					d3.select("#" + edgeIDs[i])
-						.style("stroke", "rgba(255,0,0,0.4)");					
-				}
+                for (var i = 0; i < edgeIDs.length; i++) {
+                    d3.select("#" + edgeIDs[i])
+                        .style("stroke", "rgba(255,0,0,0.4)");
+                }
 
 
-				// for (var i = 0; i < minBicIDs.length; i++) {
-				// 	d3.select("#" + minBicIDs[i] + "_frame")
-				// 		.attr("fill", "rgba(0,255,0,0.4)");
-				// }
+                // for (var i = 0; i < minBicIDs.length; i++) {
+                // 	d3.select("#" + minBicIDs[i] + "_frame")
+                // 		.attr("fill", "rgba(0,255,0,0.4)");
+                // }
 
-				// for (var i = 0; i < minEntIDs.length; i++) {
-				// 	d3.select("#" + minEntIDs[i] + "_frame")
-				// 		.attr("fill", "rgba(0,255,0,0.4)");					
-				// }
+                // for (var i = 0; i < minEntIDs.length; i++) {
+                // 	d3.select("#" + minEntIDs[i] + "_frame")
+                // 		.attr("fill", "rgba(0,255,0,0.4)");					
+                // }
 
-				// for (var i = 0; i < minEdgeIDs.length; i++) {
-				// 	d3.select("#" + minEdgeIDs[i])
-				// 		.style("stroke", "rgba(0,255,0,0.4)");					
-				// }
-			}
+                // for (var i = 0; i < minEdgeIDs.length; i++) {
+                // 	d3.select("#" + minEdgeIDs[i])
+                // 		.style("stroke", "rgba(0,255,0,0.4)");					
+                // }
+            }
 
 
             // if (msg == "success") {
@@ -1951,8 +1935,6 @@ biset.findEntIDsInBic = function(bicID, bicDict) {
  */
 function sortList(aList, sortType) {
 
-    console.log(aList);
-
     // get all entities
     var entSet = aList.relatedDataSet.entities,
         listType = aList.dataType;
@@ -2090,7 +2072,7 @@ biset.addBicListCtrl = function(lsts) {
                 cur_bic.sort(function(a, b) {
                     return b.totalEntNum - a.totalEntNum;
                 });
-                //console.log(cur_bic);
+
                 var lListType,
                     rListType;
 
@@ -2387,7 +2369,6 @@ biset.addBicListCtrl = function(lsts) {
                     // get the selected mode
                     selMode = selValue[0];
 
-                console.log(selMode);
                 if (selMode.indexOf("cluster") < 0)
                     biset.connectionDisplayed(field1, field2, selMode, preMode);
 
@@ -2710,7 +2691,6 @@ biset.addLink = function(obj1, obj2, line, d3obj, bg) {
     var path = ["M" + x1.toFixed(3), y1.toFixed(3) + "C" + x2, y2, x3, y3, x4.toFixed(3), y4.toFixed(3)].join(",");
 
     if (line && line.line) {
-        //console.log(line.line.bg);
         //line.bg && line.bg.attr({path: path});
         line.line.attr("d", path);
     } else {
@@ -2743,8 +2723,6 @@ biset.addLink = function(obj1, obj2, line, d3obj, bg) {
  * @param linkLsts, a list of links (logically)
  */
 biset.addOriginalLinks = function(linkLsts) {
-
-    console.log("call here");
 
     for (var i = 0; i < linkLsts.length; i++) {
         var obj1ID = linkLsts[i].obj1,
@@ -2850,7 +2828,6 @@ biset.objDrag = d3.behavior.drag()
         d.yPos = dragY;
         // update related lines
         biset.updateLink(connections);
-        // console.log(connections);
     })
     .on("dragend", function(d) {
         draged = 0;
