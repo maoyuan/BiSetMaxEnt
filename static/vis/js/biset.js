@@ -226,11 +226,6 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
             "<option value='" + ClusterModeRight + "'>Order Bic by Right List</option>" +
             "</select>" +
             "</div>");
-
-        // $("#biset_control").append("<div class='BiclistControlGroup'>" +
-        // 	"<label class='radio-inline'><input type='radio' name='" + bListRGroupName + "'>Bic</label>" +
-        // 	"<label class='radio-inline'><input type='radio' name='" + bListRGroupName + "'>Hybrid</label>" +
-        // 	"<label class='radio-inline'><input type='radio' name='" + bListRGroupName + "'>Links</label>" +
     }
 
     // add group to the svg
