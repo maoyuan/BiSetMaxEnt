@@ -26,11 +26,11 @@ var colorSet = {
 	// bicFrameBorderColor: "rgba(0, 0, 0, 0.6)",
 
 	// normal line (light gray)
-	lineNColor: "rgba(0, 0, 0, 0.1)", // 0.25, 0.06
+	lineNColor: "rgba(0, 0, 0, 0.16)", // 0.25, 0.06
 	// line almost hide
 	lineHDColor: "rgba(0, 0, 0, 0.04)",
 	// hover entity to show links
-	linePreHColor: "rgba(252, 30, 36, 0.28)"
+	linePreHColor: "rgba(252, 30, 36, 0.2)" // 0.28
 
 	// selecte entity to highlight links
 	// lineHColor: "rgba(252, 30, 36, 0.35)"

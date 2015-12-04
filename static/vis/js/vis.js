@@ -34,6 +34,18 @@ vis.setSvgOpacityByID = function(svgID, preColor, opaVal) {
 }
 
 
+/*
+ * set font size of a text object
+ * @param tID, string, the id of a text object
+ * @param size, string, size of the font
+ */
+vis.setFontSize = function(tID, size) {
+    d3.select("#" + tID)
+        .style("font-size", size);
+}
+
+
+
 /***********************************************************/
 /*********************scale functions***********************/
 /*

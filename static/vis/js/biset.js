@@ -238,7 +238,7 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
             // "<span class='btn btn-xs btn-default bListCtrlSortList' style='margin-left: 15px;'>Organize List</span>" + 
 
             "<select class='bListCtrlSortBic' id='" + bListRGroupName + "_sort_bic' style='margin-left: 45px'>" +
-            "<option value='ClusterSize'>Order Bic by Size</option>" +
+            "<option value='ClusterSize'>Default</option>" +
             "<option value='" + ClusterMode + "'>Order Bic by two list</option>" +
             "<option value='" + ClusterModeLeft + "'>Order Bic by Left List</option>" +
             "<option value='" + ClusterModeRight + "'>Order Bic by Right List</option>" +
@@ -276,7 +276,7 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
         .attr("x", biset.entity.width / 8)
         .attr("y", biset.entity.height / 2)
         .attr("dy", ".36em")
-        .style("font-size", "0.83em")
+        .style("font-size", nEntityFontforPaper) // 0.83em
         .text(function(d) {
             return d.entValue;
         });
@@ -404,7 +404,7 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
                         if (e.indexOf("_bic_") < 0)
                             d3.select("#" + e + "_text")
                             .classed("text-large", true)
-                            .style("font-size", "1.1em");
+                            .style("font-size", hEntityFontforPaper);  //1.1em
                     });
                 }
             }
@@ -493,7 +493,7 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
                         if (e.indexOf("_bic_") < 0)
                             d3.select("#" + e + "_text")
                             .classed("text-large", false)
-                            .style("font-size", "0.75em");
+                            .style("font-size", nEntityFontforPaper); // 0.83em
                     });
                 }
             }
@@ -678,8 +678,7 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
                 nodes.forEach(function(e) {
                     if (e.indexOf("_bic_") < 0) {
                         if (biset.getClass("#" + e + "_text", "text-large") == true) {
-                            d3.select("#" + e + "_text")
-                                .style("font-size", "0.75em");
+                            vis.setFontSize(e + "_text", nEntityFontforPaper);
                         }
                     }
                 });
@@ -1312,7 +1311,7 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
                     if (e.indexOf("_bic_") < 0)
                         d3.select("#" + e + "_text")
                         .classed("text-large", true)
-                        .style("font-size", "1.1em");
+                        .style("font-size", hEntityFontforPaper); // 1.1em
                 });
             }
         }
@@ -1422,7 +1421,7 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
                     if (e.indexOf("_bic_") < 0)
                         d3.select("#" + e + "_text")
                         .classed("text-large", false)
-                        .style("font-size", "0.75em");
+                        .style("font-size", nEntityFontforPaper); // 0.83em
                 });
             }
         }
@@ -1461,8 +1460,7 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
                     nodes.forEach(function(e) {
                         if (e.indexOf("_bic_") < 0) {
                             if (biset.getClass("#" + e + "_text", "text-large") == true) {
-                                d3.select("#" + e + "_text")
-                                    .style("font-size", "0.75em");
+                                vis.setFontSize(e + "_text", nEntityFontforPaper);
                             }
                         }
                     });
@@ -1724,12 +1722,12 @@ biset.bicStepModelEvaluate = function(bicID) {
                 for (var b in bicScore)
                     tmpScores.push(bicScore[b]);
 
-                var opcScale = vis.linearScale(tmpScores, 0, 0.8);
+                var opcScale = vis.linearScale(tmpScores, 0, 0.5);
 
                 for (var b in bicScore) {
                     // do not change the color of the one being evaluated
                     if (opcScale(bicScore[b]) != 0) {
-                        vis.setSvgOpacityByID(b + "_frame", "rgba(51, 204, 51, ", opcScale(bicScore[b]));
+                        vis.setSvgOpacityByID(b + "_frame", "rgba(255,0,0, ", opcScale(bicScore[b])); // 51, 204, 51
                     } else if (b == curBicID) {
                         vis.setSvgBorderByID(b + "_frame", "rgba(0, 0, 0, 0.9)", "4");
                     }
