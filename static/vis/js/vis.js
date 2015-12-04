@@ -35,6 +35,18 @@ vis.setSvgOpacityByID = function(svgID, preColor, opaVal) {
 
 
 /*
+ * toggle css class of a svg object
+ * @param svgID, string, the id of the svg object
+ * @param svgCssClass, string, the css class of the svg object
+ * @param ToF, true or false
+ */
+vis.setSvgCssClass = function(svgID, svgCssClass, ToF) {
+    d3.select("#" + svgID)
+        .classed(svgCssClass, ToF);
+}
+
+
+/*
  * set font size of a text object
  * @param tID, string, the id of a text object
  * @param size, string, size of the font

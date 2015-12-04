@@ -5,13 +5,15 @@
  */
 
 
-/********** font of entity **********/
+/********** entity font **********/
 // normal font
-nEntityFont = "0.83em";
-nEntityFontforPaper = "1.1em";
+nEntFont = "0.83em";
+nEntFontforPaper = "1.1em";
 
 
 // highlight font
-hEntityFont = "1.1em";
-hEntityFontforPaper = "1.3em";
+hEntFont = "1.1em";
+hEntFontforPaper = "1.3em";
 
+// css class for large font
+lEntFontClass = "text-large";

@@ -276,7 +276,7 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
         .attr("x", biset.entity.width / 8)
         .attr("y", biset.entity.height / 2)
         .attr("dy", ".36em")
-        .style("font-size", nEntityFontforPaper) // 0.83em
+        .style("font-size", nEntFontforPaper) // 0.83em
         .text(function(d) {
             return d.entValue;
         });
@@ -402,9 +402,8 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
 
                     nodes.forEach(function(e) {
                         if (e.indexOf("_bic_") < 0)
-                            d3.select("#" + e + "_text")
-                            .classed("text-large", true)
-                            .style("font-size", hEntityFontforPaper);  //1.1em
+                            vis.setFontSize(e + "_text", hEntFontforPaper);
+                        	vis.setSvgCssClass(e + "_text", lEntFontClass, true);
                     });
                 }
             }
@@ -491,9 +490,8 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
 
                     nodes.forEach(function(e) {
                         if (e.indexOf("_bic_") < 0)
-                            d3.select("#" + e + "_text")
-                            .classed("text-large", false)
-                            .style("font-size", nEntityFontforPaper); // 0.83em
+                            vis.setFontSize(e + "_text", nEntFontforPaper);
+                        	vis.setSvgCssClass(e + "_text", lEntFontClass, false);
                     });
                 }
             }
@@ -677,8 +675,8 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
                 // change the font size back to normal
                 nodes.forEach(function(e) {
                     if (e.indexOf("_bic_") < 0) {
-                        if (biset.getClass("#" + e + "_text", "text-large") == true) {
-                            vis.setFontSize(e + "_text", nEntityFontforPaper);
+                        if (biset.getClass("#" + e + "_text", lEntFontClass) == true) {
+                            vis.setFontSize(e + "_text", nEntFontforPaper);
                         }
                     }
                 });
@@ -1309,9 +1307,8 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
 
                 nodes.forEach(function(e) {
                     if (e.indexOf("_bic_") < 0)
-                        d3.select("#" + e + "_text")
-                        .classed("text-large", true)
-                        .style("font-size", hEntityFontforPaper); // 1.1em
+                        vis.setFontSize(e + "_text", hEntFontforPaper);
+                        vis.setSvgCssClass(e + "_text", lEntFontClass, true);
                 });
             }
         }
@@ -1419,9 +1416,8 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
 
                 nodes.forEach(function(e) {
                     if (e.indexOf("_bic_") < 0)
-                        d3.select("#" + e + "_text")
-                        .classed("text-large", false)
-                        .style("font-size", nEntityFontforPaper); // 0.83em
+                        vis.setFontSize(e + "_text", nEntFontforPaper);
+                        vis.setSvgCssClass(e + "_text", lEntFontClass, false);
                 });
             }
         }
@@ -1459,8 +1455,8 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
                     // change the font size back to normal
                     nodes.forEach(function(e) {
                         if (e.indexOf("_bic_") < 0) {
-                            if (biset.getClass("#" + e + "_text", "text-large") == true) {
-                                vis.setFontSize(e + "_text", nEntityFontforPaper);
+                            if (biset.getClass("#" + e + "_text", lEntFontClass) == true) {
+                                vis.setFontSize(e + "_text", nEntFontforPaper);
                             }
                         }
                     });
