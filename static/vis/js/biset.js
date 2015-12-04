@@ -122,22 +122,11 @@ var canvas = d3.select("#biset_canvas")
     .attr("width", biset.visCanvas.width)
     .attr('height', biset.visCanvas.height);
 
-// for debug
-// $("svg").css({"border-color": "#C1E0FF", 
-//          "border":"0px", 
-//          "border-style":"solid"});
-
 var svgPos = canvas[0][0].getBoundingClientRect(),
     svgCanvasOffset = {
         left: svgPos.left,
         top: svgPos.top
     };
-
-
-$('.selectpicker').selectpicker({
-    style: 'btn-default',
-    size: 10
-});
 
 // get dataset name
 var selData = $('#selDataSet').val();

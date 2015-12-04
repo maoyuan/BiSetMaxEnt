@@ -1,3 +1,8 @@
+$('.selectpicker').selectpicker({
+    style: 'btn-default',
+    size: 10
+});
+
 // control for doc view (hide the view)
 $("#doc_ctrl_icon").click(function(e){
 	// cancel default browser event
