@@ -10,6 +10,22 @@ var vis = {
 
 
 /*
+ * add svg to a canvas
+ * @param canvasID, string, the canvas to append svg
+ * @param svgID, string, the id of the svg object
+ * @param sHeight, int or float, the height of the svg object
+ * @param sWidth, int or float, the width of the svg object
+ */
+vis.addSvg = function(canvasID, svgID, sHeight, sWidth) {
+    return d3.select("#" + canvasID)
+        .append('svg')
+        .attr('id', svgID)
+        .attr("width", sHeight)
+        .attr('height', sWidth);
+}
+
+
+/*
  * set border of a svg object
  * @param svgID, string, the id of svg object
  * @param bColor, string, the css color of stroke

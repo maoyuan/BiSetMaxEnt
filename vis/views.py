@@ -179,29 +179,31 @@ def addVisConfig(request):
         orgField = 0
         miscField = 0
         
-        listNames = []
+        # listNames = []
+
+        listNames = requestJson['orderedSelDims']
+
         if 'person' in requestJson:
-            personField = 1
-            listNames.append("person")
+            personField = 1 + listNames.index('person')
+            # listNames.append("person")
         if 'location' in requestJson:
-            locationField = 1
-            listNames.append("location")
+            locationField = 1 + listNames.index('location')
+            # listNames.append("location")
         if 'phone' in requestJson:
-            phoneField = 1       
-            listNames.append("phone")
+            phoneField = 1 + listNames.index('phone')       
+            # listNames.append("phone")
         if 'date' in requestJson:
-            dateField = 1
-            listNames.append("date")
+            dateField = 1 + listNames.index('date')
+            # listNames.append("date")
         if 'org' in requestJson:
-            orgField = 1
-            listNames.append("org")
+            orgField = 1 + listNames.index('org')
+            # listNames.append("org")
         if 'misc' in requestJson:
-            miscField = 1
-            listNames.append("misc")
-            
-        print("=============LINE 205==========")
+            miscField = 1 + listNames.index('misc')
+            # listNames.append("misc")
+
         lstsBisetsJson = getLstsBisets(listNames)
-        
+
         newVis = Vis(user = theUser, project = theProject, name = visconfigName, personIn = personField, locationIn = locationField, phoneIn = phoneField, dateIn = dateField, orgIn = orgField, miscIn = miscField, create_time = timezone.now())
             
         newVis.save()
@@ -360,22 +362,30 @@ def loadVis(request):
     listNames = []
     theVis = Vis.objects.get(id = visID)
 
-    print(theVis)
+    orderedDims = {}
 
     if theVis.personIn:
-        listNames.append("person")
+        # listNames.append("person")
+        orderedDims[int(theVis.personIn - 1)] = "person"
     if theVis.locationIn:
-        listNames.append("location")
+        orderedDims[int(theVis.locationIn - 1)] = "location"
+        # listNames.append("location")
     if theVis.phoneIn:
-        listNames.append("phone")
+        orderedDims[int(theVis.phoneIn - 1)] = "phone"
+        # listNames.append("phone")
     if theVis.dateIn:
-        listNames.append("date")
+        orderedDims[int(theVis.dateIn - 1)] = "date"
+        # listNames.append("date")
     if theVis.orgIn:
-        listNames.append("org")
+        orderedDims[int(theVis.orgIn - 1)] = "org"
+        # listNames.append("org")
     if theVis.miscIn:
-        listNames.append("misc")
+        orderedDims[int(theVis.miscIn - 1)] = "misc"
+        # listNames.append("misc")
     
-    print("=============LINE 381==========")    
+    for d in orderedDims:
+        listNames.append(orderedDims[d])
+
     lstsBisetsJson = getLstsBisets(listNames)  
     
     selectedNodes = VisNodes.objects.filter(vis = visID)
@@ -1055,10 +1065,6 @@ def maxEntModelFullPath(request):
     relInfo = findAllCons(searchterm, networkData, entPathCaled)
     entsInPath = relInfo["ents"]
 
-
-    # print(searchterm)
-    # print(entsInPath)
-
     # a dictionary of bics on paths by types
     bicTypedDict = {}
     for e in entsInPath:
@@ -1070,8 +1076,6 @@ def maxEntModelFullPath(request):
     
     curBicType = getKeyfromNode(searchterm)
 
-    print("CURRENT: " + searchterm)
-
     allPaths = depthSearch(searchterm, networkData)
 
     pathScore = {}
@@ -1079,11 +1083,8 @@ def maxEntModelFullPath(request):
         tiles = chainEvaPrep(allPaths[p], gbic_dictionary, gdict_transactions)
         gscore = obj_maxent.evaluate_biTiles(tiles, "global")
         pathScore[p] = gscore
-        # print(p)
-        # print(gscore)
 
     sortedScore = sorted(pathScore.items(), key=operator.itemgetter(1))
-    # print(sortedScore)
 
     maxScoredChain = sortedScore[len(sortedScore) - 1][0]
     # minScoredChain = sortedScore[0][0]
@@ -1497,6 +1498,15 @@ def getLstsBisets(lstNames):
             theList, preCols = getListDict(lstNames[i-1], lstNames[i], lstNames[i+1], preCols, biclusDict)
             entryLists.append({"listID": i + 1, "leftType": lstNames[i-1], "listType": lstNames[i], "rightType": lstNames[i+1], "entities": theList})
    
+    
+    print('++++========++++==========++++=========')
+    print('++++========++++==========++++=========')
+    print('++++========++++==========++++=========')
+    for b in biclusDict:
+        print(biclusDict[b]['bicID'])
+        print(biclusDict[b]['row'])
+        print(biclusDict[b]['col'])
+
     return {"lists":entryLists, "bics":biclusDict}
 
 
@@ -1609,7 +1619,10 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
         return None, None
     
     #retrieve biset list
-    if not (tableRight == "EMPTY" or tableRight == None):        
+    if not (tableRight == "EMPTY" or tableRight == None):
+
+        print("retrieve bic info....")
+
         isInOrder = True
         cursor = connection.cursor()
         sql_str = "SELECT * FROM datamng_" + table + " order by id"
@@ -1621,13 +1634,20 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
         if table + "_" + tableRight in PAIRS:
             orderList.append(table)
             orderList.append(tableRight)
+            orderFlag = "normal"
         else:
             orderList.append(tableRight)
-            orderList.append(table)            
+            orderList.append(table)
+            orderFlag = "reverse"           
         
         if table + "_" + tableRight in PAIRS or tableRight + "_" + table in PAIRS:
             isInOrder = True            
         
+            print("find the order!!!!!!!!!!!!!!!!!")
+
+            print(orderList[0])
+            print(orderList[1])
+
             # retrieve data from cluster row for field1
             sql_str = "SELECT * FROM datamng_clusterrow as A, datamng_cluster as B where A.cluster_id = B.id and B.field1 = '" + orderList[0] + "' and B.field2 = '" + orderList[1] + "' order by B.id"
             cursor.execute(sql_str)
@@ -1642,10 +1662,11 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
                     biclusDict[row[2]] = {}
                     newRow = []
                     newRow.append(row[1])
+
                     biclusDict[row[2]]['row'] = newRow
-                    biclusDict[row[2]]['rowField'] = table
-                    biclusDict[row[2]]['colField'] = tableRight
-                    biclusDict[row[2]]['bicIDCmp'] = str(table) + "_" + str(tableRight) + "_bic_" + str(row[2])
+                    biclusDict[row[2]]['rowField'] = table #orderList[0] 
+                    biclusDict[row[2]]['colField'] = tableRight #orderList[1] 
+                    biclusDict[row[2]]['bicIDCmp'] = str(table) + "_" + str(tableRight) + "_bic_" + str(row[2])  #str(orderList[0]) + "_" + str(orderList[1])
                     biclusDict[row[2]]['bicID'] = row[2]
                     biclusDict[row[2]]['docs'] = []
                     biclusDict[row[2]]['bicSelected'] = False
@@ -1654,8 +1675,9 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
                     biclusDict[row[2]]['bicDisplayed'] = True
                     biclusDict[row[2]]['bicSelectOn'] = False
                 else:
-                    biclusDict[row[2]]['row'].append(row[1]);
+                    biclusDict[row[2]]["row"].append(row[1])
                     
+
             for col in t1_t2_ClusCols:
                 if not col[2] in biclusDict:
                     # Should not go here
@@ -1663,12 +1685,18 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
                 else:
                     if not 'col' in biclusDict[col[2]]:
                         newCol = []
-                        newCol.append(col[1])                   
+                        newCol.append(col[1])
                         biclusDict[col[2]]['col'] = newCol
                     else:
-                        biclusDict[col[2]]['col'].append(col[1]);
+                        biclusDict[col[2]]['col'].append(col[1])
 
             for bic in biclusDict:
+                # adjust the elements based on selection order
+                if orderFlag == "reverse" and biclusDict[bic]['rowField'] == table and biclusDict[bic]['colField'] == tableRight:
+                    tmp = biclusDict[bic]['row']
+                    biclusDict[bic]['row'] = biclusDict[bic]['col']
+                    biclusDict[bic]['col'] = tmp
+
                 rNum = len(biclusDict[bic]['row'])
                 cNum = len(biclusDict[bic]['col'])
                 # total entity number in a bic
@@ -1688,27 +1716,33 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
             for bic in bicList:
                 bic['index'] = bIndex
                 bIndex += 1
-
             
-            for row in t1_t2_ClusRows:
-                if not row[1] in table1_item_dict:
-                    print "Bug here, at line 454"
-                else:
-                    table1_item_dict[row[1]]['bicSetsRight'].append(row[2]);
+            if orderFlag == "normal":
+                for row in t1_t2_ClusRows:
+                    if not row[1] in table1_item_dict:
+                        print "Bug here, at line 1710"
+                    else:
+                        table1_item_dict[row[1]]['bicSetsRight'].append(row[2])
+
+            if orderFlag == "reverse":
+                for col in t1_t2_ClusCols:
+                    if not col[1] in table1_item_dict:
+                        print "Bug here, at line 1710"
+                    else:
+                        table1_item_dict[col[1]]['bicSetsRight'].append(col[2])
             
             if not tableLeft == None and not leftClusCols == None:
                 for col in leftClusCols:
                     if not col[1] in table1_item_dict:
-                        print "Bug here, at line 454"
+                        print "Bug here, at line 1717"
                     else:
-                        table1_item_dict[col[1]]['bicSetsLeft'].append(col[2]);
+                        table1_item_dict[col[1]]['bicSetsLeft'].append(col[2])
             
             # removing id from the list item dictionary
             removedKeyList = []
             for key, val in table1_item_dict.iteritems():
                 removedKeyList.append(val)
                 
-            
             newlist = sorted(removedKeyList, key=lambda k: k['entFreq'], reverse=True)
             
             index = 0
@@ -1716,14 +1750,19 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
                 #print index, item
                 item['index'] = index
                 index += 1
-            return newlist, t1_t2_ClusCols
+
+            if orderFlag == "normal":
+                return newlist, t1_t2_ClusCols
+            else:
+                return newlist, t1_t2_ClusRows
+
     else:
         # adding col list to list items.
         for col in leftClusCols:
-                if not col[1] in table1_item_dict:
-                    print "Bug here, at line 454"
-                else:
-                    table1_item_dict[col[1]]['bicSetsLeft'].append(col[2]);
+            if not col[1] in table1_item_dict:
+                print "Bug here, at line 1739"
+            else:
+                table1_item_dict[col[1]]['bicSetsLeft'].append(col[2]);
         
         # removing id from the list item dictionary
         removedKeyList = []

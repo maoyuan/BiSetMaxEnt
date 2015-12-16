@@ -116,11 +116,7 @@ var allEnts = {},
     selectedLists = [];
 
 // canvas for visualizations
-var canvas = d3.select("#biset_canvas")
-    .append('svg')
-    .attr('id', 'vis_canvas')
-    .attr("width", biset.visCanvas.width)
-    .attr('height', biset.visCanvas.height);
+var canvas = vis.addSvg(biSetContainer, biSetVisCanvas, biset.visCanvas.width, biset.visCanvas.height);
 
 var svgPos = canvas[0][0].getBoundingClientRect(),
     svgCanvasOffset = {
@@ -134,10 +130,10 @@ var selData = $('#selDataSet').val();
 
 $("#dataDimensionList").append(
     "<input type='checkbox' name='dimensions' value='person' id='d_person'> Person<br />" +
-    "<input type='checkbox' name='dimensions' value='location' id='d_location'> Location<br />" +
-    "<input type='checkbox' name='dimensions' value='phone' id='d_phone'> Phone<br />" +
     "<input type='checkbox' name='dimensions' value='date' id='d_date'> Date<br />" +
     "<input type='checkbox' name='dimensions' value='org' id='d_org'> Organization<br />" +
+    "<input type='checkbox' name='dimensions' value='phone' id='d_phone'> Phone<br />" +
+    "<input type='checkbox' name='dimensions' value='location' id='d_location'> Location<br />" +
     "<input type='checkbox' name='dimensions' value='misc' id='d_misc'> Misc<br />"
 );
 
@@ -151,8 +147,6 @@ $("#dataDimensionList").append(
  * @param networkData, all connections between bics and ents
  */
 biset.addList = function(canvas, listData, bicList, startPos, networkData) {
-
-    console.log(listData);
 
     // type of the list
     var type = listData.listType,

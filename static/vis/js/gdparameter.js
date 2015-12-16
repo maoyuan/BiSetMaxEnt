@@ -17,3 +17,9 @@ hEntFontforPaper = "1.3em";
 
 // css class for large font
 lEntFontClass = "text-large";
+
+
+/********** canvas id **********/
+biSetContainer = "biset_canvas";
+biSetVisCanvas = "vis_canvas";
+

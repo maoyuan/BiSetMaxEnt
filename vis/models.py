@@ -9,12 +9,12 @@ class Vis(models.Model):
     project = models.ForeignKey(Project)
     user = models.ForeignKey(User)
     name = models.CharField(max_length=50)
-    personIn = models.BooleanField(default = 0)
-    locationIn = models.BooleanField(default = 0)
-    phoneIn = models.BooleanField(default = 0)
-    dateIn = models.BooleanField(default = 0)
-    orgIn = models.BooleanField(default = 0)
-    miscIn = models.BooleanField(default = 0)    
+    personIn = models.IntegerField(default = 0)
+    locationIn = models.IntegerField(default = 0)
+    phoneIn = models.IntegerField(default = 0)
+    dateIn = models.IntegerField(default = 0)
+    orgIn = models.IntegerField(default = 0)
+    miscIn = models.IntegerField(default = 0)    
     create_time = models.DateTimeField('date published')
     
 class VisNodes(models.Model):

@@ -75,19 +75,24 @@ $("#btn_save_config").click(function(){
 
 	var selDims = $("input:checkbox:checked");
 
-	console.log(selDims.length);
+	console.log(selDims);
 
 	if (selDims.length < 2){
-	// if (selDims.length > 2 || selDims.length == 1 || selDims.length == 0){
 		alert("Please select at least two dimensions.");
         return;
     }
 	else {
+		var orderedDims = [];
 		// add all lists
 		for (var i = 0; i < selDims.length; i++) {
 			var lkey = $(selDims[i]).val();
+			orderedDims.push(lkey);
+
 			requestJSON[lkey] = 1;
+
 		}
+		console.log(orderedDims);
+		requestJSON['orderedSelDims'] = orderedDims;
 
 		// hide the vis name config
 		$("#vis_name_config").addClass('hide_this');
