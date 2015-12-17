@@ -1474,9 +1474,6 @@ def getVisJson(request, table1 = "person", table2 = "location", table3 = "org", 
   
 def getLstsBisets(lstNames):
 
-    print("====================list names:::::")
-    print(lstNames)
-
     '''
     Returns a json object for visualization. 
     The json contains lists and bicsets objects.
@@ -1498,15 +1495,6 @@ def getLstsBisets(lstNames):
             theList, preCols = getListDict(lstNames[i-1], lstNames[i], lstNames[i+1], preCols, biclusDict)
             entryLists.append({"listID": i + 1, "leftType": lstNames[i-1], "listType": lstNames[i], "rightType": lstNames[i+1], "entities": theList})
    
-    
-    print('++++========++++==========++++=========')
-    print('++++========++++==========++++=========')
-    print('++++========++++==========++++=========')
-    for b in biclusDict:
-        print(biclusDict[b]['bicID'])
-        print(biclusDict[b]['row'])
-        print(biclusDict[b]['col'])
-
     return {"lists":entryLists, "bics":biclusDict}
 
 
@@ -1583,11 +1571,6 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
     @param tableRight: right list name
     ''' 
 
-    print("================TABLE ORDERS=================")
-    print(tableLeft)
-    print(table)
-    print(tableRight)
-
     # retrieve data for field1
     if not table == "EMPTY":
         cursor = connection.cursor()
@@ -1620,9 +1603,6 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
     
     #retrieve biset list
     if not (tableRight == "EMPTY" or tableRight == None):
-
-        print("retrieve bic info....")
-
         isInOrder = True
         cursor = connection.cursor()
         sql_str = "SELECT * FROM datamng_" + table + " order by id"
@@ -1643,11 +1623,6 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
         if table + "_" + tableRight in PAIRS or tableRight + "_" + table in PAIRS:
             isInOrder = True            
         
-            print("find the order!!!!!!!!!!!!!!!!!")
-
-            print(orderList[0])
-            print(orderList[1])
-
             # retrieve data from cluster row for field1
             sql_str = "SELECT * FROM datamng_clusterrow as A, datamng_cluster as B where A.cluster_id = B.id and B.field1 = '" + orderList[0] + "' and B.field2 = '" + orderList[1] + "' order by B.id"
             cursor.execute(sql_str)
