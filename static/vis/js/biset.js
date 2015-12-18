@@ -126,17 +126,6 @@ var svgPos = canvas[0][0].getBoundingClientRect(),
 
 // get dataset name
 var selData = $('#selDataSet').val();
-// to do get column names from the database about the dataset
-
-$("#dataDimensionList").append(
-    "<input type='checkbox' name='dimensions' value='person' id='d_person'> Person<br />" +
-    "<input type='checkbox' name='dimensions' value='date' id='d_date'> Date<br />" +
-    "<input type='checkbox' name='dimensions' value='org' id='d_org'> Organization<br />" +
-    "<input type='checkbox' name='dimensions' value='phone' id='d_phone'> Phone<br />" +
-    "<input type='checkbox' name='dimensions' value='location' id='d_location'> Location<br />" +
-    "<input type='checkbox' name='dimensions' value='misc' id='d_misc'> Misc<br />"
-);
-
 
 /*
  * Add a list in a canvas and return this list

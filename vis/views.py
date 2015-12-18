@@ -1215,6 +1215,37 @@ def bicsEval(bicDict, tranDict, modelObj):
     return bic_score
 
 
+def getdomainBasedAvgBicScore(bicDict, tranDict, mObj):
+    bicScoreByTypeDict = {}
+    countByTypeDict = {}
+
+    for b in bicDict:
+        set_rowID = bicDict[b]["rowEntIDs"]
+        set_colID = bicDict[b]["colEntIDs"]
+
+        list_biTiles = maxent_utils.convert2TileListEachPair(tranDict, set_rowID, set_colID)
+        f_local = mObj.evaluate_biTiles(list_biTiles, "local")
+
+        rType = bicDict[b]["rowType"]
+        cType = bicDict[b]["colType"]
+
+        if rType > cType:
+            thisType = rType + "__" + cType
+        else:
+            thisType = cType + "__" + rType
+
+        if thisType not in bicScoreByTypeDict:
+            bicScoreByTypeDict[thisType] = f_local
+            countByTypeDict[thisType] = 1
+        else:
+            bicScoreByTypeDict[thisType] += f_local
+            countByTypeDict[thisType] += 1
+
+        for key in bicScoreByTypeDict:
+            bicScoreByTypeDict[key] /= countByTypeDict[key]
+
+    return bicScoreByTypeDict
+
 
 def depthSearch(bicID, consDict):
 
@@ -1754,3 +1785,273 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
         return newlist, None 
         
     return None, None
+
+
+'''
+load the following info to generate the dim graph
+    1) dimensions
+    2) # of ents in each dimension
+    3) # of bics between each pair of dimension
+    4) surprising score of each bic
+'''
+def loadOverviewInfo(request):
+    requestJson = json.loads(request.body)
+
+    dims = {}
+    allBicDict = {}
+    edges = {}
+
+    entIDsDcit = {}
+
+    modelBicDict = {}
+
+    modelTranDict = {}
+    modelColTiles = []
+    modelRowTiles = []
+    modelDomainTiles = []
+
+    # get data from global entity id table
+    dList = []
+    dIDShift = {}
+    docIDList = []
+
+    entIDTable = fetchAllInfo("datamng_globalentid")
+    for row in entIDTable:
+        dims[row[1]] = row[5]
+        dList.append(row[1])
+        dIDShift[row[1]] = row[4]
+
+    docTable = fetchAllInfo("datamng_docname")
+    for row in docTable:
+        docIDList.append(int(row[0]) - 1)
+
+    # get all paired domains
+    pairedDims = fetchUniquePair("datamng_cluster", "field1", "field2")
+    for d in pairedDims:
+        if d[0] > d[1]:
+            theID = d[0] + "__" + d[1]
+        else:
+            theID = d[1] + "__" + d[0]
+        if theID not in edges:
+            edges[theID] = {}
+            edges[theID]['totalBicNum'] = d[2]
+        
+        curRows = fetchBicRowInfo("datamng_clusterrow", "datamng_cluster", d[0], d[1])
+        curCols = fetchBicRowInfo("datamng_clustercol", "datamng_cluster", d[0], d[1])
+
+        # initialize info of all bics
+        setBicInfo(curRows, curCols, allBicDict, d[0], d[1])
+
+    # add all bic with its entities in the dictionary
+    for b in allBicDict:
+        tmpArray = []
+        rowType = allBicDict[b]["rowField"]
+        colType = allBicDict[b]["colField"]
+        rows = allBicDict[b]["row"]
+        cols = allBicDict[b]["col"]
+
+        bicID = rowType + "_" + colType + "_bic_" + str(allBicDict[b]["bicID"])
+
+        modelBicDict[bicID] = {}
+        modelBicDict[bicID]["id"] = str(allBicDict[b]["bicID"])
+        modelBicDict[bicID]["rowType"] = rowType
+        modelBicDict[bicID]["colType"] = colType
+
+        modelBicDict[bicID]["rowEntIDs"] = set()
+        modelBicDict[bicID]["colEntIDs"] = set()
+
+        modelBicDict[bicID]["relRowEntIDs"] = set()
+        modelBicDict[bicID]["relColEntIDs"] = set()
+
+        for row in rows:
+            rowEntID = int(row) + dIDShift[str(rowType)]
+            modelBicDict[bicID]["rowEntIDs"].add(rowEntID)
+            modelBicDict[bicID]["relRowEntIDs"].add(int(row))
+
+        for col in cols:
+            colID = int(col) + dIDShift[str(colType)]
+            modelBicDict[bicID]["colEntIDs"].add(colID)
+            modelBicDict[bicID]["relColEntIDs"].add(int(col))
+
+    # initialize the dictionary
+    for dID in docIDList:
+        modelTranDict[dID] = set()
+
+    for d in dList:
+        entTableRows = fetchAllInfo("datamng_" + d)
+
+        entIDsDcit[d] = []
+
+        for row in entTableRows:
+            tmpDocToEnt = []
+            tmpDocEntToFreq = []
+            tmpID = []
+            tmpDocToEnt.append(docIDList)
+
+            tmpID.append(int(row[0]) + dIDShift[d])
+            tmpDocToEnt.append(tmpID)
+
+            entIDsDcit[d].append(int(row[0]) + int(dIDShift[d]))
+
+            tmpDocEntToFreq.append(tmpDocToEnt)
+            tmpDocEntToFreq.append(int(row[2]))
+
+            modelColTiles.append(tmpDocEntToFreq)
+
+        tmpDocFreq = {}
+        for dID in docIDList:
+            tmpDocFreq[dID] = 0
+
+        entdocTableRows = fetchAllInfo("datamng_" + d + "doc")
+
+        # total frequency for all entities in each domain
+        tmpTotalFre = 0
+        
+        for row in entdocTableRows:
+            if d == 'person' or d == 'date':
+                ind = int(row[2]) - 1
+                entID = int(row[1]) + dIDShift[d]
+            else:
+                ind = int(row[1]) - 1
+                entID = int(row[2]) + dIDShift[d]
+
+            tmpDocFreq[ind] += 1
+            tmpTotalFre += 1
+
+            modelTranDict[ind].add(entID)
+
+        for docID in docIDList:
+            tmp1 = []
+            tmp2 = []
+            tmp3 = []
+
+            tmp1.append(docID)
+            tmp2.append(tmp1)
+            tmp2.append(entIDsDcit[d])
+
+            tmp3.append(tmp2)
+            tmp3.append(tmpDocFreq[docID])
+
+            modelRowTiles.append(tmp3)
+
+        tmpDocIdsEntIds = []
+        tmpDocsEntsFreq = []
+
+        tmpDocIdsEntIds.append(docIDList)
+        tmpDocIdsEntIds.append(entIDsDcit[d])
+
+        tmpDocsEntsFreq.append(tmpDocIdsEntIds)
+        tmpDocsEntsFreq.append(tmpTotalFre)
+
+        modelDomainTiles.append(tmpDocsEntsFreq)
+
+    # total number of entity
+    entCounts = 0
+    for e in entIDsDcit:
+        entCounts += len(entIDsDcit[e])
+    
+    initMaxent = genModelObj(len(docIDList), entCounts, modelRowTiles, modelColTiles, modelDomainTiles, 0.001, 10000)
+
+    bScores = getdomainBasedAvgBicScore(modelBicDict, modelTranDict, initMaxent)
+
+    for e in bScores:
+        edges[e]["score"] = bScores[e]
+
+    overviewInfo = {
+        "msg": "success",
+        "nodes": dims,
+        "edges": edges
+    }
+
+    return HttpResponse(json.dumps(overviewInfo))
+
+
+# fetch all information from a table
+def fetchAllInfo(tableName):
+    cursor = connection.cursor()
+    sql_str = "SELECT * FROM " + tableName       
+    cursor.execute(sql_str)
+    return cursor.fetchall()
+
+# get the unique value of two fields in a table
+def fetchUniquePair(tableName, field1, field2):
+    cursor = connection.cursor()
+    sql_str = "SELECT " + field1 + ", " + field2 + ", COUNT(*) FROM " + tableName + " GROUP BY " + field1 + ", " + field2
+    cursor.execute(sql_str)
+    return cursor.fetchall()
+
+# get row or column info of bics with two specific fields
+def fetchBicRowInfo(rowOrCol, cluster, field1, field2):
+    cursor = connection.cursor()
+    sql_str = "SELECT * FROM " + rowOrCol + " as A, " + cluster + " as B where A.cluster_id = B.id and B.field1 = '" + field1 + "' and B.field2 = '" + field2 + "' order by B.id"
+    cursor.execute(sql_str)
+    return cursor.fetchall()
+
+
+''' 
+set info for each bic based on fetched row and col info
+    @param rows, row info fetched from two joined table
+    @param cols, col info fetched from two joined table
+    @param bics, a dictionary contains info of all bics
+    @param rfield, row field
+    @param cfield, column field
+'''
+def setBicInfo(rows, cols, bics, rfield, cfield):
+    for row in rows:
+        if not row[2] in bics:
+            bics[row[2]] = {}
+            newRow = []
+            newRow.append(row[1])
+
+            bics[row[2]]['row'] = newRow
+            bics[row[2]]['rowField'] = rfield 
+            bics[row[2]]['colField'] = cfield 
+            bics[row[2]]['bicIDCmp'] = str(rfield) + "_" + str(cfield) + "_bic_" + str(row[2])
+            bics[row[2]]['bicID'] = row[2]
+            bics[row[2]]['docs'] = []
+            bics[row[2]]['bicSelected'] = False
+            bics[row[2]]['bicMouseOvered'] = False
+            bics[row[2]]['bicNumCoSelected'] = 0
+            bics[row[2]]['bicDisplayed'] = True
+            bics[row[2]]['bicSelectOn'] = False
+        else:
+            bics[row[2]]["row"].append(row[1])
+
+    for col in cols:
+        if not col[2] in bics:
+            # Should not go here
+            print col[2], col[1]
+        else:
+            if not 'col' in bics[col[2]]:
+                newCol = []
+                newCol.append(col[1])
+                bics[col[2]]['col'] = newCol
+            else:
+                bics[col[2]]['col'].append(col[1])
+
+    for bic in bics:
+        rNum = len(bics[bic]['row'])
+        cNum = len(bics[bic]['col'])
+        eNum = rNum + cNum
+        bics[bic]['totalEntNum'] = eNum
+        bics[bic]['rowEntNum'] = rNum
+        bics[bic]['colEntNum'] = cNum
+
+
+'''
+generate a model object
+    @param rNum, row #
+    @param cNum, col #
+    @param rTiles, row tiles
+    @param cTiles, column tiles
+    @param dTiles, domain tiles
+    @param threashold, for the model object
+    @param iterTimes, # of iterations
+'''
+def genModelObj(rNum, cNum, rTiles, cTiles, dTiles, threshold, iterTimes):
+    mObj = MaxEnt(rNum, cNum)
+    mObj.add_background_tiles(cTiles)
+    mObj.add_background_tiles(rTiles)
+    mObj.add_background_tiles(dTiles)
+    mObj.train_maxent(threshold, iterTimes)
+    return mObj
