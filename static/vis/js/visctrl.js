@@ -246,8 +246,12 @@ function visCtrlRequest(rJson, rType) {
                     }
                 case "dimGraph":
                     {
-                    	console.log("get function here");
-                    	console.log(repData)
+                    	console.log(repData);
+                    	var dims = repData.nodes,
+                    		rels = repData.edges;
+                		console.log(dims);
+                		console.log(rels);
+                    	dimGraph.draw(dims, rels);
                     	break;
                     }
             }

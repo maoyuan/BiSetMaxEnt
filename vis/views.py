@@ -1224,7 +1224,7 @@ def getdomainBasedAvgBicScore(bicDict, tranDict, mObj):
         set_colID = bicDict[b]["colEntIDs"]
 
         list_biTiles = maxent_utils.convert2TileListEachPair(tranDict, set_rowID, set_colID)
-        f_local = mObj.evaluate_biTiles(list_biTiles, "local")
+        score = mObj.evaluate_biTiles(list_biTiles, "global")
 
         rType = bicDict[b]["rowType"]
         cType = bicDict[b]["colType"]
@@ -1235,10 +1235,10 @@ def getdomainBasedAvgBicScore(bicDict, tranDict, mObj):
             thisType = cType + "__" + rType
 
         if thisType not in bicScoreByTypeDict:
-            bicScoreByTypeDict[thisType] = f_local
+            bicScoreByTypeDict[thisType] = score
             countByTypeDict[thisType] = 1
         else:
-            bicScoreByTypeDict[thisType] += f_local
+            bicScoreByTypeDict[thisType] += score
             countByTypeDict[thisType] += 1
 
         for key in bicScoreByTypeDict:
@@ -1954,13 +1954,27 @@ def loadOverviewInfo(request):
 
     bScores = getdomainBasedAvgBicScore(modelBicDict, modelTranDict, initMaxent)
 
+    dimRels = []
     for e in bScores:
-        edges[e]["score"] = bScores[e]
+        tmp = {}
+        tmp["relType"] = e
+        tmp["relFreq"] = edges[e]["totalBicNum"]
+        tmp["relScore"] = bScores[e]
+        dimRels.append(tmp)
+        # edges[e]["score"] = bScores[e]
+
+
+    dimNodes = []
+    for d in dims:
+        tmp = {}
+        tmp["type"] = d
+        tmp["entCounts"] = dims[d]
+        dimNodes.append(tmp)
 
     overviewInfo = {
         "msg": "success",
-        "nodes": dims,
-        "edges": edges
+        "nodes": dimNodes,
+        "edges": dimRels
     }
 
     return HttpResponse(json.dumps(overviewInfo))
