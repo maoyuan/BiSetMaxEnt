@@ -10,5 +10,6 @@ urlpatterns = patterns('',
     url(r'^updateCounts/$', views.updateCounts, name='updateCounts'),
     url(r'^testInput/$', views.genLcmInput, name='test'),
     url(r'^testOutput/$', views.genLcmOutput, name='testLCM'),
+    url(r'^seriation/$', views.seriation, name='seriation'),
 )
 

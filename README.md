@@ -20,3 +20,13 @@ Include MaxEnt model to evaluate bicluster, the evaluation
 is based on the "surpriseness" of the information in each
 bicluster. The model would dynamically update as a user
 select a bicluster.
+
+
+Install R:
+sudo apt-get install r-base
+
+Required R package:
+install.packages("ca")
+install.packages("FactoMineR")
+install.packages("seriation")
+install.packages("xlsx")

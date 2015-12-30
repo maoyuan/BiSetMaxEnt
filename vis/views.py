@@ -1983,7 +1983,7 @@ def loadOverviewInfo(request):
 # fetch all information from a table
 def fetchAllInfo(tableName):
     cursor = connection.cursor()
-    sql_str = "SELECT * FROM " + tableName       
+    sql_str = "SELECT * FROM " + tableName
     cursor.execute(sql_str)
     return cursor.fetchall()
 

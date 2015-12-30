@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.core.files import File
 from django.conf import settings
+from sets import Set
 import os, subprocess, sys, csv, json
 
 
@@ -525,4 +526,112 @@ def genOneLcmOutput(inputFileName, outputFileName, lcmFilePath, f1, f2):
             oeIndex += 1
 
 
+from rpy2.robjects import r
+r.library("ca")
+r.library("FactoMineR")
+r.library("seriation")
+
+# All available pairs
+PAIRS = Set(['person_location', 'person_phone', 'person_date', 'person_org', 'person_misc', 
+    'location_phone', 'location_date', 'location_org', 'location_misc', 
+    'phone_date', 'phone_org', 'phone_misc', 
+    'date_org', 'date_misc',
+    'org_misc'])
+
+def seriation(request):
+
+    clusterDict = {}
+    gClusterIDs = []
+
+    clusterInfo = fetchAllInfo('datamng_cluster')
+    # print(clusterInfo)
+    for e in clusterInfo:
+        clusterDict[e[0]] = {}
+        clusterDict[e[0]]['rowField'] = e[1]
+        clusterDict[e[0]]['colField'] = e[2]
+        gClusterIDs.append(e[0])
+    gClusterIDShift = gClusterIDs[0]
+
+    # get data from global entity id table
+    gEntID_table_rows = fetchAllInfo('datamng_globalentid')
+    
+    gDomainList = []
+    gDomainIDShift = {}
+    # get a list of domains and the global id of their entities
+    for row in gEntID_table_rows:
+        gDomainList.append(row[1])
+        gDomainIDShift[row[1]] = row[4]
+
+    gEntDict = {}
+    for d in gDomainList:
+        entsInfo = fetchAllInfo('datamng_' + d)
+        for row in entsInfo:
+            gEntindex = row[0] + gDomainIDShift[d]
+            gEntDict[gEntindex] = {}
+            gEntDict[gEntindex]['entType'] = d
+            gEntDict[gEntindex]['entLocalID'] = row[0]
+
+    rowNum = len(gEntDict)
+    colNum = len(clusterDict)
+    gEntDicMatrix = [[ 0 for x in range(0, colNum)] for y in range(0, rowNum)]
+
+
+    for p in PAIRS:
+        tmpRow = p.split("_")[0]
+        tmpCol = p.split("_")[1]
+
+        curRows = fetchBicRowInfo("datamng_clusterrow", "datamng_cluster", tmpRow, tmpCol)
+        curCols = fetchBicRowInfo("datamng_clustercol", "datamng_cluster", tmpRow, tmpCol)
+
+        for row in curRows:
+            thisEntLocalID = row[2]
+            thisEntGlobalID = thisEntLocalID + gDomainIDShift[tmpRow]
+
+            thisClusterLocalID = row[3]
+            thisClusterGlobalID = thisClusterLocalID - gClusterIDShift
+
+            gEntDicMatrix[thisEntGlobalID][thisClusterGlobalID] = 1
+
+        for col in curCols:
+            thisEntLocalID = col[2]
+            thisEntGlobalID = thisEntLocalID + gDomainIDShift[tmpRow]
+
+            thisClusterLocalID = col[3]
+            thisClusterGlobalID = thisClusterLocalID - gClusterIDShift
+
+            gEntDicMatrix[thisEntGlobalID][thisClusterGlobalID] = 1
+
         
+        print(tmpRow)
+        print(tmpCol)
+        print("=====")
+
+
+    r('mydata <- read.csv("datamng/inputMatrix.csv",head=TRUE,sep=",")')
+    r('res.ca<-CA(mydata, axes=c(1,2), graph=FALSE)')
+    r('row.c<-res.ca$row$coord')
+    r('col.c<-res.ca$col$coord')
+    r('seriat<-mydata[order(row.c[,1]), order(col.c[,1])]')
+    r('seriat.PA<-apply(seriat, 2, function(x) ifelse(x>0, 1, 0))')
+
+    # print(r('seriat'))
+
+    print("seration done!")
+
+    return HttpResponse("Done")
+
+
+# fetch all information from a table
+def fetchAllInfo(tableName):
+    cursor = connection.cursor()
+    sql_str = "SELECT * FROM " + tableName
+    cursor.execute(sql_str)
+    return cursor.fetchall()
+
+
+# get row or column info of bics with two specific fields
+def fetchBicRowInfo(rowOrCol, cluster, field1, field2):
+    cursor = connection.cursor()
+    sql_str = "SELECT * FROM " + rowOrCol + " as A, " + cluster + " as B where A.cluster_id = B.id and B.field1 = '" + field1 + "' and B.field2 = '" + field2 + "' order by B.id"
+    cursor.execute(sql_str)
+    return cursor.fetchall()
