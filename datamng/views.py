@@ -525,7 +525,7 @@ def genOneLcmOutput(inputFileName, outputFileName, lcmFilePath, f1, f2):
             print "EEE" + str(words)
             oeIndex += 1
 
-
+import rpy2
 from rpy2.robjects import r
 r.library("ca")
 r.library("FactoMineR")
@@ -584,31 +584,38 @@ def seriation(request):
         curCols = fetchBicRowInfo("datamng_clustercol", "datamng_cluster", tmpRow, tmpCol)
 
         for row in curRows:
-            thisEntLocalID = row[2]
-            thisEntGlobalID = thisEntLocalID + gDomainIDShift[tmpRow]
+            thisEntLocalID = int(row[1])
+            thisEntGlobalID = int(thisEntLocalID) + int(gDomainIDShift[tmpRow])
 
-            thisClusterLocalID = row[3]
-            thisClusterGlobalID = thisClusterLocalID - gClusterIDShift
+            thisClusterLocalID = int(row[2])
+            thisClusterGlobalID = int(thisClusterLocalID) - int(gClusterIDShift)
 
             gEntDicMatrix[thisEntGlobalID][thisClusterGlobalID] = 1
 
         for col in curCols:
-            thisEntLocalID = col[2]
-            thisEntGlobalID = thisEntLocalID + gDomainIDShift[tmpRow]
+            thisEntLocalID = int(col[1])
+            thisEntGlobalID = int(thisEntLocalID) + int(gDomainIDShift[tmpRow])
 
-            thisClusterLocalID = col[3]
-            thisClusterGlobalID = thisClusterLocalID - gClusterIDShift
+            thisClusterLocalID = int(col[2])
+            thisClusterGlobalID = int(thisClusterLocalID) - int(gClusterIDShift)
 
             gEntDicMatrix[thisEntGlobalID][thisClusterGlobalID] = 1
 
-        
-        print(tmpRow)
-        print(tmpCol)
-        print("=====")
+    colOrientedMatrix = {}
+    for col in range(0, colNum):
+        tmp_list = []
+        for row in range(0, rowNum):
+            tmp_list.append(gEntDicMatrix[row][col])
+        colOrientedMatrix[col] = rpy2.robjects.IntVector(tuple(tmp_list))
 
+
+
+    testData = rpy2.robjects.DataFrame(colOrientedMatrix)
+    print(testData.colnames)
+    print(testData.name)
 
     r('mydata <- read.csv("datamng/inputMatrix.csv",head=TRUE,sep=",")')
-    r('res.ca<-CA(mydata, axes=c(1,2), graph=FALSE)')
+    r('res.ca<-CA(testData, axes=c(1,2), graph=FALSE)')
     r('row.c<-res.ca$row$coord')
     r('col.c<-res.ca$col$coord')
     r('seriat<-mydata[order(row.c[,1]), order(col.c[,1])]')
