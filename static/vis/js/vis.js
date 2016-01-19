@@ -100,8 +100,26 @@ vis.linearScale = function(lst, rmin, rmax) {
  * @param maxVal, int or flaot, the max value
  * @return d3.scale.linear()
  */
-vis.linearScale = function(arrMinVal, arrMaxVal, mpMinVal, mpMaxVal) {
+vis.linearScaleByVal = function(arrMinVal, arrMaxVal, mpMinVal, mpMaxVal) {
     return d3.scale.linear()
         .domain([arrMinVal, arrMaxVal])
         .range([mpMinVal, mpMaxVal]);
+}
+
+vis.powerScaleByVal = function(arrMinVal, arrMaxVal, mpMinVal, mpMaxVal) {
+    return d3.scale.pow()
+        .domain([arrMinVal, arrMaxVal])
+        .range([mpMinVal, mpMaxVal]);
+}
+
+
+
+vis.getCircleXpos = function(circleID) {
+    return d3.select("#" + circleID)
+        .attr("cx");
+}
+
+vis.getCircleYpos = function(circleID) {
+    return d3.select("#" + circleID)
+        .attr("cy");
 }

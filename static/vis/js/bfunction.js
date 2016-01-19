@@ -32,3 +32,14 @@ var objArrayExtremeVal = function(objArray, field, type) {
         return Math.max.apply(Math, xVals);
     }
 }
+
+
+/*
+ * split a string and return the required section of it
+ * @param str, string, the string to be splited
+ * @param splitBy, string, splited condition
+ * @param id, integer, the id of the required section
+ */
+var getStrSplited = function(str, splitBy, id) {
+    return str.split(splitBy)[id];
+}
