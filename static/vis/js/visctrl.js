@@ -44,7 +44,7 @@ $("#doc_ctrl_icon").click(function(e) {
 
 $('#btn_new_vis').click(function() {
     $("#vis_name_config").removeClass('hide_this');
-    // $("#vis_dim_select").removeClass('hide_this');	
+    // $("#vis_dim_select").removeClass('hide_this');   
     // enable save button
     $("#btn_save_config").prop('disabled', false);
 });
@@ -92,7 +92,7 @@ $("#btn_save_config").click(function() {
         "vis_name": visName
     }
 
-    var selDims = $("input:checkbox:checked");
+    var selDims = selectedDims; // $("input:checkbox:checked");
 
     console.log(selDims);
 
@@ -103,11 +103,10 @@ $("#btn_save_config").click(function() {
         var orderedDims = [];
         // add all lists
         for (var i = 0; i < selDims.length; i++) {
-            var lkey = $(selDims[i]).val();
+            var lkey = selDims[i]; //$(selDims[i]).val();
             orderedDims.push(lkey);
 
             requestJSON[lkey] = 1;
-
         }
         console.log(orderedDims);
         requestJSON['orderedSelDims'] = orderedDims;
@@ -246,13 +245,13 @@ function visCtrlRequest(rJson, rType) {
                     }
                 case "dimGraph":
                     {
-                    	console.log(repData);
-                    	var dims = repData.nodes,
-                    		rels = repData.edges;
-                		console.log(dims);
-                		console.log(rels);
-                    	dimGraph.draw(dims, rels);
-                    	break;
+                        console.log(repData);
+                        var dims = repData.nodes,
+                            rels = repData.edges;
+                        console.log(dims);
+                        console.log(rels);
+                        dimGraph.draw(dims, rels);
+                        break;
                     }
             }
         },
@@ -346,7 +345,7 @@ function loadVisHelper(resData) {
     if (!$("#vis_config_ctrl").hasClass("hide_this"))
         $("#vis_config_ctrl").addClass('hide_this');
 
-    // show visualization control buttons	
+    // show visualization control buttons   
     if ($("#vis_ctrl").hasClass("hide_this"))
         $("#vis_ctrl").removeClass('hide_this');
 
@@ -479,8 +478,8 @@ function loadVisHelper(resData) {
     biset.addOriginalLinks(oriLinks);
     // hide all original links
     // for (var i = 0; i < oriLinks.length; i++) {
-    // 	console.log(oriLinks[i].oriLinkID);
-    // 	biset.setVisibility(oriLinks[i].oriLinkID, "hidden");
+    //  console.log(oriLinks[i].oriLinkID);
+    //  biset.setVisibility(oriLinks[i].oriLinkID, "hidden");
     // }
 
 

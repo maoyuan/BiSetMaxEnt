@@ -11,8 +11,8 @@ var dimGraph = {
         height: 220
     },
     node: {
-        rmin: 5,
-        rmax: 15,
+        rmin: 8,
+        rmax: 18,
         rPosMax: 80
     },
     edge: {
@@ -24,6 +24,8 @@ var dimGraph = {
     }
 }
 
+// a global variable maintaining user selections
+selectedDims = [];
 
 dimGraph.dimCanvas = vis.addSvg("dimContainer", "dimCanvas",
     dimGraph.canvas.width, dimGraph.canvas.height);
@@ -46,7 +48,7 @@ dimGraph.draw = function(nodes, edges) {
         edgeWscale = vis.powerScaleByVal(minEdgeFreq, maxEdgeFreq, dimGraph.edge.wmin, dimGraph.edge.wmax),
         edgeTscale = vis.powerScaleByVal(minEdgeScore, maxEdgeScore, dimGraph.edge.transMin, dimGraph.edge.transMax);
 
-    var nodes = dimGraph.dimCanvas.selectAll("dimNode")
+    var graphNodes = dimGraph.dimCanvas.selectAll("dimNode")
         .data(nodes)
         .enter()
         .append("circle")
@@ -68,7 +70,48 @@ dimGraph.draw = function(nodes, edges) {
             return "node_" + d.type;
         });
 
-    var edges = dimGraph.dimCanvas.selectAll("dimEdge")
+    graphNodes.on('click', function() {
+        var selNode = d3.select(this).datum().type;
+        if (selectedDims.indexOf(selNode) < 0)
+            selectedDims.push(selNode);
+        else {
+            var selIndex = selectedDims.indexOf(selNode);
+            selectedDims.splice(selIndex, 1);
+        }
+
+        console.log(selectedDims);
+    });
+
+
+
+    var graphNodeText = dimGraph.dimCanvas.selectAll("dimNodeText")
+        .data(nodes)
+        .enter()
+        .append("text")
+        .attr("class", "dimNodeText")
+        .attr("transform", "translate(" + dimGraph.canvas.width / 2 + "," + dimGraph.canvas.height / 2 + ")")
+        .attr("x", function(d, i) {
+            var nodeXpos = Math.sin(2 * Math.PI * i / nodesNum) * dimGraph.node.rPosMax,
+                nodeYpos = Math.cos(2 * Math.PI * i / nodesNum) * dimGraph.node.rPosMax * (-1),
+                nodeRadius = nodeRscale(d.entCounts);
+
+            return nodeXpos;
+        })
+        .attr("y", function(d, i) {
+            var nodeXpos = Math.sin(2 * Math.PI * i / nodesNum) * dimGraph.node.rPosMax,
+                nodeYpos = Math.cos(2 * Math.PI * i / nodesNum) * dimGraph.node.rPosMax * (-1),
+                nodeRadius = nodeRscale(d.entCounts);
+
+            return nodeYpos;
+        })
+        .text(function(d, i) {
+            console.log(d);
+            return d.type;
+        })
+        .attr("fill", "rgba(0,0,0,0.8)")
+        .attr("font-size", "0.8em");
+
+    var graphEdges = dimGraph.dimCanvas.selectAll("dimEdge")
         .data(edges)
         .enter()
         .append("line")
@@ -107,5 +150,9 @@ dimGraph.draw = function(nodes, edges) {
         .style("stroke-width", function(d, i) {
             return edgeWscale(d.relFreq);
         });
+
+    // d3.selectAll(".dimNode")
+    // 	.attr("stroke", "rgba(0,0,0,0.5)")
+    // 	.attr("stroke-width", 1);
 
 }
