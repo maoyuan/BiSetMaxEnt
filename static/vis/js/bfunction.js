@@ -12,3 +12,23 @@ var toNormalized = function(lst) {
 
     return thisArray;
 }
+
+
+/*
+ * find extreme values in an object array
+ * @param objArray, an object array
+ * @param filed, string, the field to be used
+ * @param type, string, min or max
+ * @return float or int, the extreme values found
+ */
+var objArrayExtremeVal = function(objArray, field, type) {
+    var xVals = objArray.map(function(val) {
+        return val[field];
+    });
+
+    if (type == "min") {
+        return Math.min.apply(Math, xVals);
+    } else {
+        return Math.max.apply(Math, xVals);
+    }
+}

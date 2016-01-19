@@ -90,3 +90,18 @@ vis.linearScale = function(lst, rmin, rmax) {
         .domain([min, max])
         .range([rmin, rmax]);
 }
+
+
+/*
+ * a linear scale
+ * @param arrMinVal, min value in an array
+ * @param arrMaxVal, max value in an arry
+ * @param minVal, int or float, the min value
+ * @param maxVal, int or flaot, the max value
+ * @return d3.scale.linear()
+ */
+vis.linearScale = function(arrMinVal, arrMaxVal, mpMinVal, mpMaxVal) {
+    return d3.scale.linear()
+        .domain([arrMinVal, arrMaxVal])
+        .range([mpMinVal, mpMaxVal]);
+}
