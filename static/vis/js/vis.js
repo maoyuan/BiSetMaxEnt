@@ -73,6 +73,17 @@ vis.setFontSize = function(tID, size) {
 }
 
 
+/*
+ * set svg stroke and stroke width
+ * @param svgObj, a d3 object
+ * @param scolor, string, css color
+ * @param swidth, int / flot, the width of the stroke 
+ */
+vis.setSvgStroke = function(svgObj, scolor, swidth) {
+    return svgObj.attr("stroke", scolor)
+        .attr("stroke-width", swidth);
+}
+
 
 /***********************************************************/
 /*********************scale functions***********************/

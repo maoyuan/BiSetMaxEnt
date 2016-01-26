@@ -21,6 +21,10 @@ var dimGraph = {
 
         transMin: 0.12,
         transMax: 0.5
+    },
+    cssClass: {
+    	node: "dimNode",
+    	edge: "dimEdge"
     }
 }
 
@@ -48,11 +52,11 @@ dimGraph.draw = function(nodes, edges) {
         edgeWscale = vis.powerScaleByVal(minEdgeFreq, maxEdgeFreq, dimGraph.edge.wmin, dimGraph.edge.wmax),
         edgeTscale = vis.powerScaleByVal(minEdgeScore, maxEdgeScore, dimGraph.edge.transMin, dimGraph.edge.transMax);
 
-    var graphNodes = dimGraph.dimCanvas.selectAll("dimNode")
+    var graphNodes = dimGraph.dimCanvas.selectAll(dimGraph.cssClass.node)
         .data(nodes)
         .enter()
         .append("circle")
-        .attr("class", "dimNode")
+        .attr("class", dimGraph.cssClass.node)
         .attr("transform", "translate(" + dimGraph.canvas.width / 2 + "," + dimGraph.canvas.height / 2 + ")")
         .attr("cx", function(d, i) {
             return Math.sin(2 * Math.PI * i / nodesNum) * dimGraph.node.rPosMax;
@@ -70,7 +74,15 @@ dimGraph.draw = function(nodes, edges) {
             return "node_" + d.type;
         });
 
-    graphNodes.on('click', function() {
+    graphNodes.on('mouseover', function(d, i) {
+    	vis.setSvgStroke(d3.select(this), "black", 2);
+    });
+
+    graphNodes.on('mouseout', function(d, i) {
+    	vis.setSvgStroke(d3.select(this), "black", 0);
+    });
+
+    graphNodes.on('click', function(d) {
         var selNode = d3.select(this).datum().type;
         if (selectedDims.indexOf(selNode) < 0)
             selectedDims.push(selNode);
@@ -82,9 +94,12 @@ dimGraph.draw = function(nodes, edges) {
         console.log(selectedDims);
     });
 
+    graphNodes.append("svg:title")
+        .text(function(d) {
+            return d.type;
+        });
 
-
-    var graphNodeText = dimGraph.dimCanvas.selectAll("dimNodeText")
+    /*var graphNodeText = dimGraph.dimCanvas.selectAll("dimNodeText")
         .data(nodes)
         .enter()
         .append("text")
@@ -109,13 +124,13 @@ dimGraph.draw = function(nodes, edges) {
             return d.type;
         })
         .attr("fill", "rgba(0,0,0,0.8)")
-        .attr("font-size", "0.8em");
+        .attr("font-size", "0.8em");*/
 
-    var graphEdges = dimGraph.dimCanvas.selectAll("dimEdge")
+    var graphEdges = dimGraph.dimCanvas.selectAll(dimGraph.cssClass.edge)
         .data(edges)
         .enter()
         .append("line")
-        .attr("class", "dimEdge")
+        .attr("class", dimGraph.cssClass.edge)
         .attr("transform", "translate(" + dimGraph.canvas.width / 2 + "," + dimGraph.canvas.height / 2 + ")")
         .attr("x1", function(d, i) {
             var node1 = getStrSplited(d.relType, "__", 0),
@@ -151,8 +166,5 @@ dimGraph.draw = function(nodes, edges) {
             return edgeWscale(d.relFreq);
         });
 
-    // d3.selectAll(".dimNode")
-    // 	.attr("stroke", "rgba(0,0,0,0.5)")
-    // 	.attr("stroke-width", 1);
 
 }
