@@ -23,8 +23,8 @@ var dimGraph = {
         transMax: 0.5
     },
     cssClass: {
-    	node: "dimNode",
-    	edge: "dimEdge"
+        node: "dimNode",
+        edge: "dimEdge"
     }
 }
 
@@ -75,20 +75,22 @@ dimGraph.draw = function(nodes, edges) {
         });
 
     graphNodes.on('mouseover', function(d, i) {
-    	vis.setSvgStroke(d3.select(this), "black", 2);
+        vis.setSvgStroke(d3.select(this), "black", 2);
     });
 
     graphNodes.on('mouseout', function(d, i) {
-    	vis.setSvgStroke(d3.select(this), "black", 0);
+        vis.setSvgStroke(d3.select(this), "black", 0);
     });
 
     graphNodes.on('click', function(d) {
         var selNode = d3.select(this).datum().type;
-        if (selectedDims.indexOf(selNode) < 0)
+        if (selectedDims.indexOf(selNode) < 0) {
             selectedDims.push(selNode);
-        else {
+            vis.setCheckedByVal(selNode, true);
+        } else {
             var selIndex = selectedDims.indexOf(selNode);
             selectedDims.splice(selIndex, 1);
+			vis.setCheckedByVal(selNode, false);
         }
 
         console.log(selectedDims);

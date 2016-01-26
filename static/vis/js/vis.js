@@ -134,3 +134,15 @@ vis.getCircleYpos = function(circleID) {
     return d3.select("#" + circleID)
         .attr("cy");
 }
+
+
+
+/*
+ * setting checked by value
+ * @param cVal, string, the value of a check box
+ * @param ToF, string (true or false), set checked
+ */
+vis.setCheckedByVal = function(cVal, ToF) {
+    $("input[type=checkbox][value=" + cVal + "]").prop("checked", ToF);
+}
+
