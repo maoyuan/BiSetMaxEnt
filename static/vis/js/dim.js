@@ -13,7 +13,9 @@ var dimGraph = {
     node: {
         rmin: 8,
         rmax: 18,
-        rPosMax: 80
+        rPosMax: 80,
+        nStroke: 0,
+        hstroke: 2
     },
     edge: {
         wmin: 2,
@@ -25,6 +27,13 @@ var dimGraph = {
     cssClass: {
         node: "dimNode",
         edge: "dimEdge"
+    },
+    colors: {
+        nNode: "rgba(111,185,255,0.4)",
+        pNode: "rgba(111,185,255,",
+        strNode: "rgba(0,0,0,0.9)",
+        nOpa: 0.4,
+        hOpa: 0.7
     }
 }
 
@@ -36,7 +45,6 @@ dimGraph.dimCanvas = vis.addSvg("dimContainer", "dimCanvas",
 
 dimGraph.draw = function(nodes, edges) {
     console.log(nodes);
-    var c10 = d3.scale.category10();
 
     var minEntCounts = objArrayExtremeVal(nodes, "entCounts", "min"),
         maxEntCounts = objArrayExtremeVal(nodes, "entCounts", "max"),
@@ -67,19 +75,17 @@ dimGraph.draw = function(nodes, edges) {
         .attr("r", function(d, i) {
             return nodeRscale(d.entCounts);
         })
-        .attr("fill", function(d, i) {
-            return c10(i);
-        })
+        .attr("fill", dimGraph.colors.nNode)
         .attr("id", function(d, i) {
             return "node_" + d.type;
         });
 
     graphNodes.on('mouseover', function(d, i) {
-        vis.setSvgStroke(d3.select(this), "black", 2);
+        vis.setSvgObjOpacity(d3.select(this), dimGraph.colors.pNode, dimGraph.colors.hOpa);
     });
 
     graphNodes.on('mouseout', function(d, i) {
-        vis.setSvgStroke(d3.select(this), "black", 0);
+        vis.setSvgObjOpacity(d3.select(this), dimGraph.colors.pNode, dimGraph.colors.nOpa);
     });
 
     graphNodes.on('click', function(d) {
@@ -87,10 +93,12 @@ dimGraph.draw = function(nodes, edges) {
         if (selectedDims.indexOf(selNode) < 0) {
             selectedDims.push(selNode);
             vis.setCheckedByVal(selNode, true);
+            vis.setSvgStroke(d3.select(this), dimGraph.colors.strNode, dimGraph.node.hstroke);
         } else {
             var selIndex = selectedDims.indexOf(selNode);
             selectedDims.splice(selIndex, 1);
-			vis.setCheckedByVal(selNode, false);
+            vis.setCheckedByVal(selNode, false);
+            vis.setSvgStroke(d3.select(this), dimGraph.colors.strNode, 0);
         }
 
         console.log(selectedDims);

@@ -412,6 +412,9 @@ function loadVisHelper(resData) {
 
     // uncheck all
     $(':checkbox').prop("checked", false);
+    // clear all previous selected nodes
+    d3.selectAll("." + dimGraph.cssClass.node)
+        .attr("stroke-width", 0);
 
     // add all lists
     for (var i = 0; i < selDims.length; i++) {
@@ -420,6 +423,8 @@ function loadVisHelper(resData) {
 
         // check the selected domain
         $('#d_' + lkey).prop("checked", true);
+        // highlight the selected nodes
+        vis.setSvgStroke(d3.select("#node_" + lkey), dimGraph.colors.strNode, dimGraph.node.hstroke);
 
         biset.entList.count += 1;
         biset.entList.startPos = (biset.entList.width + biset.entList.gap * 4 + biset.bic.frameWidth) * i;
@@ -434,8 +439,6 @@ function loadVisHelper(resData) {
         entLists.push(aList);
 
         var aListData = getListDataByKey(listData, lkey);
-
-        // console.log(selDims);
 
         // add a list to the vis canvas
         var aListView = biset.addList(aList, aListData, bicList, biset.entList.startPos, networkData);

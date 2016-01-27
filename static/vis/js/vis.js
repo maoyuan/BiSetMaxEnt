@@ -50,6 +50,11 @@ vis.setSvgOpacityByID = function(svgID, preColor, opaVal) {
 }
 
 
+vis.setSvgObjOpacity = function(svgObj, preColor, opaVal) {
+    return svgObj.attr("fill", preColor + opaVal + ")");
+}
+
+
 /*
  * toggle css class of a svg object
  * @param svgID, string, the id of the svg object
@@ -83,6 +88,9 @@ vis.setSvgStroke = function(svgObj, scolor, swidth) {
     return svgObj.attr("stroke", scolor)
         .attr("stroke-width", swidth);
 }
+
+
+
 
 
 /***********************************************************/
@@ -145,4 +153,3 @@ vis.getCircleYpos = function(circleID) {
 vis.setCheckedByVal = function(cVal, ToF) {
     $("input[type=checkbox][value=" + cVal + "]").prop("checked", ToF);
 }
-
