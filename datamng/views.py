@@ -608,22 +608,30 @@ def seriation(request):
             tmp_list.append(gEntDicMatrix[row][col])
         colOrientedMatrix[col] = rpy2.robjects.IntVector(tuple(tmp_list))
 
+    # print(gEntDicMatrix)
 
+    c = csv.writer(open("./datamng/seriationdata/global_seriation.csv", "wb"))
+    for d in gEntDicMatrix:
+        c.writerow(d)
 
-    testData = rpy2.robjects.DataFrame(colOrientedMatrix)
-    print(testData.colnames)
-    print(testData.name)
+    # testData = rpy2.robjects.DataFrame(colOrientedMatrix)
+    # print("615=============")
+    # print(testData.colnames)
+    # print("617=============")
+    # print(testData.names)
 
-    r('mydata <- read.csv("datamng/inputMatrix.csv",head=TRUE,sep=",")')
-    r('res.ca<-CA(testData, axes=c(1,2), graph=FALSE)')
-    r('row.c<-res.ca$row$coord')
-    r('col.c<-res.ca$col$coord')
-    r('seriat<-mydata[order(row.c[,1]), order(col.c[,1])]')
-    r('seriat.PA<-apply(seriat, 2, function(x) ifelse(x>0, 1, 0))')
+    # testData.activate()
+
+    # r('mydata <- read.csv("datamng/inputMatrix.csv",head=TRUE,sep=",")')
+    # r('res.ca<-CA(testData, axes=c(1,2), graph=FALSE)')
+    # r('row.c<-res.ca$row$coord')
+    # r('col.c<-res.ca$col$coord')
+    # r('seriat<-mydata[order(row.c[,1]), order(col.c[,1])]')
+    # r('seriat.PA<-apply(seriat, 2, function(x) ifelse(x>0, 1, 0))')
 
     # print(r('seriat'))
 
-    print("seration done!")
+    # print("seration done!")
 
     return HttpResponse("Done")
 
