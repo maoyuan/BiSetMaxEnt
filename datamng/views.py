@@ -564,6 +564,12 @@ def seriation(request):
 
     gEntDict = {}
     for d in gDomainList:
+
+        # generate files for entities in each domain
+        # fname = "./datamng/entdata/" + str(d) + ".csv"
+        # docWriter = csv.writer(open(fname, "wb"))
+        # ===========================================
+
         entsInfo = fetchAllInfo('datamng_' + d)
         for row in entsInfo:
             gEntindex = row[0] + gDomainIDShift[d]
@@ -571,10 +577,23 @@ def seriation(request):
             gEntDict[gEntindex]['entType'] = d
             gEntDict[gEntindex]['entLocalID'] = row[0]
 
+            # ===========================================
+            # rowinDoc = []
+            # # entity global id
+            # rowinDoc.append(gEntindex)
+            # # entity local id
+            # rowinDoc.append(row[0])
+            # # entity value
+            # rowinDoc.append(row[1])
+            # # entity frequency
+            # rowinDoc.append(row[2])
+
+            # docWriter.writerow(rowinDoc)
+            # ===========================================
+
     rowNum = len(gEntDict)
     colNum = len(clusterDict)
     gEntDicMatrix = [[ 0 for x in range(0, colNum)] for y in range(0, rowNum)]
-
 
     for p in PAIRS:
         tmpRow = p.split("_")[0]
@@ -608,11 +627,78 @@ def seriation(request):
             tmp_list.append(gEntDicMatrix[row][col])
         colOrientedMatrix[col] = rpy2.robjects.IntVector(tuple(tmp_list))
 
-    # print(gEntDicMatrix)
+    # get the info of connections between all entities and all bics
+    # c = csv.writer(open("./datamng/seriationdata/global_seriation.csv", "wb"))
+    # for d in gEntDicMatrix:
+    #     c.writerow(d)
 
-    c = csv.writer(open("./datamng/seriationdata/global_seriation.csv", "wb"))
-    for d in gEntDicMatrix:
-        c.writerow(d)
+    print(gDomainList)
+
+    # get all pairs of domains
+    pairedDomains = []
+    for d1 in gDomainList:
+        for d2 in gDomainList:
+            if d1 != d2:
+                tup1 = (d1, d2)
+                tup2 = (d2, d1)
+                if tup1 not in pairedDomains and tup2 not in pairedDomains:
+                    pairedDomains.append(tup1)
+
+    print(pairedDomains)
+
+    for p in pairedDomains:
+        pd1 = p[0]
+        pd2 = p[1]
+        entsInfo1 = fetchAllInfo('datamng_' + pd1)
+        entsInfo2 = fetchAllInfo('datamng_' + pd2)
+
+        # ==================================================
+        # prepare the file as dictionary to compose data matrix between each two domains
+        # fname = "./datamng/seriationentdata/" + str(pd1) + "__" + str(pd2) + ".csv"
+        # adocwriter = csv.writer(open(fname, "wb"))
+
+        # rowID = 0
+
+        # for ents1 in entsInfo1:
+        #     globalEntID1 = ents1[0] + gDomainIDShift[pd1]
+
+        #     arow1 = []
+        #     # the current row id
+        #     arow1.append(rowID)
+        #     # the global id of current entity
+        #     arow1.append(globalEntID1)
+        #     # the local id of current entity
+        #     arow1.append(ents1[0])
+        #     # the value of current entity
+        #     arow1.append(ents1[1])
+        #     # the frequency of current entity
+        #     arow1.append(ents1[2])
+
+        #     adocwriter.writerow(arow1)
+
+        #     rowID += 1
+
+        # for ents2 in entsInfo2:
+        #     globalEntID2 = ents2[0] + gDomainIDShift[pd2]
+
+        #     arow2 = []
+        #     # the current row id
+        #     arow2.append(rowID)
+        #     # the global id of current entity
+        #     arow2.append(globalEntID2)
+        #     # the local id of current entity
+        #     arow2.append(ents2[0])
+        #     # the value of current entity
+        #     arow2.append(ents2[1])
+        #     # the frequency of current entity
+        #     arow2.append(ents2[2])
+
+        #     adocwriter.writerow(arow2)
+
+        #     rowID += 1
+        # ==================================================
+
+
 
     # testData = rpy2.robjects.DataFrame(colOrientedMatrix)
     # print("615=============")
