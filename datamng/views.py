@@ -563,6 +563,9 @@ def seriation(request):
         gDomainIDShift[row[1]] = row[4]
 
     gEntDict = {}
+    gEntLtoGDict = {}
+
+
     for d in gDomainList:
 
         # generate files for entities in each domain
@@ -576,6 +579,8 @@ def seriation(request):
             gEntDict[gEntindex] = {}
             gEntDict[gEntindex]['entType'] = d
             gEntDict[gEntindex]['entLocalID'] = row[0]
+
+            gEntLtoGDict[d + "_" + str(row[0])] = gEntindex
 
             # ===========================================
             # rowinDoc = []
@@ -646,14 +651,14 @@ def seriation(request):
 
     print(pairedDomains)
 
-    for p in pairedDomains:
-        pd1 = p[0]
-        pd2 = p[1]
-        entsInfo1 = fetchAllInfo('datamng_' + pd1)
-        entsInfo2 = fetchAllInfo('datamng_' + pd2)
+    # ==================================================
+    # prepare the file as dictionary to compose data matrix between each two domains
+    # for p in pairedDomains:
+    #     pd1 = p[0]
+    #     pd2 = p[1]
+    #     entsInfo1 = fetchAllInfo('datamng_' + pd1)
+    #     entsInfo2 = fetchAllInfo('datamng_' + pd2)
 
-        # ==================================================
-        # prepare the file as dictionary to compose data matrix between each two domains
         # fname = "./datamng/seriationentdata/" + str(pd1) + "__" + str(pd2) + ".csv"
         # adocwriter = csv.writer(open(fname, "wb"))
 
@@ -696,7 +701,98 @@ def seriation(request):
         #     adocwriter.writerow(arow2)
 
         #     rowID += 1
-        # ==================================================
+    # ==================================================
+
+
+    # ==================================================
+    '''
+    Generate the data matrix for each paired domains
+    '''
+    for p in pairedDomains:
+        pd1 = p[0]
+        pd2 = p[1]
+
+        curRows = fetchBicRowInfo("datamng_clusterrow", "datamng_cluster", str(pd1), str(pd2))
+        curCols = fetchBicRowInfo("datamng_clustercol", "datamng_cluster", str(pd1), str(pd2))
+
+        uniqueClusterIDs = []
+        uniqueGrowIDs = []
+        uniqueGcolIDs = []
+
+        for arow in curRows:
+            # get unique cluster id
+            if arow[2] not in uniqueClusterIDs:
+                uniqueClusterIDs.append(arow[2])
+
+            # get unique (global) row entity ids
+            curGrowID = gEntLtoGDict[str(pd1) + "_" + str(arow[1])]
+            if curGrowID not in uniqueGrowIDs:
+                uniqueGrowIDs.append(curGrowID)
+
+        for acol in curCols:
+            # get unique (global) col entity id
+            curGcolID = gEntLtoGDict[str(pd2) + "_" + str(acol[1])]
+            if curGcolID not in uniqueGcolIDs:
+                uniqueGcolIDs.append(curGcolID)
+
+        # all unique entity ids
+        uniqueEntIDs = uniqueGrowIDs + uniqueGcolIDs       
+
+        '''
+        the format of the file that contains the unique entity ids,
+        these entities (not all entities from two domains) belongs
+        to certain two domains that involved in biclusters:
+        rowID, entity global ID, entity type, entity local ID
+        '''
+        # fname = "./datamng/seriationdata/pairsdict/entdict/" + str(pd1) + "__" + str(pd2) + "__entIDs.csv"
+        # adocwriter = csv.writer(open(fname, "wb"))
+
+        # rowIndex = 0
+        # for aId in uniqueEntIDs:
+        #     oneRow = []
+        #     oneRow.append(rowIndex)
+        #     oneRow.append(aId)
+
+        #     entType = gEntDict[aId]['entType']
+        #     entLocalID = gEntDict[aId]['entLocalID']
+
+        #     oneRow.append(entType)
+        #     oneRow.append(entLocalID)
+
+        #     adocwriter.writerow(oneRow)
+
+        #     rowIndex += 1
+        # =======================================================
+
+        
+        '''
+        the format of the file that contains the unique cluster ids:
+        rowID, cluster IDs, row type, col type
+        '''
+        # fname = "./datamng/seriationdata/pairsdict/clusterdict/" + str(pd1) + "__" + str(pd2) + "__clusterIDs.csv"
+        # adocwriter = csv.writer(open(fname, "wb"))
+
+        # rowIndex = 0
+        # for aId in uniqueClusterIDs:
+        #     oneRow = []
+        #     oneRow.append(rowIndex)
+        #     oneRow.append(aId)
+        #     oneRow.append(str(pd1))
+        #     oneRow.append(str(pd2))
+
+        #     adocwriter.writerow(oneRow)
+        #     rowIndex += 1
+        # =======================================================
+
+
+        dataMatrixRowNum = len(uniqueEntIDs)
+        dataMatrixColNum = len(uniqueClusterIDs)
+        dataMatrix = [[ 0 for x in range(0, dataMatrixColNum)] for y in range(0, dataMatrixRowNum)]
+
+        
+
+    # ==================================================
+
 
 
 
