@@ -785,12 +785,36 @@ def seriation(request):
         # =======================================================
 
 
-        dataMatrixRowNum = len(uniqueEntIDs)
-        dataMatrixColNum = len(uniqueClusterIDs)
-        dataMatrix = [[ 0 for x in range(0, dataMatrixColNum)] for y in range(0, dataMatrixRowNum)]
+        '''
+        generate data matrix for each paired domains
+        row: is the set of elements from the two domains
+        col: is the set of unique cluster ids
+        '''
+        # dataMatrixRowNum = len(uniqueEntIDs)
+        # dataMatrixColNum = len(uniqueClusterIDs)
+        # dataMatrix = [[ 0 for x in range(0, dataMatrixColNum)] for y in range(0, dataMatrixRowNum)]
 
-        
+        # for r in curRows:
+        #     thisEntGlobalID = gEntLtoGDict[str(pd1) + "_" + str(r[1])]
+        #     thisClusterID = r[2]
 
+        #     rIndex = uniqueEntIDs.index(thisEntGlobalID)
+        #     cIndex = uniqueClusterIDs.index(thisClusterID)
+        #     dataMatrix[rIndex][cIndex] = 1
+
+        # for c in curCols:
+        #     thisEntGlobalID = gEntLtoGDict[str(pd2) + "_" + str(c[1])]
+        #     thisClusterID = c[2]
+
+        #     rIndex = uniqueEntIDs.index(thisEntGlobalID)
+        #     cIndex = uniqueClusterIDs.index(thisClusterID)
+        #     dataMatrix[rIndex][cIndex] = 1
+
+
+        # fname = "./datamng/seriationdata/" + str(pd1) + "__" + str(pd2) + "_matrix.csv"
+        # adocwriter = csv.writer(open(fname, "wb"))
+        # for d in dataMatrix:
+        #     adocwriter.writerow(d)
     # ==================================================
 
 
