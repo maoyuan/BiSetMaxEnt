@@ -815,6 +815,50 @@ def seriation(request):
         # adocwriter = csv.writer(open(fname, "wb"))
         # for d in dataMatrix:
         #     adocwriter.writerow(d)
+
+
+        '''
+        open seriation output files (generated with r code)
+        based on the seriation result to reassign the order
+        for entities in each domain
+        '''
+        
+        # create new dictionaries to contains the ordered informaiton
+        newpath = "./datamng/seriationdata/ordered/" + str(pd1) + "__" + str(pd2) + "_paired"
+        if not os.path.exists(newpath):
+            os.makedirs(newpath)
+
+        fname = "./datamng/seriationdata/output/" + str(pd1) + "__" + str(pd2) + "_sered.csv"
+
+        f_cluster_dict = "./datamng/seriationdata/pairsdict/clusterdict/" + str(pd1) + "__" + str(pd2) + "__clusterIDs.csv"
+        f_ent_dict = "./datamng/seriationdata/pairsdict/entdict/" + str(pd1) + "__" + str(pd2) + "__entIDs.csv"
+
+        # f_ordered_cluster = "./datamng/seriationdata/ordered/" + str(pd1) + "__" + str(pd2) + "_paired/orderdClusterIDs.csv" 
+
+        with open(fname) as f_seriation_ouput:
+            f_csv = csv.reader(f_seriation_ouput)
+            headers = next(f_csv)
+            orderedClusters = headers[1:]
+            print(orderedClusters)
+
+            cIdDict = {}
+            with open(f_cluster_dict) as fclusterDict:
+                f_clusters = csv.reader(fclusterDict)
+                for row in f_clusters:
+                    cIdDict[row[0]] = {}
+                    cIdDict[row[0]]["clusterID"] = row[1]
+                    cIdDict[row[0]]["rowType"] = row[2]
+                    cIdDict[row[0]]["colType"] = row[3]
+                    print(row[0])
+                    print(cIdDict[row[0]])
+
+
+            for c in orderedClusters:
+                theID = int(c[1:]) - 1
+
+
+
+
     # ==================================================
 
     return HttpResponse("Done")
