@@ -811,33 +811,11 @@ def seriation(request):
         #     dataMatrix[rIndex][cIndex] = 1
 
 
-        # fname = "./datamng/seriationdata/" + str(pd1) + "__" + str(pd2) + "_matrix.csv"
+        # fname = "./datamng/seriationdata/input/" + str(pd1) + "__" + str(pd2) + "_matrix.csv"
         # adocwriter = csv.writer(open(fname, "wb"))
         # for d in dataMatrix:
         #     adocwriter.writerow(d)
     # ==================================================
-
-
-
-
-    # testData = rpy2.robjects.DataFrame(colOrientedMatrix)
-    # print("615=============")
-    # print(testData.colnames)
-    # print("617=============")
-    # print(testData.names)
-
-    # testData.activate()
-
-    # r('mydata <- read.csv("datamng/inputMatrix.csv",head=TRUE,sep=",")')
-    # r('res.ca<-CA(testData, axes=c(1,2), graph=FALSE)')
-    # r('row.c<-res.ca$row$coord')
-    # r('col.c<-res.ca$col$coord')
-    # r('seriat<-mydata[order(row.c[,1]), order(col.c[,1])]')
-    # r('seriat.PA<-apply(seriat, 2, function(x) ifelse(x>0, 1, 0))')
-
-    # print(r('seriat'))
-
-    # print("seration done!")
 
     return HttpResponse("Done")
 
