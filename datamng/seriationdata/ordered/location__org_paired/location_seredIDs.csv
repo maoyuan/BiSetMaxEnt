@@ -1,0 +1,104 @@
+0,53,5,location,Queens,4
+1,56,8,location,Myrtle Ave,3
+2,122,74,location,Manhattan,2
+3,124,76,location,Webster Ave.,1
+4,125,77,location,Bronx,1
+5,126,78,location,New York,1
+6,54,6,location,New York City,6
+7,117,69,location,O'Hare,1
+8,118,70,location,Chicago,1
+9,119,71,location,Illinois,1
+10,120,72,location,Green Bay,1
+11,121,73,location,Wisconsin,1
+12,73,25,location,El Paso,1
+13,74,26,location,Hudspeth County,1
+14,75,27,location,Rio Grande,1
+15,76,28,location,McNary,1
+16,77,29,location,McRae Blvd,1
+17,59,11,location,Texas,3
+18,60,12,location,Houston,3
+19,68,20,location,Paris,3
+20,149,101,location,St. Mary 's Terrace,1
+21,150,102,location,Paddington,1
+22,151,103,location,London,1
+23,152,104,location,Miami,1
+24,95,47,location,Detroit,1
+25,96,48,location,Michigan,1
+26,97,49,location,Van Dyke Avenue,1
+27,64,16,location,Washington,2
+28,65,17,location,Seattle,1
+29,66,18,location,Howell St.,1
+30,67,19,location,Alder St,1
+31,78,30,location,Denver,3
+32,79,31,location,Colorado,3
+33,80,32,location,Camp George West Military Reservation,2
+34,71,23,location,Lee Highway,1
+35,72,24,location,Merrifield,1
+36,123,75,location,2932 University Drive,1
+37,55,7,location,Charlottesville,5
+38,58,10,location,Georgia,2
+39,51,3,location,Virginia,12
+40,50,2,location,Richmond,4
+41,104,56,location,Springfield,3
+42,115,67,location,Capitol Ave.,2
+43,105,57,location,Egypt,2
+44,102,54,location,Germany,3
+45,103,55,location,Hamburg,3
+46,100,52,location,Boston,1
+47,52,4,location,Amsterdam,4
+48,129,81,location,Haarlem,2
+49,130,82,location,Lublin,1
+50,131,83,location,Poland,1
+51,81,33,location,US,7
+52,82,34,location,Los Angeles,2
+53,85,37,location,San Gabriel,1
+54,92,44,location,Hubbard St.,1
+55,84,36,location,California,1
+56,88,40,location,City Park,1
+57,89,41,location,El Segundo,1
+58,91,43,location,Sheldon St.,1
+59,87,39,location,Imperial Highway,1
+60,86,38,location,Greenlawn Ave.,1
+61,90,42,location,LAX,1
+62,83,35,location,Culver City,1
+63,49,1,location,The Netherlands,3
+64,57,9,location,North Bergen,3
+65,61,13,location,Columbus,1
+66,62,14,location,Little York Rd.,1
+67,63,15,location,St. Mary's Road,1
+68,69,21,location,France,1
+69,70,22,location,Keswick,3
+70,93,45,location,New Jersey,3
+71,94,46,location,Canada,2
+72,98,50,location,Afghanistan,5
+73,99,51,location,Sudan,2
+74,101,53,location,University Drive,1
+75,106,58,location,Dulles Airport,1
+76,107,59,location,Washington DC,1
+77,108,60,location,Cairo,1
+78,109,61,location,Wash. DC,1
+79,110,62,location,Floyd Ave.,1
+80,111,63,location,Atlanta,1
+81,112,64,location,New Orleans,1
+82,113,65,location,Coal Mine Road,2
+83,114,66,location,Colfax Avenue,1
+84,116,68,location,Springfield VA,1
+85,127,79,location,United Arab Emirates,2
+86,128,80,location,Springfield Mall,1
+87,132,84,location,Europe,1
+88,133,85,location,Bremerhaven,1
+89,134,86,location,Trenton Avenue,1
+90,135,87,location,Trenton,1
+91,136,88,location,Rhinelander Platz.,1
+92,137,89,location,Buenos Aires,1
+93,138,90,location,Hezboliah,1
+94,139,91,location,Guantanamo,2
+95,140,92,location,Marshall Avenue,1
+96,141,93,location,Minneapolis,1
+97,142,94,location,Minnesota,1
+98,143,95,location,Laurel Avenue,1
+99,144,96,location,Bowling Green,1
+100,145,97,location,Kentucky,1
+101,146,98,location,Rue St. Sebastien,1
+102,147,99,location,Cuba,1
+103,148,100,location,Kandahar,1
