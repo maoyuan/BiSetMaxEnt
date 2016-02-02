@@ -833,7 +833,7 @@ def seriation(request):
         f_cluster_dict = "./datamng/seriationdata/pairsdict/clusterdict/" + str(pd1) + "__" + str(pd2) + "__clusterIDs.csv"
         f_ent_dict = "./datamng/seriationdata/pairsdict/entdict/" + str(pd1) + "__" + str(pd2) + "__entIDs.csv"
 
-        # f_ordered_cluster = "./datamng/seriationdata/ordered/" + str(pd1) + "__" + str(pd2) + "_paired/orderdClusterIDs.csv" 
+        
 
         with open(fname) as f_seriation_ouput:
             f_csv = csv.reader(f_seriation_ouput)
@@ -849,12 +849,28 @@ def seriation(request):
                     cIdDict[row[0]]["clusterID"] = row[1]
                     cIdDict[row[0]]["rowType"] = row[2]
                     cIdDict[row[0]]["colType"] = row[3]
-                    print(row[0])
-                    print(cIdDict[row[0]])
 
+            # -------------------------------------------
+            '''
+            the file includes the ordered bicluster info:
+            order, bicluster ID, row type, col type
+            '''
+            # f_ordered_cluster = "./datamng/seriationdata/ordered/" + str(pd1) + "__" + str(pd2) + "_paired/orderdClusterIDs.csv" 
+            # adocwriter = csv.writer(open(f_ordered_cluster, "wb"))
+            # clusterOrder = 0
+            # for c in orderedClusters:
+            #     theID = str(int(c[1:]) - 1)
 
-            for c in orderedClusters:
-                theID = int(c[1:]) - 1
+            #     arow = []
+            #     arow.append(clusterOrder)
+            #     arow.append(cIdDict[theID]["clusterID"])
+            #     arow.append(cIdDict[theID]["rowType"])
+            #     arow.append(cIdDict[theID]["colType"])
+
+            #     adocwriter.writerow(arow)
+            #     clusterOrder += 1
+            # ------------------------------------------
+
 
 
 
