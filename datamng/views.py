@@ -833,28 +833,144 @@ def seriation(request):
         f_cluster_dict = "./datamng/seriationdata/pairsdict/clusterdict/" + str(pd1) + "__" + str(pd2) + "__clusterIDs.csv"
         f_ent_dict = "./datamng/seriationdata/pairsdict/entdict/" + str(pd1) + "__" + str(pd2) + "__entIDs.csv"
 
-        
-
         with open(fname) as f_seriation_ouput:
             f_csv = csv.reader(f_seriation_ouput)
             headers = next(f_csv)
             orderedClusters = headers[1:]
-            print(orderedClusters)
 
-            cIdDict = {}
-            with open(f_cluster_dict) as fclusterDict:
-                f_clusters = csv.reader(fclusterDict)
-                for row in f_clusters:
-                    cIdDict[row[0]] = {}
-                    cIdDict[row[0]]["clusterID"] = row[1]
-                    cIdDict[row[0]]["rowType"] = row[2]
-                    cIdDict[row[0]]["colType"] = row[3]
+            # -------------------------------------------
+            '''
+            1) get the first column from the output matrix after seriation 
+            2) separate entities from two domains
+            3) order these entities based on the output matrix
+            4) append entities not in the matrix
+            '''
+            # get the id of ordered entities
+            orderedEnts = []
+            for row in f_csv:
+                orderedEnts.append(str(int(row[0]) - 1))
+
+            fRowEnts = "./datamng/seriationdata/ordered/" + str(pd1) + "__" + str(pd2) + "_paired/" + str(pd1) + ".csv" 
+            fColEnts = "./datamng/seriationdata/ordered/" + str(pd1) + "__" + str(pd2) + "_paired/" + str(pd2) + ".csv"
+
+            entIdDict = {}
+            with open(f_ent_dict) as fentDict:
+                f_ents = csv.reader(fentDict)
+                for row in f_ents:
+                    entIdDict[row[0]] = {}
+                    entIdDict[row[0]]["entType"] = row[2]
+                    entIdDict[row[0]]["entGlobalID"] = row[1]
+                    entIdDict[row[0]]["entLocalID"] = row[3]                    
+
+            # separate ents into two groups based on domain
+            entsType1 = []
+            entsType2 = []
+            for e in orderedEnts:
+                if (entIdDict[str(e)]["entType"] == str(pd1)):
+                    entsType1.append(entIdDict[str(e)]["entGlobalID"])
+                if (entIdDict[str(e)]["entType"] == str(pd2)):
+                    entsType2.append(entIdDict[str(e)]["entGlobalID"])
+
+            fentsType1 = "./datamng/entdata/" + str(pd1) + ".csv"
+            fentsType2 = "./datamng/entdata/" + str(pd2) + ".csv"
+
+            # the info of all ents in a domain
+            fullEntsDictType1 = {}
+            # a list of ents that are not connected with any biclusters
+            entsType1_notsered = []
+            with open(fentsType1) as fents1:
+                ents1 = csv.reader(fents1)
+
+                for entInfo in ents1:
+                    thisEntLID = entInfo[1]
+                    thisEntGID = entInfo[0]
+
+                    fullEntsDictType1[str(thisEntGID)] = {}
+                    fullEntsDictType1[str(thisEntGID)]["entType"] = str(pd1)
+                    fullEntsDictType1[str(thisEntGID)]["entGlobalID"] = thisEntGID
+                    fullEntsDictType1[str(thisEntGID)]["entLocalID"] = thisEntLID
+                    fullEntsDictType1[str(thisEntGID)]["entVal"] = entInfo[2]
+                    fullEntsDictType1[str(thisEntGID)]["entFreq"] = entInfo[3]
+
+                    if thisEntGID not in entsType1:
+                        entsType1_notsered.append(thisEntGID)
+
+            # the info of all ents in a domain
+            fullEntsDictType2 = {}
+            # a list of ents that are not connected with any biclusters
+            entsType2_notsered = []
+            with open(fentsType2) as fents2:
+                ents2 = csv.reader(fents2)
+
+                for entInfo in ents2:
+                    thisEntLID = entInfo[1]
+                    thisEntGID = entInfo[0]
+
+                    fullEntsDictType2[str(thisEntGID)] = {}
+                    fullEntsDictType2[str(thisEntGID)]["entType"] = str(pd2)
+                    fullEntsDictType2[str(thisEntGID)]["entGlobalID"] = thisEntGID
+                    fullEntsDictType2[str(thisEntGID)]["entLocalID"] = thisEntLID
+                    fullEntsDictType2[str(thisEntGID)]["entVal"] = entInfo[2]
+                    fullEntsDictType2[str(thisEntGID)]["entFreq"] = entInfo[3]
+
+                    if thisEntGID not in entsType2:
+                        entsType2_notsered.append(thisEntGID)
+
+            allEntsInType1 = entsType1 + entsType1_notsered
+            allEntsInType2 = entsType2 + entsType2_notsered
+
+            '''
+            the format of the file with all entities:
+            order, glabal id, local id, ent type, value, freq
+            '''
+            # f_ordered_entTyp1 = "./datamng/seriationdata/ordered/" + str(pd1) + "__" + str(pd2) + "_paired/" + str(pd1) + "_seredIDs.csv" 
+            # f_ordered_entTyp2 = "./datamng/seriationdata/ordered/" + str(pd1) + "__" + str(pd2) + "_paired/" + str(pd2) + "_seredIDs.csv"
+            # adocwriter1 = csv.writer(open(f_ordered_entTyp1, "wb"))
+            # adocwriter2 = csv.writer(open(f_ordered_entTyp2, "wb"))
+
+            # orderIndex = 0
+            # for e in allEntsInType1:
+            #     curRow = []
+            #     curRow.append(orderIndex)
+            #     curRow.append(e)
+            #     curRow.append(fullEntsDictType1[e]["entLocalID"])
+            #     curRow.append(str(pd1))
+            #     curRow.append(fullEntsDictType1[e]["entVal"])
+            #     curRow.append(fullEntsDictType1[e]["entFreq"])
+
+            #     adocwriter1.writerow(curRow)
+            #     orderIndex += 1
+
+            # orderIndex = 0
+            # for e in allEntsInType2:
+            #     curRow = []
+            #     curRow.append(orderIndex)
+            #     curRow.append(e)
+            #     curRow.append(fullEntsDictType2[e]["entLocalID"])
+            #     curRow.append(str(pd2))
+            #     curRow.append(fullEntsDictType2[e]["entVal"])
+            #     curRow.append(fullEntsDictType2[e]["entFreq"])
+
+            #     adocwriter2.writerow(curRow)
+            #     orderIndex += 1
+            # -------------------------------------------
+
+
 
             # -------------------------------------------
             '''
             the file includes the ordered bicluster info:
             order, bicluster ID, row type, col type
             '''
+            # cIdDict = {}
+            # with open(f_cluster_dict) as fclusterDict:
+            #     f_clusters = csv.reader(fclusterDict)
+            #     for row in f_clusters:
+            #         cIdDict[row[0]] = {}
+            #         cIdDict[row[0]]["clusterID"] = row[1]
+            #         cIdDict[row[0]]["rowType"] = row[2]
+            #         cIdDict[row[0]]["colType"] = row[3]
+
             # f_ordered_cluster = "./datamng/seriationdata/ordered/" + str(pd1) + "__" + str(pd2) + "_paired/orderdClusterIDs.csv" 
             # adocwriter = csv.writer(open(f_ordered_cluster, "wb"))
             # clusterOrder = 0
