@@ -1604,6 +1604,35 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
 
     # retrieve data for field1
     if not table == "EMPTY":
+
+        entLseredOrderDict = {}
+        entRseredOrderDict = {}
+
+        if tableLeft != None:
+            # check the ordered result after seriation
+            if table + "_" + tableLeft in PAIRS:
+                folderName = table + "__" + tableLeft + "_paired"
+            if tableLeft + "_" + table in PAIRS:
+                folderName = tableLeft + "__" + table + "_paired"
+            
+            fname = "./datamng/seriationdata/ordered/" + folderName + "/" + table + "_seredIDs.csv"
+            with open(fname) as fEntLseredOrder:
+                fcontent = csv.reader(fEntLseredOrder)
+                for row in fcontent:
+                    entLseredOrderDict[str(row[2])] = row[0]
+
+        if tableRight != None:
+            if table + "_" + tableRight in PAIRS:
+                folderName = table + "__" + tableRight + "_paired"
+            if tableRight + "_" + table in PAIRS:
+                folderName = tableRight + "__" + table + "_paired"
+
+            fname = "./datamng/seriationdata/ordered/" + folderName + "/" + table + "_seredIDs.csv"
+            with open(fname) as fEntRseredOrder:
+                fcontent = csv.reader(fEntRseredOrder)
+                for row in fcontent:
+                    entRseredOrderDict[str(row[2])] = row[0]
+
         cursor = connection.cursor()
         sql_str = "SELECT * FROM datamng_" + table
        
@@ -1629,6 +1658,17 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
                 table1_item_dict[row[0]]['entityIDCmp'] = str(table) + "_" + str(row[0])
                 table1_item_dict[row[0]]['xPos'] = 0
                 table1_item_dict[row[0]]['yPos'] = 0
+
+                if str(row[0]) in entLseredOrderDict:
+                    table1_item_dict[row[0]]["entLseredOrder"] = int(entLseredOrderDict[str(row[0])])
+                else:
+                    table1_item_dict[row[0]]["entLseredOrder"] = None
+
+                if str(row[0]) in entRseredOrderDict:
+                    table1_item_dict[row[0]]["entRseredOrder"] = int(entRseredOrderDict[str(row[0])])
+                else:
+                    table1_item_dict[row[0]]["entRseredOrder"] = None
+
     else:
         return None, None
     
@@ -1743,6 +1783,8 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
                         print "Bug here, at line 1710"
                     else:
                         table1_item_dict[row[1]]['bicSetsRight'].append(row[2])
+                        # print("===1746=======")
+                        # print(folderName)
 
             if orderFlag == "reverse":
                 for col in t1_t2_ClusCols:
@@ -1750,6 +1792,8 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
                         print "Bug here, at line 1710"
                     else:
                         table1_item_dict[col[1]]['bicSetsRight'].append(col[2])
+                        # print("===1755=======")
+                        # print(folderName)
             
             if not tableLeft == None and not leftClusCols == None:
                 for col in leftClusCols:
@@ -1757,6 +1801,8 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
                         print "Bug here, at line 1717"
                     else:
                         table1_item_dict[col[1]]['bicSetsLeft'].append(col[2])
+                        # print("===1764=======")
+                        # print(folderName)
             
             # removing id from the list item dictionary
             removedKeyList = []
@@ -1782,7 +1828,9 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
             if not col[1] in table1_item_dict:
                 print "Bug here, at line 1739"
             else:
-                table1_item_dict[col[1]]['bicSetsLeft'].append(col[2]);
+                table1_item_dict[col[1]]['bicSetsLeft'].append(col[2])
+                # print("===1792=======")
+                # print(folderName)
         
         # removing id from the list item dictionary
         removedKeyList = []
