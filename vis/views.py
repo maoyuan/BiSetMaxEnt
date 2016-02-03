@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, Http404
 from django.template.response import TemplateResponse
 from sets import Set
-import json
+import json, csv
 from django.db import connection
 from django.conf import settings
 from vis.models import Vis, VisNodes
@@ -1652,7 +1652,20 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
             orderFlag = "reverse"           
         
         if table + "_" + tableRight in PAIRS or tableRight + "_" + table in PAIRS:
-            isInOrder = True            
+            isInOrder = True
+
+            # check the ordered result after seriation
+            if table + "_" + tableRight in PAIRS:
+                folderName = table + "__" + tableRight + "_paired"
+            if tableRight + "_" + table in PAIRS:
+                folderName = tableRight + "__" + table + "_paired"
+
+            bicOrderDict = {}
+            fname = "./datamng/seriationdata/ordered/" + folderName + "/orderdClusterIDs.csv"
+            with open(fname) as fClusterOrder:
+                fcontent = csv.reader(fClusterOrder)
+                for row in fcontent:
+                    bicOrderDict[str(row[1])] = row[0]
         
             # retrieve data from cluster row for field1
             sql_str = "SELECT * FROM datamng_clusterrow as A, datamng_cluster as B where A.cluster_id = B.id and B.field1 = '" + orderList[0] + "' and B.field2 = '" + orderList[1] + "' order by B.id"
@@ -1680,6 +1693,7 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
                     biclusDict[row[2]]['bicNumCoSelected'] = 0
                     biclusDict[row[2]]['bicDisplayed'] = True
                     biclusDict[row[2]]['bicSelectOn'] = False
+                    biclusDict[row[2]]['bicSeredOrder'] = int(bicOrderDict[str(row[2])])
                 else:
                     biclusDict[row[2]]["row"].append(row[1])
                     
