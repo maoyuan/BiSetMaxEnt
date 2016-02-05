@@ -209,7 +209,7 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
             "<option value='" + seriationMode + "'>seriation</option>" +
             "</select>" +
 
-            "<input type='range' id=" + sliderID + " min='0' max='1' value= '0' step='0.01' style='display:inline; width:130px; margin-left:15px'/>" +
+            "<input type='range' id=" + sliderID + " min='0' max='1' value= '1' step='0.01' style='display:inline; width:130px; margin-left:15px'/>" +
 
             "</div>");
     }
@@ -2533,9 +2533,9 @@ biset.addBicListCtrl = function(lsts) {
                         cur_bic.push(allBics[e]);
                     }
                 }
-                // console.log(cur_bic);
+
                 var jacMatrix = {},
-                    mergedBics = new Set();
+                    megBicsPairs = new Set();
                 for (var j = 0; j < cur_bic.length; j++) {
                     var bicID1 = bic_prefix + cur_bic[j]["bicID"],
                         entsInRow1 = biset.getBicEntsInRowOrCol(cur_bic[j], "row"),
@@ -2555,12 +2555,14 @@ biset.addBicListCtrl = function(lsts) {
 
                         jacMatrix[bicID1][bicID2] = jVal;
 
-                        if (jVal >= megthreshold) {}
-
+                        if (jVal >= megthreshold && bicID1 != bicID2) {
+                            var bicPair1 = bicID1 + "____" + bicID2,
+                                bicPair2 = bicID2 + "____" + bicID1;
+                            if (!megBicsPairs.has(bicPair1) && !megBicsPairs.has(bicPair2))
+                                megBicsPairs.add(bicPair1);
+                        }
                     }
                 }
-                console.log(jacMatrix);
-
 
             });
     }
