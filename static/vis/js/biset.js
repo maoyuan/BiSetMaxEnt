@@ -185,32 +185,32 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
         var bListRGroupName = "bListCtrl_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
             bicMode = "bic_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
             linkMode = "link_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
-            HybridMode = "hybrid_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum];
+            HybridMode = "hybrid_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
 
-        ClusterMode = "cluster_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum];
-        ClusterModeLeft = "clusterLeft_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum];
-        ClusterModeRight = "clusterRight_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum];
-        seriationMode = "seriation_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum];
+            ClusterMode = "cluster_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
+            ClusterModeLeft = "clusterLeft_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
+            ClusterModeRight = "clusterRight_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
+            seriationMode = "seriation_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
+
+            sliderID = "slider_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum];
 
         $("#biset_control").append("<div class='BiclistControlGroup'>" +
             "<select class='bListCtrl' id='" + bListRGroupName + "'>" +
             "<option value='" + bicMode + "'>Bic Only</option>" +
             "<option value='" + linkMode + "'>Link Only</option>" +
             "<option value='" + HybridMode + "'>Hybrid</option>" +
-            // "<option value='" + ClusterMode + "'>Cluster Mode</option>" +
-            // "<option value='" + ClusterModeLeft + "'>Sort Left List</option>" +
-            // "<option value='" + ClusterModeRight + "'>Sort Right List</option>" +
             "</select>" +
 
-            // "<span class='btn btn-xs btn-default bListCtrlSortList' style='margin-left: 15px;'>Organize List</span>" + 
-
-            "<select class='bListCtrlSortBic' id='" + bListRGroupName + "_sort_bic' style='margin-left: 45px'>" +
+            "<select class='bListCtrlSortBic' id='" + bListRGroupName + "_sort_bic' style='margin-left: 25px'>" +
             "<option value='ClusterSize'>Default</option>" +
             "<option value='" + ClusterMode + "'>sort by two</option>" +
             "<option value='" + ClusterModeLeft + "'>sort by left</option>" +
             "<option value='" + ClusterModeRight + "'>sort by right</option>" +
             "<option value='" + seriationMode + "'>seriation</option>" +
             "</select>" +
+
+            "<input type='range' id=" + sliderID + " min='0' max='1' value= '0' step='0.01' style='display:inline; width:130px; margin-left:15px'/>" +
+
             "</div>");
     }
 
@@ -2022,8 +2022,6 @@ biset.addBicListCtrl = function(lsts) {
                     // get the selected mode
                     selMode = selValue[0];
 
-                console.log(selMode);
-
                 // var cluster_type = 0;
                 if (selMode == "clusterLeft")
                     var cluster_type = 1;
@@ -2034,8 +2032,7 @@ biset.addBicListCtrl = function(lsts) {
                 else if (selMode == "seriation")
                     var cluster_type = 3
 
-                //step one
-                //obtain the correspoing colom of bic
+                //step one: obtain the correspoing colom of bic
                 var cur_bic = [],
                     idx_left = 0,
                     idx_right = 0;
@@ -2519,6 +2516,12 @@ biset.addBicListCtrl = function(lsts) {
                 if (selMode.indexOf("cluster") < 0)
                     biset.connectionDisplayed(field1, field2, selMode, preMode);
 
+            });
+
+        $("#slider_" + lsts[i] + "_" + lsts[i + 1])
+            .on("change mouseup", function() {
+                console.log($(this).val());
+                var merge
             });
     }
 }
