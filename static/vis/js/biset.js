@@ -2519,9 +2519,22 @@ biset.addBicListCtrl = function(lsts) {
             });
 
         $("#slider_" + lsts[i] + "_" + lsts[i + 1])
-            .on("change mouseup", function() {
-                console.log($(this).val());
-                var merge
+            .on("mouseup", function() {
+                
+                var megthreshold = $(this).val(),
+                	field1 = $(this).attr("id").split("_")[1],
+                	field2 = $(this).attr("id").split("_")[2],
+                	bic_prefix = field1 + "_" + field2 + "_bic_";
+
+                // obtain the correspoing colom of bic
+                var cur_bic = [];
+                for (e in allBics) {
+                    if (e.indexOf(field1) >= 0 && e.indexOf(field2) >= 0) {
+                        cur_bic.push(allBics[e]);
+                    }
+                }
+                console.log(cur_bic);
+
             });
     }
 }
