@@ -2520,11 +2520,11 @@ biset.addBicListCtrl = function(lsts) {
 
         $("#slider_" + lsts[i] + "_" + lsts[i + 1])
             .on("mouseup", function() {
-                
+
                 var megthreshold = $(this).val(),
-                	field1 = $(this).attr("id").split("_")[1],
-                	field2 = $(this).attr("id").split("_")[2],
-                	bic_prefix = field1 + "_" + field2 + "_bic_";
+                    field1 = $(this).attr("id").split("_")[1],
+                    field2 = $(this).attr("id").split("_")[2],
+                    bic_prefix = field1 + "_" + field2 + "_bic_";
 
                 // obtain the correspoing colom of bic
                 var cur_bic = [];
@@ -2533,10 +2533,54 @@ biset.addBicListCtrl = function(lsts) {
                         cur_bic.push(allBics[e]);
                     }
                 }
-                console.log(cur_bic);
+                // console.log(cur_bic);
+                var jacMatrix = {},
+                    mergedBics = new Set();
+                for (var j = 0; j < cur_bic.length; j++) {
+                    var bicID1 = bic_prefix + cur_bic[j]["bicID"],
+                        entsInRow1 = biset.getBicEntsInRowOrCol(cur_bic[j], "row"),
+                        entsInCol1 = biset.getBicEntsInRowOrCol(cur_bic[j], "col"),
+                        allEnts1 = entsInRow1.concat(entsInCol1);
+                    jacMatrix[bicID1] = {};
+
+                    for (var k = 0; k < cur_bic.length; k++) {
+                        var bicID2 = bic_prefix + cur_bic[k]["bicID"],
+                            entsInRow2 = biset.getBicEntsInRowOrCol(cur_bic[k], "row"),
+                            entsInCol2 = biset.getBicEntsInRowOrCol(cur_bic[k], "col"),
+                            allEnts2 = entsInRow2.concat(entsInCol2);
+
+                        var tmpIntersect = lstIntersect(allEnts1, allEnts2),
+                            tmpUnion = lstUnion(allEnts1, allEnts2),
+                            jVal = jacIndex(tmpIntersect.length, tmpUnion.length);
+
+                        jacMatrix[bicID1][bicID2] = jVal;
+
+                        if (jVal >= megthreshold) {}
+
+                    }
+                }
+                console.log(jacMatrix);
+
 
             });
     }
+}
+
+
+/*
+ * get entities id (with type) from a bic
+ * @param bic, a bicluster object
+ * @param rowOrCol, string, "row" or "col"
+ * @return the elements in the row or column
+ */
+biset.getBicEntsInRowOrCol = function(bic, rowOrCol) {
+    var e = bic[rowOrCol],
+        r = [];
+    for (var i = 0; i < e.length; i++) {
+        var theID = bic[rowOrCol + "Field"] + "_" + e[i];
+        r.push(theID);
+    }
+    return r;
 }
 
 

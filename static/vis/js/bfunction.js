@@ -43,3 +43,48 @@ var objArrayExtremeVal = function(objArray, field, type) {
 var getStrSplited = function(str, splitBy, id) {
     return str.split(splitBy)[id];
 }
+
+
+/*
+ * intersect function of two lists
+ * @param lst1, a list
+ * @param lst2, another list
+ * @return, elements of the intersection
+ */
+var lstIntersect = function(lst1, lst2) {
+    var setA = new Set(lst1);
+    var setB = new Set(lst2);
+    var interSet = new Set();
+    setA.forEach(function(item) {
+        if (setB.has(item))
+            interSet.add(item);
+    });
+    return Array.from(interSet);
+}
+
+
+/*
+ * union function of two lists
+ * @param lst1, a list
+ * @param lst2, another list
+ * @return, elements of the uion
+ */
+var lstUnion = function(lst1, lst2) {
+    var setA = new Set(lst1);
+    var setB = new Set(lst2);
+    setA.forEach(function(item) {
+        setB.add(item);
+    });
+    return Array.from(setB);
+}
+
+
+/*
+ * calculate jaccard Index
+ * @param intersection, int, # of interseced ents
+ * @param union, int, # of unioned ents
+ * @return, float, the value of jaccard coefficient
+ */
+var jacIndex = function(intersect, union) {
+    return parseFloat(intersect / union);
+}
