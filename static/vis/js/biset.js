@@ -2343,7 +2343,6 @@ biset.addBicListCtrl = function(lsts) {
 
         $("#slider_" + lsts[i] + "_" + lsts[i + 1])
             .on("mouseup", function() {
-
                 var megthreshold = $(this).val(),
                     field1 = $(this).attr("id").split("_")[1],
                     field2 = $(this).attr("id").split("_")[2],
@@ -2386,6 +2385,10 @@ biset.addBicListCtrl = function(lsts) {
                         }
                     }
                 }
+                // perform seriation
+                biset.seriation(cur_bic, field1, field2, allEnts, "original");
+                // sort distance
+                objArraySortMinToMax(cur_bic, "yPos");
 
             });
     }

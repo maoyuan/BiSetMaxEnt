@@ -88,3 +88,16 @@ var lstUnion = function(lst1, lst2) {
 var jacIndex = function(intersect, union) {
     return parseFloat(intersect / union);
 }
+
+
+var objArraySortMinToMax = function(objArray, field) {
+    return objArray.sort(function(a, b) {
+        return a[field] - b[field];
+    });
+}
+
+var objArraySortMaxToMin = function(objArray, field) {
+    return objArray.sort(function(a, b) {
+        return b[field] - a[field];
+    });
+}
