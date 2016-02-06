@@ -2245,7 +2245,6 @@ biset.addBicListCtrl = function(lsts) {
                         }
                     }
 
-
                     // arr_left.sort(function(a, b) { return a.order - b.order; });
                     var yAxisOrderLeft = [];
                     for (var i = 0; i < arr_left.length; i++)
@@ -2254,11 +2253,9 @@ biset.addBicListCtrl = function(lsts) {
                     for (var i = 0; i < arr_left.length; i++)
                         leftList[arr_left[i].index].entVisualOrder = arr_left[i].order;
 
-
                     var yAxis = d3.scale.ordinal()
                         .domain(yAxisOrderLeft)
                         .rangePoints([biset.entList.topGap, leftList.length * biset.entity.height + biset.entList.topGap], 0);
-
 
                     d3.selectAll("." + lListType).transition()
                         .attr("transform", function(d, i) {
@@ -2270,7 +2267,6 @@ biset.addBicListCtrl = function(lsts) {
                             biset.updateLink(connections);
                         });
 
-
                     var yAxisOrderRight = [];
                     for (var i = 0; i < arr_right.length; i++)
                         yAxisOrderRight.push(i);
@@ -2278,11 +2274,9 @@ biset.addBicListCtrl = function(lsts) {
                     for (var i = 0; i < arr_right.length; i++)
                         rightList[arr_right[i].index].entVisualOrder = arr_right[i].order;
 
-
                     yAxis = d3.scale.ordinal()
                         .domain(yAxisOrderRight)
                         .rangePoints([biset.entList.topGap, rightList.length * biset.entity.height + biset.entList.topGap], 0);
-
 
                     d3.selectAll("." + rListType).transition()
                         .attr("transform", function(d, i) {
@@ -2318,20 +2312,13 @@ biset.addBicListCtrl = function(lsts) {
                         }
 
                         y_pos = y_pos / num_items;
-
-                        d3.select("#" + bic_name).transition()
-                            .attr("transform", function(d) {
-                                d.xPos = 2;
-                                d.yPos = y_pos;
-                                return "translate(2," + d.yPos + ")";
-                            });
+                        vis.svgTransform(bic_name, 2, y_pos);
                     }
                 }
                 // shuffle entities and bics based on seriation
                 else {
                     biset.seriation(cur_bic, field1, field2, allEnts, "adjust");
                 }
-
             });
 
 
@@ -2518,12 +2505,7 @@ biset.seriation = function(bics, rfield, cfield, entDict, option) {
 
         for (var i = 0; i < pos_array.length; i++) {
             var bic_name = pos_array[i]["bicID"];
-            d3.select("#" + bic_name).transition()
-                .attr("transform", function(d) {
-                    d.xPos = 2;
-                    d.yPos = pos_array[i]["bicYpos"];
-                    return "translate(2," + d.yPos + ")";
-                });
+            vis.svgTransform(bic_name, 2, pos_array[i]["bicYpos"]);
         }
     }
     // --------- end ent based position with adjust -----------
@@ -2553,13 +2535,7 @@ biset.seriation = function(bics, rfield, cfield, entDict, option) {
             }
 
             y_pos = y_pos / num_items;
-
-            d3.select("#" + bic_name).transition()
-                .attr("transform", function(d) {
-                    d.xPos = 2;
-                    d.yPos = y_pos;
-                    return "translate(2," + d.yPos + ")";
-                });
+            vis.svgTransform(bic_name, 2, y_pos);
         }
     }
     // ------------------ end ent based position --------------
@@ -2569,22 +2545,14 @@ biset.seriation = function(bics, rfield, cfield, entDict, option) {
     // --------------------------------------------------------
     // ------------------ fixed position ----------------------
     if (option == "fixed") {
-        var pos = 0;
         for (e in bics) {
             var bic_name = bic_prefix + bics[e].bicID.toString();
-
-            d3.select("#" + bic_name).transition()
-                .attr("transform", function(d) {
-                    d.xPos = 2;
-                    d.yPos = d.bicSeredOrder * i + 12;
-                    return "translate(2," + d.yPos + ")";
-                });
-
-            pos += 1;
+            vis.svgTransform(bic_name, 2, bics[e].bicSeredOrder * biset.bic.frameHeight + 12);
         }
     }
     // ------------------ end fixed position ------------------
     // --------------------------------------------------------
+
 }
 
 

@@ -90,7 +90,20 @@ vis.setSvgStroke = function(svgObj, scolor, swidth) {
 }
 
 
-
+/*
+ * transform svg object
+ * @param svgID, string, the id of svg object
+ * @param x, float/int, x position
+ * @param y, float/int, y position
+ */
+vis.svgTransform = function(svgID, x, y) {
+    return d3.select("#" + svgID).transition()
+        .attr("transform", function(d) {
+            d.xPos = x;
+            d.yPos = y;
+            return "translate(" + d.xPos + "," + d.yPos + ")";
+        });
+}
 
 
 /***********************************************************/
