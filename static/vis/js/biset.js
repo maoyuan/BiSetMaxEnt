@@ -2329,170 +2329,7 @@ biset.addBicListCtrl = function(lsts) {
                 }
                 // shuffle entities and bics based on seriation
                 else {
-                    //sort bic based on sered order
-                    cur_bic.sort(function(a, b) {
-                        return a.bicSeredOrder - b.bicSeredOrder;
-                    });
-
-                    var leftList = [],
-                        rightList = [];
-
-                    // entities in the left list    
-                    d3.selectAll("." + field1).each(function(d) {
-                        var index = d3.select(this).attr("id");
-                        leftList.push(d);
-                    });
-
-                    // entities in the right list
-                    d3.selectAll("." + field2).each(function(d) {
-                        var index = d3.select(this).attr("id");
-                        rightList.push(d);
-                    });
-
-                    var yAxisOrderLeft = [],
-                        yAxisOrderRight = [];
-                    for (var i = 0; i < leftList.length; i++)
-                        yAxisOrderLeft.push(i);
-                    for (var i = 0; i < rightList.length; i++)
-                        yAxisOrderRight.push(i);
-
-                    var yAxisLeft = d3.scale.ordinal()
-                        .domain(yAxisOrderLeft)
-                        .rangePoints([biset.entList.topGap, leftList.length * biset.entity.height + biset.entList.topGap], 0);
-
-                    var yAxisRight = d3.scale.ordinal()
-                        .domain(yAxisOrderRight)
-                        .rangePoints([biset.entList.topGap, rightList.length * biset.entity.height + biset.entList.topGap], 0);
-
-                    // shuffle entities in the left column
-                    d3.selectAll("." + field1).transition()
-                        .attr("transform", function(d, i) {
-                            d.xPos = 2;
-                            d.yPos = yAxisLeft(d.entRseredOrder);
-                            return "translate(2," + yAxisLeft(d.entRseredOrder) + ")";
-                        })
-                        .call(endall, function() {
-                            biset.updateLink(connections);
-                        });
-
-                    // shuffle entities in the right colum
-                    d3.selectAll("." + field2).transition()
-                        .attr("transform", function(d, i) {
-                            d.xPos = 2;
-                            d.yPos = yAxisRight(d.entLseredOrder);
-                            return "translate(2," + yAxisRight(d.entLseredOrder) + ")";
-                        })
-                        .call(endall, function() {
-                            biset.updateLink(connections);
-                        });
-
-                    var bic_prefix = field1 + "_" + field2 + "_bic_";
-
-                    // --------- ent based position with adjustment -----------
-                    // --------------------------------------------------------
-                    var pos_array = [];
-                    for (e in cur_bic) {
-                        var bic_name = bic_prefix + cur_bic[e].bicID.toString(),
-                            y_pos = 0,
-                            num_items = 0;
-
-                        for (e2 in cur_bic[e].row) {
-                            var ent_val = cur_bic[e].row[e2],
-                                ent_id = cur_bic[e].rowField + "_" + ent_val;
-                            y_pos += allEnts[ent_id].yPos;
-                            num_items++;
-                        }
-                        for (e2 in cur_bic[e].col) {
-                            var ent_val = cur_bic[e].col[e2],
-                                ent_id = cur_bic[e].colField + "_" + ent_val;
-                            y_pos += allEnts[ent_id].yPos;
-                            num_items++;
-                        }
-
-                        y_pos = y_pos / num_items;
-
-                        var tmp = {};
-                        tmp["bicID"] = bic_name;
-                        tmp["bicYpos"] = y_pos;
-                        pos_array.push(tmp);
-
-                    }
-
-                    // position adjustment
-                    for (var i = 0; i < pos_array.length - 1; i++) {
-                        var posDiff = pos_array[i + 1]["bicYpos"] - pos_array[i]["bicYpos"];
-                        if (posDiff < biset.bic.frameHeight) {
-                            if (posDiff >= 0)
-                                pos_array[i + 1]["bicYpos"] += 1.2 * biset.bic.frameHeight;
-                            else
-                                pos_array[i + 1]["bicYpos"] = pos_array[i]["bicYpos"] + biset.bic.frameHeight;
-                        }
-                    }
-
-                    for (var i = 0; i < pos_array.length; i++) {
-                        var bic_name = pos_array[i]["bicID"];
-                        d3.select("#" + bic_name).transition()
-                            .attr("transform", function(d) {
-                                d.xPos = 2;
-                                d.yPos = pos_array[i]["bicYpos"];
-                                return "translate(2," + d.yPos + ")";
-                            });
-                    }
-                    // --------- end ent based position with adjust -----------
-                    // --------------------------------------------------------
-
-
-                    // --------------------------------------------------------
-                    // ------------------ ent based position ------------------
-                    // shuffle the bic_cluster
-                    // for (e in cur_bic) {
-                    //     var bic_name = bic_prefix + cur_bic[e].bicID.toString(),
-                    //         y_pos = 0,
-                    //         num_items = 0;
-
-                    //     for (e2 in cur_bic[e].row) {
-                    //         var ent_val = cur_bic[e].row[e2],
-                    //             ent_id = cur_bic[e].rowField + "_" + ent_val;
-                    //         y_pos += allEnts[ent_id].yPos;
-                    //         num_items++;
-                    //     }
-                    //     for (e2 in cur_bic[e].col) {
-                    //         var ent_val = cur_bic[e].col[e2],
-                    //             ent_id = cur_bic[e].colField + "_" + ent_val;
-                    //         y_pos += allEnts[ent_id].yPos;
-                    //         num_items++;
-                    //     }
-
-                    //     y_pos = y_pos / num_items;
-
-                    //     d3.select("#" + bic_name).transition()
-                    //         .attr("transform", function(d) {
-                    //             d.xPos = 2;
-                    //             d.yPos = y_pos;
-                    //             return "translate(2," + d.yPos + ")";
-                    //         });
-                    // }
-                    // ------------------ end ent based position --------------
-                    // --------------------------------------------------------
-
-
-                    // --------------------------------------------------------
-                    // ------------------ fixed position ----------------------
-                    // var pos = 0;
-                    // for (e in cur_bic) {
-                    // 	var bic_name = bic_prefix + cur_bic[e].bicID.toString();
-
-                    //     d3.select("#" + bic_name).transition()
-                    //         .attr("transform", function(d) {
-                    //             d.xPos = 2;
-                    //             d.yPos = d.bicSeredOrder * i + 12;
-                    //             return "translate(2," + d.yPos + ")";
-                    //         });
-
-                    //     pos += 1;
-                    // }
-                    // ------------------ end fixed position ------------------
-                    // --------------------------------------------------------
+                    biset.seriation(cur_bic, field1, field2, allEnts, "adjust");
                 }
 
             });
@@ -2515,7 +2352,6 @@ biset.addBicListCtrl = function(lsts) {
 
                 if (selMode.indexOf("cluster") < 0)
                     biset.connectionDisplayed(field1, field2, selMode, preMode);
-
             });
 
         $("#slider_" + lsts[i] + "_" + lsts[i + 1])
@@ -2566,6 +2402,189 @@ biset.addBicListCtrl = function(lsts) {
 
             });
     }
+}
+
+
+/*
+ * perform seriation to a pair of entity list
+ * @param bics, list, a list of bics inbetween the tow ent list
+ * @param rfield, string, the domain of list on the left
+ * @param cfield, string, the domain of list on the right
+ * @param entDict, dictionary, a dictionary of info for all ents
+ * @param option, string, "adjust", "original", "fixed"
+ */
+biset.seriation = function(bics, rfield, cfield, entDict, option) {
+
+    //sort bic based on sered order
+    bics.sort(function(a, b) {
+        return a.bicSeredOrder - b.bicSeredOrder;
+    });
+
+    var leftList = [],
+        rightList = [];
+
+    // entities in the left list    
+    d3.selectAll("." + rfield).each(function(d) {
+        var index = d3.select(this).attr("id");
+        leftList.push(d);
+    });
+
+    // entities in the right list
+    d3.selectAll("." + cfield).each(function(d) {
+        var index = d3.select(this).attr("id");
+        rightList.push(d);
+    });
+
+    var yAxisOrderLeft = [],
+        yAxisOrderRight = [];
+    for (var i = 0; i < leftList.length; i++)
+        yAxisOrderLeft.push(i);
+    for (var i = 0; i < rightList.length; i++)
+        yAxisOrderRight.push(i);
+
+    var yAxisLeft = d3.scale.ordinal()
+        .domain(yAxisOrderLeft)
+        .rangePoints([biset.entList.topGap, leftList.length * biset.entity.height + biset.entList.topGap], 0);
+
+    var yAxisRight = d3.scale.ordinal()
+        .domain(yAxisOrderRight)
+        .rangePoints([biset.entList.topGap, rightList.length * biset.entity.height + biset.entList.topGap], 0);
+
+    // shuffle entities in the left column
+    d3.selectAll("." + rfield).transition()
+        .attr("transform", function(d, i) {
+            d.xPos = 2;
+            d.yPos = yAxisLeft(d.entRseredOrder);
+            return "translate(2," + yAxisLeft(d.entRseredOrder) + ")";
+        })
+        .call(endall, function() {
+            biset.updateLink(connections);
+        });
+
+    // shuffle entities in the right colum
+    d3.selectAll("." + cfield).transition()
+        .attr("transform", function(d, i) {
+            d.xPos = 2;
+            d.yPos = yAxisRight(d.entLseredOrder);
+            return "translate(2," + yAxisRight(d.entLseredOrder) + ")";
+        })
+        .call(endall, function() {
+            biset.updateLink(connections);
+        });
+
+    var bic_prefix = rfield + "_" + cfield + "_bic_";
+
+    // --------- ent based position with adjustment -----------
+    // --------------------------------------------------------
+    if (option == "adjust") {
+        var pos_array = [];
+        for (e in bics) {
+            var bic_name = bic_prefix + bics[e].bicID.toString(),
+                y_pos = 0,
+                num_items = 0;
+
+            for (e2 in bics[e].row) {
+                var ent_val = bics[e].row[e2],
+                    ent_id = bics[e].rowField + "_" + ent_val;
+                y_pos += entDict[ent_id].yPos;
+                num_items++;
+            }
+            for (e2 in bics[e].col) {
+                var ent_val = bics[e].col[e2],
+                    ent_id = bics[e].colField + "_" + ent_val;
+                y_pos += entDict[ent_id].yPos;
+                num_items++;
+            }
+
+            y_pos = y_pos / num_items;
+
+            var tmp = {};
+            tmp["bicID"] = bic_name;
+            tmp["bicYpos"] = y_pos;
+            pos_array.push(tmp);
+
+        }
+
+        // position adjustment
+        for (var i = 0; i < pos_array.length - 1; i++) {
+            var posDiff = pos_array[i + 1]["bicYpos"] - pos_array[i]["bicYpos"];
+            if (posDiff < biset.bic.frameHeight) {
+                if (posDiff >= 0)
+                    pos_array[i + 1]["bicYpos"] += 1.2 * biset.bic.frameHeight;
+                else
+                    pos_array[i + 1]["bicYpos"] = pos_array[i]["bicYpos"] + biset.bic.frameHeight;
+            }
+        }
+
+        for (var i = 0; i < pos_array.length; i++) {
+            var bic_name = pos_array[i]["bicID"];
+            d3.select("#" + bic_name).transition()
+                .attr("transform", function(d) {
+                    d.xPos = 2;
+                    d.yPos = pos_array[i]["bicYpos"];
+                    return "translate(2," + d.yPos + ")";
+                });
+        }
+    }
+    // --------- end ent based position with adjust -----------
+    // --------------------------------------------------------
+
+
+    // --------------------------------------------------------
+    // ------------------ ent based position ------------------
+    if (option == "original") {
+        // shuffle the bic_cluster
+        for (e in bics) {
+            var bic_name = bic_prefix + bics[e].bicID.toString(),
+                y_pos = 0,
+                num_items = 0;
+
+            for (e2 in bics[e].row) {
+                var ent_val = bics[e].row[e2],
+                    ent_id = bics[e].rowField + "_" + ent_val;
+                y_pos += entDict[ent_id].yPos;
+                num_items++;
+            }
+            for (e2 in bics[e].col) {
+                var ent_val = bics[e].col[e2],
+                    ent_id = bics[e].colField + "_" + ent_val;
+                y_pos += entDict[ent_id].yPos;
+                num_items++;
+            }
+
+            y_pos = y_pos / num_items;
+
+            d3.select("#" + bic_name).transition()
+                .attr("transform", function(d) {
+                    d.xPos = 2;
+                    d.yPos = y_pos;
+                    return "translate(2," + d.yPos + ")";
+                });
+        }
+    }
+    // ------------------ end ent based position --------------
+    // --------------------------------------------------------
+
+
+    // --------------------------------------------------------
+    // ------------------ fixed position ----------------------
+    if (option == "fixed") {
+        var pos = 0;
+        for (e in bics) {
+            var bic_name = bic_prefix + bics[e].bicID.toString();
+
+            d3.select("#" + bic_name).transition()
+                .attr("transform", function(d) {
+                    d.xPos = 2;
+                    d.yPos = d.bicSeredOrder * i + 12;
+                    return "translate(2," + d.yPos + ")";
+                });
+
+            pos += 1;
+        }
+    }
+    // ------------------ end fixed position ------------------
+    // --------------------------------------------------------
 }
 
 
