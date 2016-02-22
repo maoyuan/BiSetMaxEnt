@@ -2390,6 +2390,13 @@ biset.addBicListCtrl = function(lsts) {
                 // sort distance
                 objArraySortMinToMax(cur_bic, "yPos");
 
+                console.log(cur_bic);
+
+                var bicMergeSpatialDist = biset.bic.frameHeight * 1.5,
+                	spatialSets = findSubset(cur_bic, "yPos", bicMergeSpatialDist);
+
+                console.log(spatialSets);
+
             });
     }
 }

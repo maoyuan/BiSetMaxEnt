@@ -8,7 +8,7 @@
 /********** entity font **********/
 // normal font
 nEntFont = "0.83em";
-nEntFontforPaper = "1.1em";
+nEntFontforPaper = "1.1em"; //1.1
 
 
 // highlight font
@@ -22,4 +22,5 @@ lEntFontClass = "text-large";
 /********** canvas id **********/
 biSetContainer = "biset_canvas";
 biSetVisCanvas = "vis_canvas";
+
 

@@ -101,3 +101,39 @@ var objArraySortMaxToMin = function(objArray, field) {
         return b[field] - a[field];
     });
 }
+
+
+/*
+ * separate a list of object based on a threshold
+ * @param vList, array, a list of object
+ * @param vThreshold, int/float, the threshold
+ * @return a list of subsets in this list
+ */
+function findSubset(vList, field, vThreshold) {
+
+    var ret = [];
+    var length = vList.length;
+    var index = 1;
+    while (index != length) {
+        var diff = vList[index][field] - vList[index - 1][field];
+        if (diff >= vThreshold)
+            index += 1;
+        else {
+            var tmp = [];
+            tmp.push(vList[index - 1]);
+            tmp.push(vList[index]);
+            index += 1;
+            //greedy, find the longest sequence
+            while (index != length) {
+                diff = vList[index][field] - vList[index - 1][field];
+                index += 1;
+                if (diff >= vThreshold)
+                    break;
+                else
+                    tmp.push(vList[index - 1]);
+            }
+            ret.push(tmp);
+        }
+    }
+    return ret;
+}
