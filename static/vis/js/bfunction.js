@@ -154,12 +154,6 @@ function distCheck(lst, field, distMatrix, threshold) {
 
     while (index != length) {
         var val = distMatrix[lst[index - 1][field]][lst[index][field]];
-
-        // console.log(lst[index - 1][field]);
-        // console.log(lst[index][field]);
-        // console.log(distMatrix[lst[index - 1][field]][lst[index][field]]);
-        // console.log(val);
-
         if (val < threshold)
             index += 1;
         else {
@@ -183,3 +177,17 @@ function distCheck(lst, field, distMatrix, threshold) {
 }
 
 
+/*
+ * get basic stats of a list, (key, values)
+ * @param lst, array,
+ * @param lstObj, object to depict this list
+ */
+function lstEntCount(lst, lstObj) {
+    for (var r = 0; r < lst.length; r++) {
+        if (lstObj[lst[r]] === undefined) {
+            lstObj[lst[r]] = 1;
+        } else {
+            lstObj[lst[r]] += 1;
+        }
+    }
+}

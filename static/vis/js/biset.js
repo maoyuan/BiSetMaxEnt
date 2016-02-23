@@ -2394,22 +2394,33 @@ biset.addBicListCtrl = function(lsts) {
                 // sort distance
                 objArraySortMinToMax(cur_bic, "yPos");
 
-                // console.log(cur_bic);
-
                 var bicMergeSpatialDist = biset.bic.frameHeight * 1.5,
                     spatialSets = findSubset(cur_bic, "yPos", bicMergeSpatialDist);
 
-                // console.log(spatialSets);
                 var mergeSets = [];
                 for (var i = 0; i < spatialSets.length; i++) {
-                	var tmpSets = distCheck(spatialSets[i], "bicIDCmp", jacMatrix, megthreshold);
-                	mergeSets.push(tmpSets);
+                    var tmpSets = distCheck(spatialSets[i], "bicIDCmp", jacMatrix, megthreshold);
+                    mergeSets.push(tmpSets);
                 }
 
-                // var mergeSets = distCheck(spatialSets[0], "bicIDCmp", jacMatrix, megthreshold);
-                console.log(megthreshold);
+                for (var i = 0; i < mergeSets.length; i++) {
+                    var thisMergeSet = mergeSets[i][0],
+                        entsInMergeSet = [],
+                        rowEntIDs = [],
+                        colEntIDs = [];
 
-                console.log(mergeSets);
+                    for (var j = 0; j < thisMergeSet.length; j++) {
+                        var thisBicID = thisMergeSet[j]["bicIDCmp"];
+
+                        vis.setPathVisibilitybyClass(thisBicID, "hidden");
+
+                        var thisRowEntIDs = biset.getBicEntsInRowOrCol(thisMergeSet[j], "row"),
+                            thisColEntIDs = biset.getBicEntsInRowOrCol(thisMergeSet[j], "col");
+
+                        lstEntCount(thisRowEntIDs, rowEntIDs);
+                        lstEntCount(thisColEntIDs, colEntIDs);
+                    }
+                }
 
             });
     }
@@ -2918,7 +2929,8 @@ biset.addLink = function(obj1, obj2, line, d3obj, bg) {
 
         var lid1 = obj1.attr("id"),
             lid2 = obj2.attr("id"),
-            lID = biset.genLinkID(lid1, lid2);
+            lID = biset.genLinkID(lid1, lid2),
+            lclass = "lineNormal line___" + lid1 + " line___" + lid2;
 
         return {
             //bg: bg && bg.split && robj.path(path).attr({stroke: bg.split("|")[0], fill: "none", "stroke-width": bg.split("|")[1] || 3}),
@@ -2926,7 +2938,7 @@ biset.addLink = function(obj1, obj2, line, d3obj, bg) {
             line: d3obj.append("path")
                 .attr("d", path)
                 .attr("id", lID)
-                .attr("class", "lineNormal")
+                .attr("class", lclass)
                 .style("stroke", biset.colors.lineNColor)
                 .style("stroke-width", biset.conlink.nwidth)
                 .style("fill", "none"),

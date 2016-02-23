@@ -25,6 +25,12 @@ vis.addSvg = function(canvasID, svgID, sHeight, sWidth) {
 }
 
 
+vis.setPathVisibilitybyClass = function(pclass, visibility) {
+    return d3.selectAll(".line___" + pclass)
+        .attr("visibility", visibility);
+}
+
+
 /*
  * set border of a svg object
  * @param svgID, string, the id of svg object
