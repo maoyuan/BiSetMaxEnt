@@ -2378,24 +2378,38 @@ biset.addBicListCtrl = function(lsts) {
                         jacMatrix[bicID1][bicID2] = jVal;
 
                         if (jVal >= megthreshold && bicID1 != bicID2) {
-                            var bicPair1 = bicID1 + "____" + bicID2,
-                                bicPair2 = bicID2 + "____" + bicID1;
-                            if (!megBicsPairs.has(bicPair1) && !megBicsPairs.has(bicPair2))
-                                megBicsPairs.add(bicPair1);
+                            if (bicID1 <= bicID2)
+                                var bicPair = bicID1 + "____" + bicID2;
+                            else
+                                var bicPair = bicID2 + "____" + bicID1;
+
+                            if (!megBicsPairs.has(bicPair))
+                                megBicsPairs.add(bicPair);
                         }
                     }
                 }
+
                 // perform seriation
                 biset.seriation(cur_bic, field1, field2, allEnts, "original");
                 // sort distance
                 objArraySortMinToMax(cur_bic, "yPos");
 
-                console.log(cur_bic);
+                // console.log(cur_bic);
 
                 var bicMergeSpatialDist = biset.bic.frameHeight * 1.5,
-                	spatialSets = findSubset(cur_bic, "yPos", bicMergeSpatialDist);
+                    spatialSets = findSubset(cur_bic, "yPos", bicMergeSpatialDist);
 
-                console.log(spatialSets);
+                // console.log(spatialSets);
+                var mergeSets = [];
+                for (var i = 0; i < spatialSets.length; i++) {
+                	var tmpSets = distCheck(spatialSets[i], "bicIDCmp", jacMatrix, megthreshold);
+                	mergeSets.push(tmpSets);
+                }
+
+                // var mergeSets = distCheck(spatialSets[0], "bicIDCmp", jacMatrix, megthreshold);
+                console.log(megthreshold);
+
+                console.log(mergeSets);
 
             });
     }

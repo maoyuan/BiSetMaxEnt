@@ -137,3 +137,49 @@ function findSubset(vList, field, vThreshold) {
     }
     return ret;
 }
+
+
+/*
+ * check the neighbouring elements in a list
+ * @param lst, a object array
+ * @param field, string, a field of the object
+ * @param distMatrix, distance matrix between paired elements
+ * @param threshold, int/float, the threshold
+ * @return sets of neighboring elements meet the threshold
+ */
+function distCheck(lst, field, distMatrix, threshold) {
+    var ret = [],
+        length = lst.length,
+        index = 1;
+
+    while (index != length) {
+        var val = distMatrix[lst[index - 1][field]][lst[index][field]];
+
+        // console.log(lst[index - 1][field]);
+        // console.log(lst[index][field]);
+        // console.log(distMatrix[lst[index - 1][field]][lst[index][field]]);
+        // console.log(val);
+
+        if (val < threshold)
+            index += 1;
+        else {
+            var tmp = [];
+            tmp.push(lst[index - 1]);
+            tmp.push(lst[index]);
+            index += 1;
+            //greedy, find the longest sequence
+            while (index != length) {
+                val = distMatrix[lst[index - 1][field]][lst[index][field]];
+                index += 1;
+                if (val < threshold)
+                    break;
+                else
+                    tmp.push(lst[index - 1]);
+            }
+            ret.push(tmp);
+        }
+    }
+    return ret;
+}
+
+
