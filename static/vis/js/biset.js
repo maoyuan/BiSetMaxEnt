@@ -2410,9 +2410,13 @@ biset.addBicListCtrl = function(lsts) {
                         colEntIDs = [];
 
                     for (var j = 0; j < thisMergeSet.length; j++) {
-                        var thisBicID = thisMergeSet[j]["bicIDCmp"];
+                        var thisBicID = thisMergeSet[j]["bicIDCmp"],
+                            thisBicLeft = thisBicID + "_left",
+                            thisBicFrame = thisBicID + "_frame";
 
                         vis.setPathVisibilitybyClass(thisBicID, "hidden");
+                        biset.setVisibility(thisBicLeft, "hidden");
+                        biset.setVisibility(thisBicFrame, "hidden");
 
                         var thisRowEntIDs = biset.getBicEntsInRowOrCol(thisMergeSet[j], "row"),
                             thisColEntIDs = biset.getBicEntsInRowOrCol(thisMergeSet[j], "col");
