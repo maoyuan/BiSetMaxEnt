@@ -1150,6 +1150,8 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
             // d.yPos = yPos;
             // 		return "translate(" + xPos + "," + yPos + ")";
             // original position
+
+            d.startPos = bicStartPos;
             return "translate(" + 0 + "," + (i + 1) * biset.bic.frameHeight + ")";
         });
 
@@ -2403,11 +2405,19 @@ biset.addBicListCtrl = function(lsts) {
                     mergeSets.push(tmpSets);
                 }
 
+                var mbicClass = "mergedBic";
+                // remove previous merged bic
+                vis.svgRemovebyClass(mbicClass);
+                
                 for (var i = 0; i < mergeSets.length; i++) {
                     var thisMergeSet = mergeSets[i][0],
                         entsInMergeSet = [],
                         rowEntIDs = [],
-                        colEntIDs = [];
+                        colEntIDs = [],
+                        avgXpos = 0,
+                        avgYpos = 0,
+
+                        mbicID = "";
 
                     for (var j = 0; j < thisMergeSet.length; j++) {
                         var thisBicID = thisMergeSet[j]["bicIDCmp"],
@@ -2415,8 +2425,11 @@ biset.addBicListCtrl = function(lsts) {
                             thisBicFrame = thisBicID + "_frame";
 
                         vis.setPathVisibilitybyClass(thisBicID, "hidden");
-                        biset.setVisibility(thisBicLeft, "hidden");
-                        biset.setVisibility(thisBicFrame, "hidden");
+                        // biset.setVisibility(thisBicLeft, "hidden");
+                        // biset.setVisibility(thisBicFrame, "hidden");
+
+                        avgXpos += thisMergeSet[j]["startPos"];
+                        avgYpos += thisMergeSet[j]["yPos"];
 
                         var thisRowEntIDs = biset.getBicEntsInRowOrCol(thisMergeSet[j], "row"),
                             thisColEntIDs = biset.getBicEntsInRowOrCol(thisMergeSet[j], "col");
@@ -2424,8 +2437,11 @@ biset.addBicListCtrl = function(lsts) {
                         lstEntCount(thisRowEntIDs, rowEntIDs);
                         lstEntCount(thisColEntIDs, colEntIDs);
                     }
-                }
+                    avgXpos /= thisMergeSet.length;
+                    avgYpos /= thisMergeSet.length;
 
+                    vis.addRect("vis_canvas", mbicID, mbicClass, avgXpos, avgYpos, 100, 100, 2, 2, colorSet.bicFrameColor);
+                }
             });
     }
 }

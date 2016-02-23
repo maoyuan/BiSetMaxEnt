@@ -25,6 +25,25 @@ vis.addSvg = function(canvasID, svgID, sHeight, sWidth) {
 }
 
 
+vis.svgRemovebyClass = function(svgClass) {
+    d3.selectAll("." + svgClass).remove();
+}
+
+
+vis.addRect = function(canvasID, rID, rClass, x, y, h, w, rx, ry, c) {
+    return d3.select("#" + canvasID).append("rect")
+        .attr("x", x)
+        .attr("y", y)
+        .attr("width", w)
+        .attr("height", h)
+        .attr("rx", rx)
+        .attr("ry", ry)
+        .attr("id", rID)
+        .attr("class", rClass)
+        .attr("fill", c);
+}
+
+
 vis.setPathVisibilitybyClass = function(pclass, visibility) {
     return d3.selectAll(".line___" + pclass)
         .attr("visibility", visibility);
