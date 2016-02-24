@@ -2419,7 +2419,6 @@ biset.addBicListCtrl = function(lsts) {
                             colEntIDs = [],
                             avgXpos = 0,
                             avgYpos = 0,
-
                             mbicID = "";
 
                         for (var j = 0; j < thisMergeSet.length; j++) {
@@ -2446,6 +2445,7 @@ biset.addBicListCtrl = function(lsts) {
                             lstEntCount(thisRowEntIDs, rowEntIDs);
                             lstEntCount(thisColEntIDs, colEntIDs);
                         }
+
                         avgXpos /= thisMergeSet.length;
                         avgYpos /= thisMergeSet.length;
 
@@ -2464,6 +2464,19 @@ biset.addBicListCtrl = function(lsts) {
                         }
 
                         // TO DO: REMOVE THE LINES WHEN ADJUSTING THE SLIDER
+
+                        var bicToShow = setDiff(spatialSets[i], thisMergeSet, "bicIDCmp");
+                        // console.log("BICS NEED TO SHOW:");
+                        console.log(bicToShow);
+
+                        for (key in bicToShow) {
+                            var thisBicLeft = key + "_left",
+                                thisBicFrame = key + "_frame";
+
+                            biset.setVisibility(thisBicLeft, "visible");
+                            biset.setVisibility(thisBicFrame, "visible");
+                            vis.setPathVisibilitybyClass(key, "visible");
+                        }
                     }
                     // show previously hide bics and their lines
                     else {

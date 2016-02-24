@@ -191,3 +191,39 @@ function lstEntCount(lst, lstObj) {
         }
     }
 }
+
+
+/*
+ * find the diff elements between two sets
+ * @param s1, a list of object as basis
+ * @param s2, a list of object
+ * @param filed, string, the id field
+ * @return list, a list of object
+ */
+function setDiff(s1, s2, field) {
+
+    console.log("1st set");
+    console.log(s1);
+    console.log("2nd set");
+    console.log(s2);
+
+    var res = {};
+    if (s1 != undefined) {
+        var dict1 = {},
+            dict2 = {};
+
+        for (var i = 0; i < s1.length; i++)
+            dict1[s1[i][field]] = s1[i];
+
+        if (s2 != undefined) {
+            for (var i = 0; i < s2.length; i++)
+                dict2[s2[i][field]] = s2[i];
+
+            for (key in dict1) {
+                if (dict2[key] === undefined)
+                    res[key] = dict1[key];
+            }
+        }
+    }
+    return res;
+}
