@@ -1632,7 +1632,7 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
         for (var j = 0; j < rowIDs.length; j++) {
             var obj1 = d3.select("#" + rowType + "_" + rowIDs[j]);
             obj2 = d3.select("#" + rowType + "_" + colType + "_bic_" + bicID),
-                lineObj = biset.addLink(obj1, obj2, biset.colors.lineNColor, canvas);
+                lineObj = biset.addLink(obj1, obj2, biset.colors.lineNColor, canvas, "");
 
             connections[lineObj.lineID] = lineObj;
             obj2.call(biset.objDrag);
@@ -1641,7 +1641,7 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
         for (var k = 0; k < colIDs.length; k++) {
             var obj1 = d3.select("#" + rowType + "_" + colType + "_bic_" + bicID),
                 obj2 = d3.select("#" + colType + "_" + colIDs[k]),
-                lineObj = biset.addLink(obj1, obj2, biset.colors.lineNColor, canvas);
+                lineObj = biset.addLink(obj1, obj2, biset.colors.lineNColor, canvas, "");
 
             connections[lineObj.lineID] = lineObj;
             obj1.call(biset.objDrag);
@@ -2405,66 +2405,66 @@ biset.addBicListCtrl = function(lsts) {
                     mergeSets.push(tmpSets);
                 }
 
-                var mbicClass = "mergedBic";
-                // remove previous merged bic
+                // remove previously merged bic and lines
+                var mbicClass = field1 + "_" + field2 + "_" + "mergedBic",
+                    mLineClass = field1 + "_" + field2 + "_" + "mergedBicLine";
                 vis.svgRemovebyClass(mbicClass);
+                vis.svgRemovebyClass(mLineClass);
 
                 for (var i = 0; i < mergeSets.length; i++) {
-                    var thisMergeSet = mergeSets[i][0],
-                        entsInMergeSet = [],
-                        rowEntIDs = [],
-                        colEntIDs = [],
-                        avgXpos = 0,
-                        avgYpos = 0,
+                    var thisMergeSet = mergeSets[i][0];
+                    // make sure that there are elements to merge
+                    if (thisMergeSet != undefined) {
+                        var rowEntIDs = [],
+                            colEntIDs = [],
+                            avgXpos = 0,
+                            avgYpos = 0,
 
-                        mbicID = "";
+                            mbicID = "";
 
-                    for (var j = 0; j < thisMergeSet.length; j++) {
-                        var thisBicID = thisMergeSet[j]["bicIDCmp"],
-                            thisBicLeft = thisBicID + "_left",
-                            thisBicFrame = thisBicID + "_frame";
+                        for (var j = 0; j < thisMergeSet.length; j++) {
+                            var thisBicID = thisMergeSet[j]["bicIDCmp"],
+                                thisBicLeft = thisBicID + "_left",
+                                thisBicFrame = thisBicID + "_frame";
 
-                        vis.setPathVisibilitybyClass(thisBicID, "hidden");
-                        biset.setVisibility(thisBicLeft, "hidden");
-                        biset.setVisibility(thisBicFrame, "hidden");
+                            vis.setPathVisibilitybyClass(thisBicID, "hidden");
+                            biset.setVisibility(thisBicLeft, "hidden");
+                            biset.setVisibility(thisBicFrame, "hidden");
 
-                        avgXpos += thisMergeSet[j]["startPos"];
-                        avgYpos += thisMergeSet[j]["yPos"];
+                            avgXpos += thisMergeSet[j]["startPos"];
+                            avgYpos += thisMergeSet[j]["yPos"];
 
-                        if (j == 0) {
-                            mbicID = thisBicID;
-                        } else {
-                            mbicID = mbicID + "____" + thisBicID;
+                            if (j == 0) {
+                                mbicID = thisBicID;
+                            } else {
+                                mbicID = mbicID + "____" + thisBicID;
+                            }
+
+                            var thisRowEntIDs = biset.getBicEntsInRowOrCol(thisMergeSet[j], "row"),
+                                thisColEntIDs = biset.getBicEntsInRowOrCol(thisMergeSet[j], "col");
+
+                            lstEntCount(thisRowEntIDs, rowEntIDs);
+                            lstEntCount(thisColEntIDs, colEntIDs);
+                        }
+                        avgXpos /= thisMergeSet.length;
+                        avgYpos /= thisMergeSet.length;
+
+                        var mergedBic = vis.addRect("vis_canvas", mbicID, mbicClass, avgXpos, avgYpos, biset.bic.frameHeight, 100, 2, 2, colorSet.bicFrameColor);
+
+                        for (key in rowEntIDs) {
+                            var obj1 = d3.select("#" + key),
+                                lineObj = biset.addLink(obj1, mergedBic, biset.colors.lineNColor, canvas, mLineClass);
+                            connections[lineObj.lineID] = lineObj;
                         }
 
-                        var thisRowEntIDs = biset.getBicEntsInRowOrCol(thisMergeSet[j], "row"),
-                            thisColEntIDs = biset.getBicEntsInRowOrCol(thisMergeSet[j], "col");
+                        for (key in colEntIDs) {
+                            var obj2 = d3.select("#" + key),
+                                lineObj = biset.addLink(mergedBic, obj2, biset.colors.lineNColor, canvas, mLineClass);
+                            connections[lineObj.lineID] = lineObj;
+                        }
 
-                        lstEntCount(thisRowEntIDs, rowEntIDs);
-                        lstEntCount(thisColEntIDs, colEntIDs);
+                        // TO DO: REMOVE THE LINES WHEN ADJUSTING THE SLIDER
                     }
-                    avgXpos /= thisMergeSet.length;
-                    avgYpos /= thisMergeSet.length;
-
-                    var mergedBic = vis.addRect("vis_canvas", mbicID, mbicClass, avgXpos, avgYpos, biset.bic.frameHeight, 100, 2, 2, colorSet.bicFrameColor);
-
-                    // lineObj = biset.addLink(obj1, obj2, biset.colors.lineNColor, canvas);
-                    for (key in rowEntIDs) {
-                        var obj1 = d3.select("#" + key),
-                            lineObj = biset.addLink(obj1, mergedBic, biset.colors.lineNColor, canvas);
-
-                        connections[lineObj.lineID] = lineObj;
-                    }
-
-                    for (key in colEntIDs) {
-                        var obj2 = d3.select("#" + key),
-                            lineObj = biset.addLink(mergedBic, obj2, biset.colors.lineNColor, canvas);
-
-                        connections[lineObj.lineID] = lineObj;
-                    }
-
-                    // TO DO: REMOVE THE LINES WHEN ADJUSTING THE SLIDER
-
                 }
             });
     }
@@ -2883,29 +2883,14 @@ biset.findLinksInBetween = function(ldomain, rdomain) {
  * @param obj1, the 1st object
  * @param obj2, the 2nd object
  * @param d3obj, d3 object to append the line
- * @param bg, 
  */
-biset.addLink = function(obj1, obj2, line, d3obj, bg) {
+biset.addLink = function(obj1, obj2, line, d3obj, lineClass) {
     if (obj1.line && obj1.from && obj1.to) {
         line = obj1;
         obj1 = line.from;
         obj2 = line.to;
         d3obj = line.d3Canvas;
     }
-
-    // var svgPos = d3obj[0][0].getBoundingClientRect();
-
-    // var bb1 = obj1[0][0].getBoundingClientRect(),
-    //     bb2 = obj2[0][0].getBoundingClientRect(),
-
-    //     p = [{x: bb1.left + bb1.width / 2 - svgPos.left, y: bb1.top - 1 - svgPos.top},
-    //     {x: bb1.left + bb1.width / 2 - svgPos.left, y: bb1.top + bb1.height + 1 - svgPos.top},
-    //     {x: bb1.left - 1 - svgPos.left, y: bb1.top + bb1.height / 2 - svgPos.top},
-    //     {x: bb1.left + bb1.width + 1 - svgPos.left, y: bb1.top + bb1.height / 2 - svgPos.top},
-    //     {x: bb2.left + bb2.width / 2 - svgPos.left, y: bb2.top - 1 - svgPos.top},
-    //     {x: bb2.left + bb2.width / 2 - svgPos.left, y: bb2.top + bb2.height + 1 - svgPos.top},
-    //     {x: bb2.left - 1 - svgPos.left, y: bb2.top + bb2.height / 2 - svgPos.top},
-    //     {x: bb2.left + bb2.width + 1 - svgPos.left, y: bb2.top + bb2.height / 2 - svgPos.top}],
 
     var bb1 = biset.getOffset(obj1),
         bb2 = biset.getOffset(obj2),
@@ -2966,18 +2951,19 @@ biset.addLink = function(obj1, obj2, line, d3obj, bg) {
     var path = ["M" + x1.toFixed(3), y1.toFixed(3) + "C" + x2, y2, x3, y3, x4.toFixed(3), y4.toFixed(3)].join(",");
 
     if (line && line.line) {
-        //line.bg && line.bg.attr({path: path});
         line.line.attr("d", path);
     } else {
-        // var color = typeof line == "string" ? line : "#000";
-
         var lid1 = obj1.attr("id"),
             lid2 = obj2.attr("id"),
-            lID = biset.genLinkID(lid1, lid2),
-            lclass = "lineNormal line___" + lid1 + " line___" + lid2;
+            lID = biset.genLinkID(lid1, lid2);
+
+        if (lineClass == "") {
+            var lclass = "lineNormal line___" + lid1 + " line___" + lid2;
+        } else {
+            var lclass = lineClass;
+        }
 
         return {
-            //bg: bg && bg.split && robj.path(path).attr({stroke: bg.split("|")[0], fill: "none", "stroke-width": bg.split("|")[1] || 3}),
             lineID: lID,
             line: d3obj.append("path")
                 .attr("d", path)
@@ -3007,7 +2993,7 @@ biset.addOriginalLinks = function(linkLsts) {
 
         var obj1 = d3.select("#" + obj1ID),
             obj2 = d3.select("#" + obj2ID),
-            lineObj = biset.addLink(obj1, obj2, biset.colors.lineNColor, canvas);
+            lineObj = biset.addLink(obj1, obj2, biset.colors.lineNColor, canvas, "");
 
 
 
