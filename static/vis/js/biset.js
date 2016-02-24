@@ -2465,6 +2465,19 @@ biset.addBicListCtrl = function(lsts) {
 
                         // TO DO: REMOVE THE LINES WHEN ADJUSTING THE SLIDER
                     }
+                    // show previously hide bics and their lines
+                    else {
+                        var bicsToShow = spatialSets[i];
+                        for (var j = 0; j < bicsToShow.length; j++) {
+                            var thisBicID = bicsToShow[j]["bicIDCmp"],
+                                thisBicLeft = thisBicID + "_left",
+                                thisBicFrame = thisBicID + "_frame";
+
+                            vis.setPathVisibilitybyClass(thisBicID, "visible");
+                            biset.setVisibility(thisBicLeft, "visible");
+                            biset.setVisibility(thisBicFrame, "visible");
+                        }
+                    }
                 }
             });
     }
