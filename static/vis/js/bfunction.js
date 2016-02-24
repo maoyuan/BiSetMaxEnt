@@ -185,9 +185,13 @@ function distCheck(lst, field, distMatrix, threshold) {
 function lstEntCount(lst, lstObj) {
     for (var r = 0; r < lst.length; r++) {
         if (lstObj[lst[r]] === undefined) {
-            lstObj[lst[r]] = 1;
+            lstObj[lst[r]] = {};
+            lstObj[lst[r]]["lFreq"] = 1;
+            lstObj[lst[r]]["lType"] = "dash";
         } else {
-            lstObj[lst[r]] += 1;
+            lstObj[lst[r]]["lFreq"] += 1;
+            if (lstObj[lst[r]]["lFreq"] == lst.length)
+                lstObj[lst[r]]["lType"] = "normal";
         }
     }
 }
@@ -201,12 +205,6 @@ function lstEntCount(lst, lstObj) {
  * @return list, a list of object
  */
 function setDiff(s1, s2, field) {
-
-    console.log("1st set");
-    console.log(s1);
-    console.log("2nd set");
-    console.log(s2);
-
     var res = {};
     if (s1 != undefined) {
         var dict1 = {},

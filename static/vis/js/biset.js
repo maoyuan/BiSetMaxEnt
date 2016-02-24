@@ -1632,7 +1632,7 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
         for (var j = 0; j < rowIDs.length; j++) {
             var obj1 = d3.select("#" + rowType + "_" + rowIDs[j]);
             obj2 = d3.select("#" + rowType + "_" + colType + "_bic_" + bicID),
-                lineObj = biset.addLink(obj1, obj2, biset.colors.lineNColor, canvas, "");
+                lineObj = biset.addLink(obj1, obj2, biset.colors.lineNColor, canvas, "", 1, "normal");
 
             connections[lineObj.lineID] = lineObj;
             obj2.call(biset.objDrag);
@@ -1641,7 +1641,7 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
         for (var k = 0; k < colIDs.length; k++) {
             var obj1 = d3.select("#" + rowType + "_" + colType + "_bic_" + bicID),
                 obj2 = d3.select("#" + colType + "_" + colIDs[k]),
-                lineObj = biset.addLink(obj1, obj2, biset.colors.lineNColor, canvas, "");
+                lineObj = biset.addLink(obj1, obj2, biset.colors.lineNColor, canvas, "", 1, "normal");
 
             connections[lineObj.lineID] = lineObj;
             obj1.call(biset.objDrag);
@@ -2415,8 +2415,8 @@ biset.addBicListCtrl = function(lsts) {
                     var thisMergeSet = mergeSets[i][0];
                     // make sure that there are elements to merge
                     if (thisMergeSet != undefined) {
-                        var rowEntIDs = [],
-                            colEntIDs = [],
+                        var rowEntIDs = {},
+                            colEntIDs = {},
                             avgXpos = 0,
                             avgYpos = 0,
                             mbicID = "";
@@ -2451,24 +2451,26 @@ biset.addBicListCtrl = function(lsts) {
 
                         var mergedBic = vis.addRect("vis_canvas", mbicID, mbicClass, avgXpos, avgYpos, biset.bic.frameHeight, 100, 2, 2, colorSet.bicFrameColor);
 
+                        console.log(rowEntIDs);
+                        console.log(colEntIDs);
+
                         for (key in rowEntIDs) {
                             var obj1 = d3.select("#" + key),
-                                lineObj = biset.addLink(obj1, mergedBic, biset.colors.lineNColor, canvas, mLineClass);
+                                rlwRatio = rowEntIDs[key]["lFreq"],
+                                rlType = rowEntIDs[key]["lType"],
+                                lineObj = biset.addLink(obj1, mergedBic, biset.colors.lineNColor, canvas, mLineClass, rlwRatio, rlType);
                             connections[lineObj.lineID] = lineObj;
                         }
 
                         for (key in colEntIDs) {
                             var obj2 = d3.select("#" + key),
-                                lineObj = biset.addLink(mergedBic, obj2, biset.colors.lineNColor, canvas, mLineClass);
+                                clwRatio = colEntIDs[key]["lFreq"],
+                                clType = colEntIDs[key]["lType"],
+                                lineObj = biset.addLink(mergedBic, obj2, biset.colors.lineNColor, canvas, mLineClass, clwRatio, clType);
                             connections[lineObj.lineID] = lineObj;
                         }
 
-                        // TO DO: REMOVE THE LINES WHEN ADJUSTING THE SLIDER
-
                         var bicToShow = setDiff(spatialSets[i], thisMergeSet, "bicIDCmp");
-                        // console.log("BICS NEED TO SHOW:");
-                        console.log(bicToShow);
-
                         for (key in bicToShow) {
                             var thisBicLeft = key + "_left",
                                 thisBicFrame = key + "_frame";
@@ -2909,8 +2911,11 @@ biset.findLinksInBetween = function(ldomain, rdomain) {
  * @param obj1, the 1st object
  * @param obj2, the 2nd object
  * @param d3obj, d3 object to append the line
+ * @param lineClass, string, the css class of the line
+ * @param lwidth, int/float, the with of the line
+ * @param ltype, string, the type of the line
  */
-biset.addLink = function(obj1, obj2, line, d3obj, lineClass) {
+biset.addLink = function(obj1, obj2, line, d3obj, lineClass, lwidth, ltype) {
     if (obj1.line && obj1.from && obj1.to) {
         line = obj1;
         obj1 = line.from;
@@ -2989,15 +2994,30 @@ biset.addLink = function(obj1, obj2, line, d3obj, lineClass) {
             var lclass = lineClass;
         }
 
-        return {
-            lineID: lID,
-            line: d3obj.append("path")
+        var lineWidth = lwidth * biset.conlink.nwidth;
+
+        if (ltype == "normal") {
+            var lineObj = d3obj.append("path")
                 .attr("d", path)
                 .attr("id", lID)
                 .attr("class", lclass)
                 .style("stroke", biset.colors.lineNColor)
-                .style("stroke-width", biset.conlink.nwidth)
-                .style("fill", "none"),
+                .style("stroke-width", lineWidth)
+                .style("fill", "none");
+        } else {
+            var lineObj = d3obj.append("path")
+                .attr("d", path)
+                .attr("id", lID)
+                .attr("class", lclass)
+                .style("stroke", biset.colors.lineNColor)
+                .style("stroke-width", lineWidth)
+                .style("stroke-dasharray", "7,7")
+                .style("fill", "none");
+        }
+
+        return {
+            lineID: lID,
+            line: lineObj,
             from: obj1,
             to: obj2,
             d3Canvas: d3obj
@@ -3019,7 +3039,7 @@ biset.addOriginalLinks = function(linkLsts) {
 
         var obj1 = d3.select("#" + obj1ID),
             obj2 = d3.select("#" + obj2ID),
-            lineObj = biset.addLink(obj1, obj2, biset.colors.lineNColor, canvas, "");
+            lineObj = biset.addLink(obj1, obj2, biset.colors.lineNColor, canvas, "", 1, "normal");
 
 
 
