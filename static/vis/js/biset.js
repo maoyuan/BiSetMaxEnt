@@ -46,8 +46,9 @@ var biset = {
         frameHeight: 30,
         frameBorderWidth: 1.2,
         frameRdCorner: 2,
-        innerRdCorner: 2,
+        innerRdCorner: 7,
         posShift: 15,
+        mRdCorner: 10,
         count: 0
     },
     // a bicluster list
@@ -957,7 +958,7 @@ biset.entsBackToNormal = function(entSet, eType) {
     } else if (eType == "bic") {
         for (e in entSet) {
             if (entSet[e].bicNumCoSelected == 0)
-                biset.barUpdate("#" + e + "_frame", biset.colors.bicFrameColor, "", "");
+                biset.barUpdate("#" + e + "_frame", biset.colors.bicFrame, "", "");
             // biset.barUpdate("#" + e + "_frame", "", biset.colors.bicFrameHColor, 0); 
         }
     }
@@ -1124,34 +1125,6 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
         })
         .attr("class", "bics")
         .attr("transform", function(d, i) {
-
-            // 		var cfield = d.colField,
-            // 			rfield = d.rowField,
-            // 			cols = d.col,
-            // 			rows = d.row,
-            // 			yPos = 0,
-            // 			xPos = 0;
-
-            // // y pos of the row ents
-            // for (var j = 0; j < rows.length; j++){
-            // 	var rid = rfield + "_" + rows[j],
-            // 		rY = d3.select("#" + rid)[0][0].getBoundingClientRect().top;
-            // 	yPos += rY;
-            // }
-
-            // // y pos of the col ents
-            // for (var k = 0; k < cols.length; k++) {
-            // 	var cid = cfield + "_" + cols[k],
-            // 		cY = d3.select("#" + cid)[0][0].getBoundingClientRect().top;
-            // 	yPos += cY;
-            // }
-
-            // // xPos = (biset.entList.gap * 4) * cols.length / (rows.length + cols.length) - biset.entList.gap * 2;
-            // yPos = yPos / (rows.length + cols.length);
-            // d.yPos = yPos;
-            // 		return "translate(" + xPos + "," + yPos + ")";
-            // original position
-
             d.startPos = bicStartPos;
             return "translate(" + 0 + "," + (i + 1) * biset.bic.frameHeight + ")";
         });
@@ -1166,13 +1139,28 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
         .attr("width", function(d, i) {
             return bicEntsCount(d.rowEntNum);
         })
-        // .attr("x", function(d, i) {
-        //     return -bicEntsCount(d.rowEntNum); // biset.bic.posShift
-        // })
-        .attr("height", biset.entity.height * 0.75)
+        .attr("x", function(d, i) {
+            return -bicEntsCount(d.rowEntNum);
+        })
+        .attr("height", biset.entity.height * 0.6)
         .attr("rx", biset.bic.innerRdCorner)
         .attr("ry", biset.bic.innerRdCorner)
-        .attr("fill", biset.colors.bicFreColor);
+        .attr("fill", biset.colors.bicFre);
+
+    bics.append("rect")
+        .attr("id", function(d, i) {
+            var rfield = d.rowField,
+                cfield = d.colField;
+            return rfield + "_" + cfield + "_bic_" + d.bicID + "_right";
+        })
+        .attr("width", function(d, i) {
+            return bicEntsCount(d.colEntNum);
+        })
+        .attr("x", 0)
+        .attr("height", biset.entity.height * 0.6)
+        .attr("rx", biset.bic.innerRdCorner)
+        .attr("ry", biset.bic.innerRdCorner)
+        .attr("fill", biset.colors.bicFre);
 
     // set the length of a bicluster based on its component
     bics.append("rect")
@@ -1184,15 +1172,14 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
         .attr("class", "bicFrame")
         .attr("width", function(d, i) {
             return bicEntsCount(d.totalEntNum);
-            // return bicEntsCount(d.colEntNum);
         })
-        // .attr("x", function(d, i) {
-        //     return 0;
-        // })
-        .attr("height", biset.entity.height * 0.75)
+        .attr("x", function(d, i) {
+            return -bicEntsCount(d.rowEntNum);
+        })
+        .attr("height", biset.entity.height * 0.6)
         .attr("rx", biset.bic.frameRdCorner)
         .attr("ry", biset.bic.frameRdCorner)
-        .attr("fill", biset.colors.bicFrameColor);
+        .attr("fill", biset.colors.bicFrame);
 
     $("[name='bicSelectSwitch']").bootstrapSwitch();
 
@@ -1371,7 +1358,7 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
             biset.linksBackToNormal(allLinks);
 
 
-            biset.barUpdate("#" + thisID + "_frame", "", biset.colors.bicFrameColor, 0);
+            biset.barUpdate("#" + thisID + "_frame", "", biset.colors.bicFrame, 0);
 
             d.bicMouseOvered = false;
         }
@@ -2427,15 +2414,18 @@ biset.addBicListCtrl = function(lsts) {
                             colEntIDs = {},
                             avgXpos = 0,
                             avgYpos = 0,
-                            mbicID = "";
+                            mbicID = "",
+                            bwidthUnit = 0;
 
                         for (var j = 0; j < thisMergeSet.length; j++) {
                             var thisBicID = thisMergeSet[j]["bicIDCmp"],
                                 thisBicLeft = thisBicID + "_left",
+                                thisBicRight = thisBicID + "_right",
                                 thisBicFrame = thisBicID + "_frame";
 
                             vis.setPathVisibilitybyClass(thisBicID, "hidden");
                             biset.setVisibility(thisBicLeft, "hidden");
+                            biset.setVisibility(thisBicRight, "hidden");
                             biset.setVisibility(thisBicFrame, "hidden");
 
                             avgXpos += thisMergeSet[j]["startPos"];
@@ -2443,6 +2433,10 @@ biset.addBicListCtrl = function(lsts) {
 
                             if (j == 0) {
                                 mbicID = thisBicID;
+                                // get the width unit of a bic
+                                var thisBicLeftWidth = d3.select("#" + thisBicLeft).attr("width"),
+                                    thisBicRowNum = d3.select("#" + thisBicLeft).datum().rowEntNum,
+                                    bwidthUnit = thisBicLeftWidth / thisBicRowNum;
                             } else {
                                 mbicID = mbicID + "____" + thisBicID;
                             }
@@ -2459,16 +2453,14 @@ biset.addBicListCtrl = function(lsts) {
 
                         var rEntNum = Object.keys(rowEntIDs).length,
                             cEntNum = Object.keys(colEntIDs).length,
-                            mbicData = biset.genMbicData(mbicID, mbicClass, avgXpos, avgYpos, rowEntIDs, colEntIDs, rEntNum, cEntNum);
+                            bNum = thisMergeSet.length,
+                            mbicData = biset.genMbicData(mbicID, mbicClass, avgXpos, avgYpos, rowEntIDs, colEntIDs, rEntNum, cEntNum, bNum, bwidthUnit);
 
-                        console.log(mbicData);
+                        // console.log(mbicData);
 
-                        var mergedBic = vis.addRect("vis_canvas", mbicID, mbicClass, avgXpos, avgYpos, biset.bic.frameHeight, 100, 2, 2, colorSet.bicFrameColor);
-
-                        console.log(rowEntIDs);
-                        console.log(colEntIDs);
-                        console.log(Object.keys(rowEntIDs).length);
-                        console.log(Object.keys(colEntIDs).length);
+                        var mergedBic = biset.addMergedBic("vis_canvas", mbicData);
+                        console.log(mergedBic);
+                        // = vis.addRect("vis_canvas", mbicID, mbicClass, avgXpos, avgYpos, biset.bic.frameHeight, 100, 2, 2, colorSet.bicFrame);
 
                         for (key in rowEntIDs) {
                             var obj1 = d3.select("#" + key),
@@ -2489,9 +2481,11 @@ biset.addBicListCtrl = function(lsts) {
                         var bicToShow = setDiff(spatialSets[i], thisMergeSet, "bicIDCmp");
                         for (key in bicToShow) {
                             var thisBicLeft = key + "_left",
+                                thisBicRight = key + "_right",
                                 thisBicFrame = key + "_frame";
 
                             biset.setVisibility(thisBicLeft, "visible");
+                            biset.setVisibility(thisBicRight, "visible");
                             biset.setVisibility(thisBicFrame, "visible");
                             vis.setPathVisibilitybyClass(key, "visible");
                         }
@@ -2502,10 +2496,12 @@ biset.addBicListCtrl = function(lsts) {
                         for (var j = 0; j < bicsToShow.length; j++) {
                             var thisBicID = bicsToShow[j]["bicIDCmp"],
                                 thisBicLeft = thisBicID + "_left",
+                                thisBicRight = thisBicID + "_right",
                                 thisBicFrame = thisBicID + "_frame";
 
                             vis.setPathVisibilitybyClass(thisBicID, "visible");
                             biset.setVisibility(thisBicLeft, "visible");
+                            biset.setVisibility(thisBicRight, "visible");
                             biset.setVisibility(thisBicFrame, "visible");
                         }
                     }
@@ -2518,7 +2514,7 @@ biset.addBicListCtrl = function(lsts) {
 /*
  * generate data for a merged bic
  */
-biset.genMbicData = function(bid, bclass, bx, by, rObjs, cObjs, rNum, cNum) {
+biset.genMbicData = function(bid, bclass, bx, by, rObjs, cObjs, rNum, cNum, bNum, widthUnit) {
     var mbicData = {
         "mbicID": bid,
         "mbicClass": bclass,
@@ -2528,46 +2524,52 @@ biset.genMbicData = function(bid, bclass, bx, by, rObjs, cObjs, rNum, cNum) {
         "colEnts": cObjs,
         "rowEntNum": rNum,
         "colEntNum": cNum,
+        "bicNum": bNum,
+        "mbicWithUnit": widthUnit,
     }
     return mbicData;
 }
 
 
-biset.addMergedBic = function(canvasID, bData, bClass, bID, xPos, yPos) {
+biset.addMergedBic = function(canvasID, bData) {
     var mbic = d3.select("#" + canvasID)
-        .select("." + bClass)
-        .datum(bData)
         .append("g")
-        .attr("id", bID)
-        .attr("class", "." + bClass);
+        .datum(bData)
+        .attr("id", bData.mbicID)
+        .attr("class", bData.mbicClass)
+        .attr("transform", "translate(" + bData.xPos + "," + bData.yPos + ")");
 
     // proportion of row
     mbic.append("rect")
-        .attr("id", bID + "_row")
-        .attr("width", function(d, i) {
-            return bicEntsCount(d.rowEntNum);
-        })
-        .attr("x", xPos)
-        .attr("y", yPos)
-        .attr("height", biset.entity.height - 1)
-        .attr("rx", biset.bic.innerRdCorner)
-        .attr("ry", biset.bic.innerRdCorner)
-        .attr("fill", biset.colors.bicFreColor);
+        .attr("id", "[" + bData.mbicID + "]_row")
+        .attr("class", bData.mbicClass)
+        .attr("width", bData.mbicWithUnit * bData.rowEntNum)
+        .attr("x", -bData.mbicWithUnit * bData.rowEntNum)
+        .attr("height", biset.entity.height * 0.45 * bData.bicNum)
+        .attr("rx", biset.bic.mRdCorner)
+        .attr("ry", biset.bic.mRdCorner)
+        .attr("fill", biset.colors.bicFre);
 
     // set the length of a bicluster based on its component
     mbic.append("rect")
-        .attr("id", bID + "_col")
-        .attr("class", "bicFrame")
-        .attr("width", function(d, i) {
-            return bicEntsCount(d.totalEntNum);
-            // return bicEntsCount(d.colEntNum);
-        })
-        .attr("x", xPos)
-        .attr("y", yPos)
-        .attr("height", biset.entity.height - 1)
+        .attr("id", "[" + bData.mbicID + "]_col")
+        .attr("class", bData.mbicClass)
+        .attr("width", bData.mbicWithUnit * bData.colEntNum)
+        .attr("x", 0)
+        .attr("height", biset.entity.height * 0.45 * bData.bicNum)
+        .attr("rx", biset.bic.mRdCorner)
+        .attr("ry", biset.bic.mRdCorner)
+        .attr("fill", biset.colors.bicFre);
+
+    mbic.append("rect")
+        .attr("id", "[" + bData.mbicID + "]_frame")
+        .attr("class", bData.mbicClass)
+        .attr("width", bData.mbicWithUnit * (bData.colEntNum + bData.rowEntNum))
+        .attr("x", -bData.mbicWithUnit * bData.rowEntNum)
+        .attr("height", biset.entity.height * 0.45 * bData.bicNum)
         .attr("rx", biset.bic.frameRdCorner)
         .attr("ry", biset.bic.frameRdCorner)
-        .attr("fill", biset.colors.bicFrameColor);
+        .attr("fill", biset.colors.bicFrame);
 
     return mbic;
 }
