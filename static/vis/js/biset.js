@@ -47,6 +47,7 @@ var biset = {
         frameBorderWidth: 1.2,
         frameRdCorner: 2,
         innerRdCorner: 2,
+        posShift: 15,
         count: 0
     },
     // a bicluster list
@@ -1164,11 +1165,14 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
         })
         .attr("width", function(d, i) {
             return bicEntsCount(d.rowEntNum);
-        }) // bicLeftEnts[i]
-        .attr("height", biset.entity.height - 1)
+        })
+        // .attr("x", function(d, i) {
+        //     return -bicEntsCount(d.rowEntNum); // biset.bic.posShift
+        // })
+        .attr("height", biset.entity.height * 0.75)
         .attr("rx", biset.bic.innerRdCorner)
         .attr("ry", biset.bic.innerRdCorner)
-        .attr("fill", biset.colors.bicFreColor); //entFreColor
+        .attr("fill", biset.colors.bicFreColor);
 
     // set the length of a bicluster based on its component
     bics.append("rect")
@@ -1180,8 +1184,12 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
         .attr("class", "bicFrame")
         .attr("width", function(d, i) {
             return bicEntsCount(d.totalEntNum);
-        }) //bicTotalEnts[i]
-        .attr("height", biset.entity.height - 1)
+            // return bicEntsCount(d.colEntNum);
+        })
+        // .attr("x", function(d, i) {
+        //     return 0;
+        // })
+        .attr("height", biset.entity.height * 0.75)
         .attr("rx", biset.bic.frameRdCorner)
         .attr("ry", biset.bic.frameRdCorner)
         .attr("fill", biset.colors.bicFrameColor);
@@ -2449,10 +2457,18 @@ biset.addBicListCtrl = function(lsts) {
                         avgXpos /= thisMergeSet.length;
                         avgYpos /= thisMergeSet.length;
 
+                        var rEntNum = Object.keys(rowEntIDs).length,
+                            cEntNum = Object.keys(colEntIDs).length,
+                            mbicData = biset.genMbicData(mbicID, mbicClass, avgXpos, avgYpos, rowEntIDs, colEntIDs, rEntNum, cEntNum);
+
+                        console.log(mbicData);
+
                         var mergedBic = vis.addRect("vis_canvas", mbicID, mbicClass, avgXpos, avgYpos, biset.bic.frameHeight, 100, 2, 2, colorSet.bicFrameColor);
 
                         console.log(rowEntIDs);
                         console.log(colEntIDs);
+                        console.log(Object.keys(rowEntIDs).length);
+                        console.log(Object.keys(colEntIDs).length);
 
                         for (key in rowEntIDs) {
                             var obj1 = d3.select("#" + key),
@@ -2496,6 +2512,64 @@ biset.addBicListCtrl = function(lsts) {
                 }
             });
     }
+}
+
+
+/*
+ * generate data for a merged bic
+ */
+biset.genMbicData = function(bid, bclass, bx, by, rObjs, cObjs, rNum, cNum) {
+    var mbicData = {
+        "mbicID": bid,
+        "mbicClass": bclass,
+        "xPos": bx,
+        "yPos": by,
+        "rowEnts": rObjs,
+        "colEnts": cObjs,
+        "rowEntNum": rNum,
+        "colEntNum": cNum,
+    }
+    return mbicData;
+}
+
+
+biset.addMergedBic = function(canvasID, bData, bClass, bID, xPos, yPos) {
+    var mbic = d3.select("#" + canvasID)
+        .select("." + bClass)
+        .datum(bData)
+        .append("g")
+        .attr("id", bID)
+        .attr("class", "." + bClass);
+
+    // proportion of row
+    mbic.append("rect")
+        .attr("id", bID + "_row")
+        .attr("width", function(d, i) {
+            return bicEntsCount(d.rowEntNum);
+        })
+        .attr("x", xPos)
+        .attr("y", yPos)
+        .attr("height", biset.entity.height - 1)
+        .attr("rx", biset.bic.innerRdCorner)
+        .attr("ry", biset.bic.innerRdCorner)
+        .attr("fill", biset.colors.bicFreColor);
+
+    // set the length of a bicluster based on its component
+    mbic.append("rect")
+        .attr("id", bID + "_col")
+        .attr("class", "bicFrame")
+        .attr("width", function(d, i) {
+            return bicEntsCount(d.totalEntNum);
+            // return bicEntsCount(d.colEntNum);
+        })
+        .attr("x", xPos)
+        .attr("y", yPos)
+        .attr("height", biset.entity.height - 1)
+        .attr("rx", biset.bic.frameRdCorner)
+        .attr("ry", biset.bic.frameRdCorner)
+        .attr("fill", biset.colors.bicFrameColor);
+
+    return mbic;
 }
 
 
