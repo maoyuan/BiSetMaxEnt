@@ -18,7 +18,7 @@ var colorSet = {
     // normal bic frame
     bicFrame: "rgba(0,0,0,0)", // "rgba(0, 20, 20, 0.1)",
     // bic frequency (light blue)
-    bicFre: "rgba(110, 207, 255, 0.4)", // "rgba(22, 113, 229, 0.2)",
+    bicFre: "rgba(27, 110, 244, 0.3)", //"rgba(110, 207, 255, 0.4)", , "rgba(128,128,128,0.3)" 
 
     // select entity to highlight bic
     bicFrameHColor: "rgba(0, 79, 173, 0.9)", //"rgba(45, 168, 75, 0.6)",

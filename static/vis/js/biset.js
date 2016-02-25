@@ -1126,7 +1126,7 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
         .attr("class", "bics")
         .attr("transform", function(d, i) {
             d.startPos = bicStartPos;
-            return "translate(" + 0 + "," + (i + 1) * biset.bic.frameHeight + ")";
+            return "translate(" + biset.bic.posShift + "," + (i + 1) * biset.bic.frameHeight + ")";
         });
 
     // proportion of row
