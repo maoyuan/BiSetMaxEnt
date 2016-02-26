@@ -225,3 +225,54 @@ function setDiff(s1, s2, field) {
     }
     return res;
 }
+
+
+
+/*
+ * separate nodes into k groups based on threshold
+ * @param node, a list of node
+ * @param matrix, distance matrix
+ * @param threshold, int/float
+ * @return, a list of subset of orginal list
+ */
+function kGroups(node, matrix, threshold) {
+
+    var res = [];
+
+    if (node === undefined) {
+        return res;
+    } else {
+        var s2 = node,
+            res = [];
+
+        while (s2.length > 0) {
+            var startNode = s2[0],
+                s1 = [];
+
+            s1.push(startNode);
+            s2.splice(s2.indexOf(startNode), 1);
+
+            var toMove = [];
+            for (var i = 0; i < s2.length; i++) {
+                var moveFlag = 0;
+                for (var j = 0; j < s1.length; j++) {
+                    if (matrix[s1[j]][s2[i]] >= threshold) {
+                        moveFlag += 1;
+                    }
+                }
+                if (moveFlag == s1.length) {
+                    toMove.push(s2[i]);
+                    s1.push(s2[i]);
+                }
+            }
+
+            if (toMove.length > 0) {
+                for (var i = 0; i < toMove.length; i++) {
+                    s2.splice(s2.indexOf(toMove[i]), 1);
+                }
+            }
+            res.push(s1);
+        }
+        return res;
+    }
+}
