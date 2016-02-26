@@ -236,9 +236,7 @@ function setDiff(s1, s2, field) {
  * @return, a list of subset of orginal list
  */
 function kGroups(node, matrix, threshold) {
-
     var res = [];
-
     if (node === undefined) {
         return res;
     } else {

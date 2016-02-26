@@ -2388,17 +2388,43 @@ biset.addBicListCtrl = function(lsts) {
 
                 // perform seriation
                 biset.seriation(cur_bic, field1, field2, allEnts, "original");
+
+                /********************* start spatial based merge ************************/
                 // sort distance
-                objArraySortMinToMax(cur_bic, "yPos");
+                // objArraySortMinToMax(cur_bic, "yPos");
 
-                var bicMergeSpatialDist = biset.bic.frameHeight * 1.5,
-                    spatialSets = findSubset(cur_bic, "yPos", bicMergeSpatialDist);
+                // var bicMergeSpatialDist = biset.bic.frameHeight * 1.5,
+                //     spatialSets = findSubset(cur_bic, "yPos", bicMergeSpatialDist);
 
-                var mergeSets = [];
-                for (var i = 0; i < spatialSets.length; i++) {
-                    var tmpSets = distCheck(spatialSets[i], "bicIDCmp", jacMatrix, megthreshold);
-                    mergeSets.push(tmpSets);
+                // var mergeSets = [];
+                // for (var i = 0; i < spatialSets.length; i++) {
+                //     var tmpSets = distCheck(spatialSets[i], "bicIDCmp", jacMatrix, megthreshold);
+                //     mergeSets.push(tmpSets);
+                // }
+                // console.log(mergeSets);
+                /********************* end spatial based merge **************************/
+
+                /********************* start semantic based merge ************************/
+                var curBicIDs = [],
+                    curBicDict = {};
+                for (var b = 0; b < cur_bic.length; b++) {
+                    curBicIDs.push(cur_bic[b]["bicIDCmp"]);
+                    curBicDict[cur_bic[b]["bicIDCmp"]] = cur_bic[b];
                 }
+                var bGroups = kGroups(curBicIDs, jacMatrix, megthreshold);
+                var mergeSets = [];
+                for (var g = 0; g < bGroups.length; g++) {
+                    if (bGroups[g].length > 1) {
+                        var objInCurGroup = [];
+                        for (var j = 0; j < bGroups[g].length; j++) {
+                            objInCurGroup.push(curBicDict[bGroups[g][j]]);
+                        }
+                        mergeSets.push(objInCurGroup);
+                    }
+                }
+
+                console.log(mergeSets);
+                /********************* end semantic based merge **************************/
 
                 // remove previously merged bic and lines
                 var mbicClass = field1 + "_" + field2 + "_" + "mergedBic",
@@ -2407,7 +2433,12 @@ biset.addBicListCtrl = function(lsts) {
                 vis.svgRemovebyClass(mLineClass);
 
                 for (var i = 0; i < mergeSets.length; i++) {
-                    var thisMergeSet = mergeSets[i][0];
+                    /******** for spatial merge **********/
+                    // var thisMergeSet = mergeSets[i][0];
+
+                    /******** for semantic merge *********/
+                    var thisMergeSet = mergeSets[i];
+
                     // make sure that there are elements to merge
                     if (thisMergeSet != undefined) {
                         var rowEntIDs = {},
@@ -2456,11 +2487,7 @@ biset.addBicListCtrl = function(lsts) {
                             bNum = thisMergeSet.length,
                             mbicData = biset.genMbicData(mbicID, mbicClass, avgXpos, avgYpos, rowEntIDs, colEntIDs, rEntNum, cEntNum, bNum, bwidthUnit);
 
-                        // console.log(mbicData);
-
                         var mergedBic = biset.addMergedBic("vis_canvas", mbicData);
-                        console.log(mergedBic);
-                        // = vis.addRect("vis_canvas", mbicID, mbicClass, avgXpos, avgYpos, biset.bic.frameHeight, 100, 2, 2, colorSet.bicFrame);
 
                         for (key in rowEntIDs) {
                             var obj1 = d3.select("#" + key),
@@ -2478,33 +2505,33 @@ biset.addBicListCtrl = function(lsts) {
                             connections[lineObj.lineID] = lineObj;
                         }
 
-                        var bicToShow = setDiff(spatialSets[i], thisMergeSet, "bicIDCmp");
-                        for (key in bicToShow) {
-                            var thisBicLeft = key + "_left",
-                                thisBicRight = key + "_right",
-                                thisBicFrame = key + "_frame";
+                        // var bicToShow = setDiff(spatialSets[i], thisMergeSet, "bicIDCmp");
+                        // for (key in bicToShow) {
+                        //     var thisBicLeft = key + "_left",
+                        //         thisBicRight = key + "_right",
+                        //         thisBicFrame = key + "_frame";
 
-                            biset.setVisibility(thisBicLeft, "visible");
-                            biset.setVisibility(thisBicRight, "visible");
-                            biset.setVisibility(thisBicFrame, "visible");
-                            vis.setPathVisibilitybyClass(key, "visible");
-                        }
+                        //     biset.setVisibility(thisBicLeft, "visible");
+                        //     biset.setVisibility(thisBicRight, "visible");
+                        //     biset.setVisibility(thisBicFrame, "visible");
+                        //     vis.setPathVisibilitybyClass(key, "visible");
+                        // }
                     }
                     // show previously hide bics and their lines
-                    else {
-                        var bicsToShow = spatialSets[i];
-                        for (var j = 0; j < bicsToShow.length; j++) {
-                            var thisBicID = bicsToShow[j]["bicIDCmp"],
-                                thisBicLeft = thisBicID + "_left",
-                                thisBicRight = thisBicID + "_right",
-                                thisBicFrame = thisBicID + "_frame";
+                    // else {
+                    //     // var bicsToShow = spatialSets[i];
+                    //     // for (var j = 0; j < bicsToShow.length; j++) {
+                    //     //     var thisBicID = bicsToShow[j]["bicIDCmp"],
+                    //     //         thisBicLeft = thisBicID + "_left",
+                    //     //         thisBicRight = thisBicID + "_right",
+                    //     //         thisBicFrame = thisBicID + "_frame";
 
-                            vis.setPathVisibilitybyClass(thisBicID, "visible");
-                            biset.setVisibility(thisBicLeft, "visible");
-                            biset.setVisibility(thisBicRight, "visible");
-                            biset.setVisibility(thisBicFrame, "visible");
-                        }
-                    }
+                    //     //     vis.setPathVisibilitybyClass(thisBicID, "visible");
+                    //     //     biset.setVisibility(thisBicLeft, "visible");
+                    //     //     biset.setVisibility(thisBicRight, "visible");
+                    //     //     biset.setVisibility(thisBicFrame, "visible");
+                    //     // }
+                    // }
                 }
             });
     }
@@ -3087,7 +3114,7 @@ biset.addLink = function(obj1, obj2, line, d3obj, lineClass, lwidth, ltype) {
                 .attr("class", lclass)
                 .style("stroke", biset.colors.lineNColor)
                 .style("stroke-width", lineWidth)
-                .style("stroke-dasharray", "7,7")
+                .style("stroke-dasharray", "8,8")
                 .style("fill", "none");
         }
 
