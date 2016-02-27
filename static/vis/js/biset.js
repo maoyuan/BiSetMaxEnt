@@ -1625,8 +1625,8 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
             bicID = biclusters[i].bicID;
 
         for (var j = 0; j < rowIDs.length; j++) {
-            var obj1 = d3.select("#" + rowType + "_" + rowIDs[j]);
-            obj2 = d3.select("#" + rowType + "_" + colType + "_bic_" + bicID),
+            var obj1 = d3.select("#" + rowType + "_" + rowIDs[j]),
+                obj2 = d3.select("#" + rowType + "_" + colType + "_bic_" + bicID),
                 lineObj = biset.addLink(obj1, obj2, biset.colors.lineNColor, canvas, "", 1, "normal");
 
             connections[lineObj.lineID] = lineObj;
@@ -2348,7 +2348,6 @@ biset.addBicListCtrl = function(lsts) {
                 var megthreshold = Math.abs(selVal);
                 // megthreshold = 1 - selVal;
                 console.log(selVal);
-                console.log(megthreshold);
 
                 // obtain the correspoing colom of bic
                 var cur_bic = [];
@@ -2448,7 +2447,7 @@ biset.addBicListCtrl = function(lsts) {
                         var threshMatrix = rJacMatrix;
                     }
                 }
-
+                console.log(threshVal);
                 var bGroups = kGroups(curBicIDs, threshMatrix, threshVal);
                 var mergeSets = [];
                 for (var g = 0; g < bGroups.length; g++) {
@@ -2544,6 +2543,7 @@ biset.addBicListCtrl = function(lsts) {
                                 lineObj = biset.addLink(mergedBic, obj2, biset.colors.lineNColor, canvas, mLineClass, clwRatio, clType);
                             connections[lineObj.lineID] = lineObj;
                         }
+                        mergedBic.call(biset.objDrag);
 
                         /******************** for spatial merge **********************/
                         /*
@@ -3027,10 +3027,46 @@ biset.genLinkID = function(lEntID, rEntID) {
 
 
 /*
+ * find all links from a bic (without its entities)
+ * @param bicData, a bic object
+ * @param allLinks, object dictionary, all link object
+ * @return object dict
+ */
+biset.getLinksbyBic = function(bicData, allLinks) {
+    var thisBicID = bicData["bicIDCmp"],
+        res = {};
+
+    /************* start consider it entities *************/
+    /* 
+    rowEntIDs = biset.getBicEntsInRowOrCol(bicData, "row"),
+    colEntIDs = biset.getBicEntsInRowOrCol(bicData, "col");
+
+    var idsToCheck = [];
+    idsToCheck = rowEntIDs.concat(colEntIDs);
+    idsToCheck.push(thisBicID);
+    for (var i = 0; i < idsToCheck.length; i++) {
+        for (key in allLinks) {
+            if (key.indexOf(idsToCheck[i]) >= 0) {
+                res[key] = allLinks[key];
+            }
+        }
+    }
+	*/
+    /************* end consider it entities **************/
+    for (key in allLinks) {
+        if (key.indexOf(thisBicID) >= 0) {
+            res[key] = allLinks[key];
+        }
+    }
+    return res;
+}
+
+
+/*
  * find all bics between two lists
  * @param ldomain, the type of left list
  * @param rdomain, the type of right list
- */
+ 
 biset.findBicsInBetween = function(ldomain, rdomain) {
     var bicsInbetween = {};
     for (e in allBics) {
@@ -3271,14 +3307,29 @@ biset.getOffset = function(element) {
 // drag function for a d3 object
 biset.objDrag = d3.behavior.drag()
     .origin(function() {
-        // position of current selected item
-        thisOffset = biset.getOffset(d3.select(this));
-        // position of the parent
-        parentOffset = biset.getOffset(d3.select(this.parentNode));
-        return {
-            x: thisOffset.left - parentOffset.left,
-            y: thisOffset.top
-        };
+        var objClass = d3.select(this).attr("class");
+        if (objClass.indexOf("mergedBic") < 0) {
+            // position of current selected item
+            thisOffset = biset.getOffset(d3.select(this));
+            // position of the parent
+            parentOffset = biset.getOffset(d3.select(this.parentNode));
+            return {
+                x: thisOffset.left - parentOffset.left,
+                y: thisOffset.top
+            };
+        } else {
+            // position of current selected item
+            // thisOffset = biset.getOffset(d3.select(this));
+            // position of the parent
+            // parentOffset = biset.getOffset(d3.select(this.parentNode));
+            // console.log(thisOffset);
+            // console.log(parentOffset);
+            console.log(d3.select(this).datum().xPos);
+            return {
+                x: d3.select(this).datum().xPos,
+                y: thisOffset.top
+            };
+        }
     })
     .on("dragstart", function(d) {
         draged = 1;
@@ -3300,11 +3351,13 @@ biset.objDrag = d3.behavior.drag()
         d3.select(this).attr("transform", "translate(" + dragX + "," + dragY + ")");
         // log the y position
         d.yPos = dragY;
-        // update related lines
-        biset.updateLink(connections);
+        var relatedLinks = biset.getLinksbyBic(d3.select(this).datum(), connections);
+        // update related lines (imporve dragging performance)
+        biset.updateLink(relatedLinks);
     })
     .on("dragend", function(d) {
         draged = 0;
+        // update all related links
         biset.updateLink(connections);
         d3.select(this).classed("dragging", false);
     });
