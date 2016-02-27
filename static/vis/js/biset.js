@@ -2401,7 +2401,6 @@ biset.addBicListCtrl = function(lsts) {
                 //     var tmpSets = distCheck(spatialSets[i], "bicIDCmp", jacMatrix, megthreshold);
                 //     mergeSets.push(tmpSets);
                 // }
-                // console.log(mergeSets);
                 /********************* end spatial based merge **************************/
 
                 /********************* start semantic based merge ************************/
@@ -2422,8 +2421,6 @@ biset.addBicListCtrl = function(lsts) {
                         mergeSets.push(objInCurGroup);
                     }
                 }
-
-                console.log(mergeSets);
                 /********************* end semantic based merge **************************/
 
                 // remove previously merged bic and lines
@@ -2432,110 +2429,138 @@ biset.addBicListCtrl = function(lsts) {
                 vis.svgRemovebyClass(mbicClass);
                 vis.svgRemovebyClass(mLineClass);
 
-                for (var i = 0; i < mergeSets.length; i++) {
-                    /******** for spatial merge **********/
-                    // var thisMergeSet = mergeSets[i][0];
+                if (mergeSets.length == 0) {
+                    for (var i = 0; i < bGroups.length; i++) {
+                        var curBicID = bGroups[i][0];
+                        biset.bicVisible(curBicID, "show");
+                        vis.setPathVisibilitybyClass(curBicID, "show");
+                    }
+                } else {
+                    for (var i = 0; i < mergeSets.length; i++) {
+                        /******** for spatial merge **********/
+                        // var thisMergeSet = mergeSets[i][0];
 
-                    /******** for semantic merge *********/
-                    var thisMergeSet = mergeSets[i];
+                        /******** for semantic merge *********/
+                        var thisMergeSet = mergeSets[i];
+                        // make sure that there are elements to merge
+                        if (thisMergeSet != undefined) {
+                            var rowEntIDs = {},
+                                colEntIDs = {},
+                                avgXpos = 0,
+                                avgYpos = 0,
+                                mbicID = "",
+                                bwidthUnit = 0;
 
-                    // make sure that there are elements to merge
-                    if (thisMergeSet != undefined) {
-                        var rowEntIDs = {},
-                            colEntIDs = {},
-                            avgXpos = 0,
-                            avgYpos = 0,
-                            mbicID = "",
-                            bwidthUnit = 0;
+                            for (var j = 0; j < thisMergeSet.length; j++) {
+                                var thisBicID = thisMergeSet[j]["bicIDCmp"],
+                                    thisBicLeft = thisBicID + "_left",
+                                    thisBicRight = thisBicID + "_right",
+                                    thisBicFrame = thisBicID + "_frame";
 
-                        for (var j = 0; j < thisMergeSet.length; j++) {
-                            var thisBicID = thisMergeSet[j]["bicIDCmp"],
-                                thisBicLeft = thisBicID + "_left",
-                                thisBicRight = thisBicID + "_right",
-                                thisBicFrame = thisBicID + "_frame";
+                                vis.setPathVisibilitybyClass(thisBicID, "hidden");
+                                biset.bicVisible(thisBicID, "hidden");
 
-                            vis.setPathVisibilitybyClass(thisBicID, "hidden");
-                            biset.setVisibility(thisBicLeft, "hidden");
-                            biset.setVisibility(thisBicRight, "hidden");
-                            biset.setVisibility(thisBicFrame, "hidden");
+                                avgXpos += thisMergeSet[j]["startPos"];
+                                avgYpos += thisMergeSet[j]["yPos"];
 
-                            avgXpos += thisMergeSet[j]["startPos"];
-                            avgYpos += thisMergeSet[j]["yPos"];
+                                if (j == 0) {
+                                    mbicID = thisBicID;
+                                    // get the width unit of a bic
+                                    var thisBicLeftWidth = d3.select("#" + thisBicLeft).attr("width"),
+                                        thisBicRowNum = d3.select("#" + thisBicLeft).datum().rowEntNum,
+                                        bwidthUnit = thisBicLeftWidth / thisBicRowNum;
+                                } else {
+                                    mbicID = mbicID + "____" + thisBicID;
+                                }
 
-                            if (j == 0) {
-                                mbicID = thisBicID;
-                                // get the width unit of a bic
-                                var thisBicLeftWidth = d3.select("#" + thisBicLeft).attr("width"),
-                                    thisBicRowNum = d3.select("#" + thisBicLeft).datum().rowEntNum,
-                                    bwidthUnit = thisBicLeftWidth / thisBicRowNum;
-                            } else {
-                                mbicID = mbicID + "____" + thisBicID;
+                                var thisRowEntIDs = biset.getBicEntsInRowOrCol(thisMergeSet[j], "row"),
+                                    thisColEntIDs = biset.getBicEntsInRowOrCol(thisMergeSet[j], "col");
+
+                                lstEntCount(thisRowEntIDs, rowEntIDs);
+                                lstEntCount(thisColEntIDs, colEntIDs);
                             }
 
-                            var thisRowEntIDs = biset.getBicEntsInRowOrCol(thisMergeSet[j], "row"),
-                                thisColEntIDs = biset.getBicEntsInRowOrCol(thisMergeSet[j], "col");
+                            avgXpos /= thisMergeSet.length;
+                            avgYpos /= thisMergeSet.length;
 
-                            lstEntCount(thisRowEntIDs, rowEntIDs);
-                            lstEntCount(thisColEntIDs, colEntIDs);
+                            var rEntNum = Object.keys(rowEntIDs).length,
+                                cEntNum = Object.keys(colEntIDs).length,
+                                bNum = thisMergeSet.length,
+                                mbicData = biset.genMbicData(mbicID, mbicClass, avgXpos, avgYpos, rowEntIDs, colEntIDs, rEntNum, cEntNum, bNum, bwidthUnit);
+
+                            var mergedBic = biset.addMergedBic("vis_canvas", mbicData);
+
+                            for (key in rowEntIDs) {
+                                var obj1 = d3.select("#" + key),
+                                    rlwRatio = rowEntIDs[key]["lFreq"],
+                                    rlType = rowEntIDs[key]["lType"],
+                                    lineObj = biset.addLink(obj1, mergedBic, biset.colors.lineNColor, canvas, mLineClass, rlwRatio, rlType);
+                                connections[lineObj.lineID] = lineObj;
+                            }
+
+                            for (key in colEntIDs) {
+                                var obj2 = d3.select("#" + key),
+                                    clwRatio = colEntIDs[key]["lFreq"],
+                                    clType = colEntIDs[key]["lType"],
+                                    lineObj = biset.addLink(mergedBic, obj2, biset.colors.lineNColor, canvas, mLineClass, clwRatio, clType);
+                                connections[lineObj.lineID] = lineObj;
+                            }
+
+                            /******************** for spatial merge **********************/
+                            /*
+                            var bicToShow = setDiff(spatialSets[i], thisMergeSet, "bicIDCmp");
+                            for (key in bicToShow) {
+                                var thisBicLeft = key + "_left",
+                                    thisBicRight = key + "_right",
+                                    thisBicFrame = key + "_frame";
+
+                                biset.setVisibility(thisBicLeft, "visible");
+                                biset.setVisibility(thisBicRight, "visible");
+                                biset.setVisibility(thisBicFrame, "visible");
+                                vis.setPathVisibilitybyClass(key, "visible");
+                            }
+                            */
                         }
+                        /******************** for spatial merge **********************/
+                        /*
+	                    // show previously hide bics and their lines
+	                    else {
+	                        // var bicsToShow = spatialSets[i];
+	                        // for (var j = 0; j < bicsToShow.length; j++) {
+	                        //     var thisBicID = bicsToShow[j]["bicIDCmp"],
+	                        //         thisBicLeft = thisBicID + "_left",
+	                        //         thisBicRight = thisBicID + "_right",
+	                        //         thisBicFrame = thisBicID + "_frame";
 
-                        avgXpos /= thisMergeSet.length;
-                        avgYpos /= thisMergeSet.length;
-
-                        var rEntNum = Object.keys(rowEntIDs).length,
-                            cEntNum = Object.keys(colEntIDs).length,
-                            bNum = thisMergeSet.length,
-                            mbicData = biset.genMbicData(mbicID, mbicClass, avgXpos, avgYpos, rowEntIDs, colEntIDs, rEntNum, cEntNum, bNum, bwidthUnit);
-
-                        var mergedBic = biset.addMergedBic("vis_canvas", mbicData);
-
-                        for (key in rowEntIDs) {
-                            var obj1 = d3.select("#" + key),
-                                rlwRatio = rowEntIDs[key]["lFreq"],
-                                rlType = rowEntIDs[key]["lType"],
-                                lineObj = biset.addLink(obj1, mergedBic, biset.colors.lineNColor, canvas, mLineClass, rlwRatio, rlType);
-                            connections[lineObj.lineID] = lineObj;
-                        }
-
-                        for (key in colEntIDs) {
-                            var obj2 = d3.select("#" + key),
-                                clwRatio = colEntIDs[key]["lFreq"],
-                                clType = colEntIDs[key]["lType"],
-                                lineObj = biset.addLink(mergedBic, obj2, biset.colors.lineNColor, canvas, mLineClass, clwRatio, clType);
-                            connections[lineObj.lineID] = lineObj;
-                        }
-
-                        // var bicToShow = setDiff(spatialSets[i], thisMergeSet, "bicIDCmp");
-                        // for (key in bicToShow) {
-                        //     var thisBicLeft = key + "_left",
-                        //         thisBicRight = key + "_right",
-                        //         thisBicFrame = key + "_frame";
-
-                        //     biset.setVisibility(thisBicLeft, "visible");
-                        //     biset.setVisibility(thisBicRight, "visible");
-                        //     biset.setVisibility(thisBicFrame, "visible");
-                        //     vis.setPathVisibilitybyClass(key, "visible");
-                        // }
+	                        //     vis.setPathVisibilitybyClass(thisBicID, "visible");
+	                        //     biset.setVisibility(thisBicLeft, "visible");
+	                        //     biset.setVisibility(thisBicRight, "visible");
+	                        //     biset.setVisibility(thisBicFrame, "visible");
+	                        // }
+	                    }
+						*/
                     }
-                    // show previously hide bics and their lines
-                    // else {
-                    //     // var bicsToShow = spatialSets[i];
-                    //     // for (var j = 0; j < bicsToShow.length; j++) {
-                    //     //     var thisBicID = bicsToShow[j]["bicIDCmp"],
-                    //     //         thisBicLeft = thisBicID + "_left",
-                    //     //         thisBicRight = thisBicID + "_right",
-                    //     //         thisBicFrame = thisBicID + "_frame";
-
-                    //     //     vis.setPathVisibilitybyClass(thisBicID, "visible");
-                    //     //     biset.setVisibility(thisBicLeft, "visible");
-                    //     //     biset.setVisibility(thisBicRight, "visible");
-                    //     //     biset.setVisibility(thisBicFrame, "visible");
-                    //     // }
-                    // }
                 }
             });
     }
 }
+
+
+/*
+ * set visibility of a bic
+ * @param bicID, string, the id of a bic
+ * @param visibility, string, show or hide
+ */
+biset.bicVisible = function(bicID, visibility) {
+    var theBicLeft = bicID + "_left",
+        theBicRight = bicID + "_right",
+        theBicFrame = bicID + "_frame";
+
+    biset.setVisibility(theBicLeft, visibility);
+    biset.setVisibility(theBicRight, visibility);
+    biset.setVisibility(theBicFrame, visibility);
+}
+
 
 
 /*
