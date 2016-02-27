@@ -211,7 +211,7 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
             "<option value='" + seriationMode + "'>seriation</option>" +
             "</select>" +
 
-            "<input type='range' id=" + sliderID + " min='0' max='1' value= '1' step='0.01' style='display:inline; width:130px; margin-left:15px'/>" +
+            "<input type='range' id=" + sliderID + " min='-1' max='1' value= '0' step='0.001' style='display:inline; width:130px; margin-left:15px'/>" +
 
             "</div>");
     }
@@ -2345,8 +2345,9 @@ biset.addBicListCtrl = function(lsts) {
                     field2 = $(this).attr("id").split("_")[2],
                     bic_prefix = field1 + "_" + field2 + "_bic_";
 
-                var megthreshold = selVal;
+                var megthreshold = Math.abs(selVal);
                 // megthreshold = 1 - selVal;
+                console.log(selVal);
                 console.log(megthreshold);
 
                 // obtain the correspoing colom of bic
@@ -2431,7 +2432,24 @@ biset.addBicListCtrl = function(lsts) {
                     curBicIDs.push(cur_bic[b]["bicIDCmp"]);
                     curBicDict[cur_bic[b]["bicIDCmp"]] = cur_bic[b];
                 }
-                var bGroups = kGroups(curBicIDs, rJacMatrix, megthreshold);
+
+                if (selVal < 0) {
+                    var threshVal = 1 - megthreshold;
+                    if (selVal > -0.1) {
+                        var threshMatrix = jacMatrix;
+                    } else {
+                        var threshMatrix = lJacMatrix;
+                    }
+                } else {
+                    var threshVal = 1 - megthreshold;
+                    if (selVal < 0.1) {
+                        var threshMatrix = jacMatrix;
+                    } else {
+                        var threshMatrix = rJacMatrix;
+                    }
+                }
+
+                var bGroups = kGroups(curBicIDs, threshMatrix, threshVal);
                 var mergeSets = [];
                 for (var g = 0; g < bGroups.length; g++) {
                     if (bGroups[g].length > 1) {
