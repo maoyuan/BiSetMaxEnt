@@ -2606,7 +2606,7 @@ biset.bicVisible = function(bicID, visibility) {
  */
 biset.genMbicData = function(bid, bclass, bx, by, rObjs, cObjs, rNum, cNum, bNum, widthUnit) {
     var mbicData = {
-        "mbicID": bid,
+        "bicIDCmp": bid,
         "mbicClass": bclass,
         "xPos": bx,
         "yPos": by,
@@ -2625,13 +2625,13 @@ biset.addMergedBic = function(canvasID, bData) {
     var mbic = d3.select("#" + canvasID)
         .append("g")
         .datum(bData)
-        .attr("id", bData.mbicID)
+        .attr("id", bData.bicIDCmp)
         .attr("class", bData.mbicClass)
         .attr("transform", "translate(" + bData.xPos + "," + bData.yPos + ")");
 
     // proportion of row
     mbic.append("rect")
-        .attr("id", "[" + bData.mbicID + "]_row")
+        .attr("id", "[" + bData.bicIDCmp + "]_row")
         .attr("class", bData.mbicClass)
         .attr("width", bData.mbicWithUnit * bData.rowEntNum)
         .attr("x", -bData.mbicWithUnit * bData.rowEntNum)
@@ -2642,7 +2642,7 @@ biset.addMergedBic = function(canvasID, bData) {
 
     // set the length of a bicluster based on its component
     mbic.append("rect")
-        .attr("id", "[" + bData.mbicID + "]_col")
+        .attr("id", "[" + bData.bicIDCmp + "]_col")
         .attr("class", bData.mbicClass)
         .attr("width", bData.mbicWithUnit * bData.colEntNum)
         .attr("x", 0)
@@ -2652,7 +2652,7 @@ biset.addMergedBic = function(canvasID, bData) {
         .attr("fill", biset.colors.bicFre);
 
     mbic.append("rect")
-        .attr("id", "[" + bData.mbicID + "]_frame")
+        .attr("id", "[" + bData.bicIDCmp + "]_frame")
         .attr("class", bData.mbicClass)
         .attr("width", bData.mbicWithUnit * (bData.colEntNum + bData.rowEntNum))
         .attr("x", -bData.mbicWithUnit * bData.rowEntNum)
@@ -3318,16 +3318,9 @@ biset.objDrag = d3.behavior.drag()
                 y: thisOffset.top
             };
         } else {
-            // position of current selected item
-            // thisOffset = biset.getOffset(d3.select(this));
-            // position of the parent
-            // parentOffset = biset.getOffset(d3.select(this.parentNode));
-            // console.log(thisOffset);
-            // console.log(parentOffset);
-            console.log(d3.select(this).datum().xPos);
             return {
                 x: d3.select(this).datum().xPos,
-                y: thisOffset.top
+                y: d3.select(this).datum().yPos
             };
         }
     })
@@ -3340,19 +3333,22 @@ biset.objDrag = d3.behavior.drag()
         var dragX = d3.event.x,
             dragY = d3.event.y;
 
-        // boundary check
-        if (dragY < 0)
-            dragY = 0;
-        if (dragX >= biset.entList.gap * 2)
-            dragX = biset.entList.gap * 2;
-        if (dragX + biset.entList.gap * 2 <= 0)
-            dragX = -biset.entList.gap * 2;
-        // move the element
+        var objClass = d3.select(this).attr("class");
+        if (objClass.indexOf("mergedBic") < 0) {
+            // boundary check
+            if (dragY < 0)
+                dragY = 0;
+            if (dragX >= biset.entList.gap * 2)
+                dragX = biset.entList.gap * 2;
+            if (dragX + biset.entList.gap * 2 <= 0)
+                dragX = -biset.entList.gap * 2;
+        }
+
         d3.select(this).attr("transform", "translate(" + dragX + "," + dragY + ")");
-        // log the y position
         d.yPos = dragY;
-        var relatedLinks = biset.getLinksbyBic(d3.select(this).datum(), connections);
+
         // update related lines (imporve dragging performance)
+        var relatedLinks = biset.getLinksbyBic(d3.select(this).datum(), connections);
         biset.updateLink(relatedLinks);
     })
     .on("dragend", function(d) {
