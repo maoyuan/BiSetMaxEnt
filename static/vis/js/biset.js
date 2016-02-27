@@ -228,6 +228,7 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
 
             // the initial pos for each node
             d.xPos = 2;
+            d.startPos = startPos;
             d.yPos = y(d.entValue);
 
             return "translate(" + 2 + "," + y(d.entValue) + ")";
@@ -1125,8 +1126,10 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
         })
         .attr("class", "bics")
         .attr("transform", function(d, i) {
+            d.xPos = biset.bic.posShift;
+            d.yPos = (i + 1) * biset.bic.frameHeight;
             d.startPos = bicStartPos;
-            return "translate(" + biset.bic.posShift + "," + (i + 1) * biset.bic.frameHeight + ")";
+            return "translate(" + d.xPos + "," + d.yPos + ")";
         });
 
     // proportion of row
@@ -2524,7 +2527,7 @@ biset.addBicListCtrl = function(lsts) {
                         var rEntNum = Object.keys(rowEntIDs).length,
                             cEntNum = Object.keys(colEntIDs).length,
                             bNum = thisMergeSet.length,
-                            mbicData = biset.genMbicData(mbicID, mbicClass, avgXpos, avgYpos, rowEntIDs, colEntIDs, rEntNum, cEntNum, bNum, bwidthUnit);
+                            mbicData = biset.genMbicData(mbicID, mbicClass, avgXpos, avgXpos, avgYpos, rowEntIDs, colEntIDs, rEntNum, cEntNum, bNum, bwidthUnit);
 
                         var mergedBic = biset.addMergedBic("vis_canvas", mbicData);
 
@@ -2604,10 +2607,11 @@ biset.bicVisible = function(bicID, visibility) {
 /*
  * generate data for a merged bic
  */
-biset.genMbicData = function(bid, bclass, bx, by, rObjs, cObjs, rNum, cNum, bNum, widthUnit) {
+biset.genMbicData = function(bid, bclass, stPos, bx, by, rObjs, cObjs, rNum, cNum, bNum, widthUnit) {
     var mbicData = {
         "bicIDCmp": bid,
         "mbicClass": bclass,
+        "startPos": stPos,
         "xPos": bx,
         "yPos": by,
         "rowEnts": rObjs,
@@ -2627,7 +2631,7 @@ biset.addMergedBic = function(canvasID, bData) {
         .datum(bData)
         .attr("id", bData.bicIDCmp)
         .attr("class", bData.mbicClass)
-        .attr("transform", "translate(" + bData.xPos + "," + bData.yPos + ")");
+        .attr("transform", "translate(" + bData.startPos + "," + bData.yPos + ")");
 
     // proportion of row
     mbic.append("rect")
@@ -3307,22 +3311,10 @@ biset.getOffset = function(element) {
 // drag function for a d3 object
 biset.objDrag = d3.behavior.drag()
     .origin(function() {
-        var objClass = d3.select(this).attr("class");
-        if (objClass.indexOf("mergedBic") < 0) {
-            // position of current selected item
-            thisOffset = biset.getOffset(d3.select(this));
-            // position of the parent
-            parentOffset = biset.getOffset(d3.select(this.parentNode));
-            return {
-                x: thisOffset.left - parentOffset.left,
-                y: thisOffset.top
-            };
-        } else {
-            return {
-                x: d3.select(this).datum().xPos,
-                y: d3.select(this).datum().yPos
-            };
-        }
+        return {
+            x: d3.select(this).datum().xPos,
+            y: d3.select(this).datum().yPos
+        };
     })
     .on("dragstart", function(d) {
         draged = 1;
@@ -3333,19 +3325,24 @@ biset.objDrag = d3.behavior.drag()
         var dragX = d3.event.x,
             dragY = d3.event.y;
 
-        var objClass = d3.select(this).attr("class");
-        if (objClass.indexOf("mergedBic") < 0) {
-            // boundary check
-            if (dragY < 0)
-                dragY = 0;
-            if (dragX >= biset.entList.gap * 2)
-                dragX = biset.entList.gap * 2;
-            if (dragX + biset.entList.gap * 2 <= 0)
-                dragX = -biset.entList.gap * 2;
-        }
+        // TO DO: BOUNDARY CHECK!!!
+
+        // var objClass = d3.select(this).attr("class");
+        // if (objClass.indexOf("mergedBic") < 0) {
+        //     // dragX -= d3.select(this).datum().startPos;
+        //     // boundary check
+        //     // if (dragY < 0)
+        //     //     dragY = 0;
+        //     // if (dragX >= biset.entList.gap * 2)
+        //     //     dragX = biset.entList.gap * 2;
+        //     // if (dragX + biset.entList.gap * 2 <= 0)
+        //     //     dragX = -biset.entList.gap * 2;
+
+        // }
 
         d3.select(this).attr("transform", "translate(" + dragX + "," + dragY + ")");
         d.yPos = dragY;
+        d.xPos = dragX;
 
         // update related lines (imporve dragging performance)
         var relatedLinks = biset.getLinksbyBic(d3.select(this).datum(), connections);
@@ -3353,7 +3350,6 @@ biset.objDrag = d3.behavior.drag()
     })
     .on("dragend", function(d) {
         draged = 0;
-        // update all related links
         biset.updateLink(connections);
         d3.select(this).classed("dragging", false);
     });
