@@ -453,7 +453,8 @@ function loadVisHelper(resData) {
 
     // add all bics with lines
     for (var i = 0; i < selDims.length - 1; i++) {
-        var bicStartPos = biset.entList.width * (i + 1) + biset.entList.gap * 2 * (2 * i + 1) + biset.bic.frameWidth * i,
+        var bicStartPos = biset.entList.width * (i + 1) + (biset.entList.gap * 2 + biset.bic.frameWidth / 2) * (2 * i + 1),
+            // biset.entList.width * (i + 1) + biset.entList.gap * 2 * (2 * i + 1) + biset.bic.frameWidth * i,
             bicListID = i + 1;
 
         var aBicList = canvas.append('g')

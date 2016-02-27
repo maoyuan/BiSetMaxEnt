@@ -47,7 +47,7 @@ var biset = {
         frameBorderWidth: 1.2,
         frameRdCorner: 2,
         innerRdCorner: 7,
-        posShift: 15,
+        posShift: 0,
         mRdCorner: 10,
         count: 0
     },
