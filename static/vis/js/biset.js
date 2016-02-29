@@ -902,6 +902,14 @@ biset.linksUpdateHelper = function(linkID, newColor, newWidth) { // newClass
 }
 
 
+
+biset.setPathColor = function(pid, pcolor) {
+    d3.select("#" + pid)
+        .style("stroke", pcolor);
+}
+
+
+
 //place the bic based on their entities positiones
 
 
@@ -1248,7 +1256,7 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
         }
 
         // place entities near a bic
-        biset.placeEntNearBic(d);
+        biset.placeEntNearBic(d, "bic");
     });
 
     // add links between bic and ent
@@ -1283,8 +1291,9 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
 /*
  * pull entities to the position near a clicked bic
  * @param bicData, data object, the data object of a bic
+ * @param bicType, string, the type of bic, "bic" or "mbic"
  */
-biset.placeEntNearBic = function(bicData) {
+biset.placeEntNearBic = function(bicData, bicType) {
     var bicVisID = bicData.bicIDCmp,
         lListType = bicData.rowField,
         rListType = bicData.colField;
@@ -1328,9 +1337,30 @@ biset.placeEntNearBic = function(bicData) {
         return a.yPos - b.yPos;
     });
 
-    var item_set_left = new Set(bicData.row),
-        item_set_right = new Set(bicData.col),
-        pos = -1,
+    if (bicType == "bic") {
+        var item_set_left = new Set(bicData.row),
+            item_set_right = new Set(bicData.col);
+    } else {
+        var entLeft = bicData.rowEnts,
+            entRight = bicData.colEnts;
+
+        var lentList = [],
+            rentList = [];
+
+        for (e in entLeft) {
+            var theID = e.split("_")[1];
+            lentList.push(theID);
+        }
+        for (e in entRight) {
+            var theID = e.split("_")[1];
+            rentList.push(theID);
+        }
+
+        var item_set_left = new Set(lentList),
+            item_set_right = new Set(rentList);
+    }
+
+    var pos = -1,
         newListLeft = [],
         newListRight = [];
 
@@ -2523,6 +2553,10 @@ biset.addMergedBic = function(canvasID, bData) {
         biset.setMergedBicColor(d, "highlight");
 
         biset.barUpdate("#" + bicID + "_frame", "", biset.colors.bicFrameHColor, 2);
+
+        var linkToHighlight = biset.getLinksbyBic(d, connections);
+        for (l in linkToHighlight)
+            biset.setPathColor(l, biset.colors.linePreHColor);
     });
 
     mbic.on("mouseout", function(d) {
@@ -2535,10 +2569,18 @@ biset.addMergedBic = function(canvasID, bData) {
         biset.setMergedBicColor(d, "normal");
 
         biset.barUpdate("#" + bicID + "_frame", "", biset.colors.bicFrame, 0);
+
+        var linkToNormal = biset.getLinksbyBic(d, connections);
+        for (l in linkToNormal)
+            biset.setPathColor(l, biset.colors.lineNColor);
     });
 
     mbic.on("click", function(d) {
+        console.log(d);
+        console.log("click!");
+        biset.placeEntNearBic(d, "mbic");
 
+        // TO DO: FIX THE BUG OF ENTITY NOT SHUFFLED
     });
 
     return mbic;
