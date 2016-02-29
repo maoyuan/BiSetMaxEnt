@@ -1348,11 +1348,11 @@ biset.placeEntNearBic = function(bicData, bicType) {
             rentList = [];
 
         for (e in entLeft) {
-            var theID = e.split("_")[1];
+            var theID = parseInt(e.split("_")[1]);
             lentList.push(theID);
         }
         for (e in entRight) {
-            var theID = e.split("_")[1];
+            var theID = parseInt(e.split("_")[1]);
             rentList.push(theID);
         }
 
@@ -2389,7 +2389,7 @@ biset.addBicListCtrl = function(lsts) {
                         var rEntNum = Object.keys(rowEntIDs).length,
                             cEntNum = Object.keys(colEntIDs).length,
                             bNum = thisMergeSet.length,
-                            mbicData = biset.genMbicData(mbicID, mbicClass, avgXpos, avgXpos, avgYpos, rowEntIDs, colEntIDs, rEntNum, cEntNum, bNum, bwidthUnit);
+                            mbicData = biset.genMbicData(mbicID, mbicClass, avgXpos, avgXpos, avgYpos, field1, field2, rowEntIDs, colEntIDs, rEntNum, cEntNum, bNum, bwidthUnit);
 
                         var mergedBic = biset.addMergedBic("vis_canvas", mbicData);
 
@@ -2485,13 +2485,15 @@ biset.bicVisible = function(bicID, visibility) {
 /*
  * generate data for a merged bic
  */
-biset.genMbicData = function(bid, bclass, stPos, bx, by, rObjs, cObjs, rNum, cNum, bNum, widthUnit) {
+biset.genMbicData = function(bid, bclass, stPos, bx, by, rfield, cfield, rObjs, cObjs, rNum, cNum, bNum, widthUnit) {
     var mbicData = {
         "bicIDCmp": bid,
         "mbicClass": bclass,
         "startPos": stPos,
         "xPos": bx,
         "yPos": by,
+        "rowField": rfield,
+        "colField": cfield,
         "rowEnts": rObjs,
         "colEnts": cObjs,
         "rowEntNum": rNum,
@@ -2576,11 +2578,7 @@ biset.addMergedBic = function(canvasID, bData) {
     });
 
     mbic.on("click", function(d) {
-        console.log(d);
-        console.log("click!");
         biset.placeEntNearBic(d, "mbic");
-
-        // TO DO: FIX THE BUG OF ENTITY NOT SHUFFLED
     });
 
     return mbic;
