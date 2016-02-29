@@ -512,120 +512,12 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
 
         // case for selecting nodes
         if (d.selected == false) {
-
             if (networkData[thisID] !== undefined) {
                 // record the clicked node
                 selEntSet.add(thisID);
             }
             biset.barUpdate("#" + thisFrameID, "", biset.colors.entSelBorder, biset.entity.selBorder);
             d.selected = true;
-
-
-            // version 1: click as intersect
-            // ===================================
-            /*
-			// considering node with bics
-			if (networkData[thisID] !== undefined) {				
-
-				if (selEntSet.size == 0) {
-					// change the bar status to "select"
-					biset.barUpdate("#" + thisFrameID, "", biset.colors.entSelBorder, biset.entity.selBorder); 
-				}
-				else {
-					// releated info for current node
-					var relInfo = biset.findAllCons(thisID, networkData, entPathCaled),
-						nodes = relInfo.ents,
-						links = relInfo.paths;
-
-	    			// highlight all relevent entities
-					nodes.forEach(function(node) {
-						if (node.indexOf("_bic_") > 0) {
-							if (highlightBicList[node] == 1) {
-								allBics[node].bicNumCoSelected = 0;
-								highlightBicList[node] = allBics[node].bicNumCoSelected;
-								highlightBicSet.delete(node);
-							}
-						}
-						else {
-							if (node != thisID) {
-								if (highlightEntList[node] == 1) {
-									allEnts[node].numCoSelected = 0;
-									highlightEntList[node] = allEnts[node].numCoSelected;
-									highlightEntSet.delete(node);
-								}
-							}
-						}
-					});
-
-					links.forEach(function(lk) {
-						if (highlightLinkList[lk] == 1) {
-							allLinks[lk].linkNumCoSelected = 0;
-							highlightLinkList[lk] = allLinks[lk].linkNumCoSelected;
-							highlightLinkSet.delete(lk);
-						}
-					});
-					
-					//delete the frequency 1 items in highlightEntList;
-					for (ent in highlightEntList) {
-						if (highlightEntList[ent] == 1 
-							// except for previous selected nodes
-							&& allEnts[ent].selected == false
-							// except for the current node
-							&& ent != thisID) {
-								allEnts[ent].numCoSelected = 0;
-								highlightEntList[ent] = allEnts[ent].numCoSelected;
-								highlightEntSet.delete(ent);
-						}
-					}
-
-					// delete bic with frequency 1 in highligth bic list
-					for (bic in highlightBicList) {
-						if (highlightBicList[bic] == 1) {
-							allBics[bic].bicNumCoSelected = 0;
-							highlightBicList[bic] = allBics[bic].bicNumCoSelected;
-							highlightBicSet.delete(bic);
-						}
-					}
-
-					// delete link with frequency 1 in highlight link list
-					for (lk in highlightLinkList) {
-						if (highlightLinkList[lk] == 1) {
-							allLinks[lk].linkNumCoSelected = 0;
-							highlightLinkList[lk] = allLinks[lk].linkNumCoSelected;
-							highlightLinkSet.delete(lk);
-						}
-					}
-
-					// highlight ents those need to be highlighted
-					biset.entsUpdate(highlightEntSet, highlightEntList, "entColor");
-					// unhighlight the rest nodes
-					biset.entsBackToNormal(allEnts, "entColor");
-					// change the border of current node
-					biset.barUpdate("#" + thisFrameID, "", biset.colors.entSelBorder, biset.entity.selBorder); 
-
-					// highlight related bics
-					biset.entsUpdate(highlightBicSet, highlightBicList, "bicBorder");
-					// unhighlight all unrelated bics
-					biset.entsBackToNormal(allBics, "bicBorder");
-
-					// update links
-					biset.linksUpdate(highlightLinkSet, highlightLinkList);
-					// unhighlight the rest links
-					biset.linksBackToNormal(allLinks);
-				}
-				// record the clicked node
-				selEntSet.add(thisID);
-			}
-
-			// for node withouth any connections
-			else {
-				// change the border of current node
-				biset.barUpdate("#" + thisFrameID, "", biset.colors.entSelBorder, biset.entity.selBorder); 					
-			}
-
-			d.selected = true;
-			*/
-            // ===================================
         }
 
         // case for deselecting nodes
@@ -648,113 +540,6 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
             }
             biset.barUpdate("#" + thisFrameID, "", biset.colors.entMouseOverBorder, biset.entity.moBorder);
             d.selected = false;
-
-            // version 1: click as intersect
-            // ===================================
-            /*
-			// considering node with bics
-			if (networkData[thisID] !== undefined) {
-				if (selEntSet.size == 1) {
-					// just change the ent border
-					biset.barUpdate("#" + thisFrameID, "", biset.colors.entMouseOverBorder, biset.entity.moBorder);	
-				}
-				else {
-					// clear current ent highlight set
-					highlightEntSet.forEach(function(e) {
-						allEnts[e].numCoSelected = 0;
-						highlightEntList[e] = allEnts[e].numCoSelected;
-					});
-					highlightEntSet.clear();
-
-					// clear curret bic highlight set
-					highlightBicSet.forEach(function(e) {
-						allBics[e].bicNumCoSelected = 0;
-						highlightBicList[e] = allBics[e].bicNumCoSelected;
-					});
-					highlightBicSet.clear();
-
-					var selEnts = [];
-					selEntSet.forEach(function(e) {
-						if (e != thisID)
-							selEnts.push(e); 
-					});
-
-					var tmpHSet = entPathLinkedEnts[selEnts[0]];
-
-					for (var j = 1; j < selEnts.length; j++) {
-						tmpHSet = biset.setIntersect(tmpHSet, entPathLinkedEnts[selEnts[j]]);
-					}
-
-					// case: when all clicked nodes have no common node
-					if (tmpHSet.size == 0) {
-						selEntSet.forEach(function(e) {
-							if (e != thisID) {
-								highlightEntSet.add(e);
-								allEnts[e].numCoSelected += 1;
-								highlightEntList[e] = allEnts[e].numCoSelected;
-							}
-						});			
-					}
-					else {
-						tmpHSet.forEach(function(e) {
-							if (e.indexOf("_bic_") < 0) {
-								highlightEntSet.add(e);
-								allEnts[e].numCoSelected += selEnts.length;
-								highlightEntList[e] = allEnts[e].numCoSelected;
-							}
-							else {
-								highlightBicSet.add(e);
-								allBics[e].bicNumCoSelected += selEnts.length;
-								highlightBicList[e] = allBics[e].bicNumCoSelected;
-							}
-						});
-
-						// add selected node that are not in highlight set
-						selEntSet.forEach(function(e) {
-							if (e != thisID && !highlightEntSet.has(e)) {
-								highlightEntSet.add(e);
-								allEnts[e].numCoSelected += 1;
-								highlightEntList[e] = allEnts[e].numCoSelected;
-							}
-						});
-					}
-
-					var curNodeSet = entPathLinkedEnts[thisID];
-					curNodeSet.forEach(function(e) {
-						if (e.indexOf("_bic_") < 0) {
-							allEnts[e].numCoSelected += 1;
-							highlightEntList[e] = allEnts[e].numCoSelected;
-
-							if (!highlightEntSet.has(e))
-								highlightEntSet.add(e);
-						}
-						else {
-							allBics[e].bicNumCoSelected += 1;
-							highlightBicList[e] = allBics[e].bicNumCoSelected;
-
-							if (!highlightBicSet.has(e))
-								highlightBicSet.add(e);
-						}
-					});
-
-					biset.entsUpdate(highlightEntSet, highlightEntList, "entColor");
-					// change current ent border to normal
-					biset.barUpdate("#" + thisFrameID, "", biset.colors.entMouseOverBorder, biset.entity.moBorder);
-
-					biset.entsUpdate(highlightBicSet, highlightBicList, "bicBorder");
-				}
-
-				// update the set of clicked nodes
-				selEntSet.delete(thisID);
-			}
-			else {
-				// change current ent border to normal
-				biset.barUpdate("#" + thisFrameID, "", biset.colors.entMouseOverBorder, biset.entity.moBorder);				
-			}
-
-			d.selected = false;
-	    	*/
-            // =================================== 
         }
     });
 
@@ -1425,198 +1210,8 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
             }
         }
 
-
-        var bicVisID = d.bicIDCmp,
-            lListType = d.rowField,
-            rListType = d.colField;
-
-        var leftList = [], //only need update the visualOrder
-            rightList = [], //only need update the visualOrder
-            idx = 0,
-            leftItemList = [],
-            rightItemList = [];
-
-        //prepare the left part data
-        d3.selectAll("." + lListType).each(function(d) {
-            var index = d3.select(this).attr("id");
-            leftList.push(d);
-            var item = {};
-            item['yPos'] = d.yPos;
-            item['id'] = d.entityID;
-            item['index'] = idx;
-            leftItemList.push(item);
-            idx++;
-        });
-
-        //prepare the right part data
-        idx = 0;
-        d3.selectAll("." + rListType).each(function(d) {
-            var index = d3.select(this).attr("id");
-            rightList.push(d);
-            var item = {};
-            item['yPos'] = d.yPos;
-            item['id'] = d.entityID;
-            item['index'] = idx;
-            rightItemList.push(item);
-            idx++;
-        });
-
-        //sort based on the y value;
-        leftItemList.sort(function(a, b) {
-            return a.yPos - b.yPos;
-        });
-        rightItemList.sort(function(a, b) {
-            return a.yPos - b.yPos;
-        });
-
-        var item_set_left = new Set(d.row),
-            item_set_right = new Set(d.col),
-            pos = -1,
-            newListLeft = [],
-            newListRight = [];
-
-        //prepare the data
-        for (var i = 0; i < leftItemList.length; i++) {
-            var item = {};
-            item['id'] = 0;
-            item['index'] = 0;
-            item['yPos'] = 0;
-            item['visualIndex'] = 0;
-            newListLeft.push(item);
-        }
-
-        for (var i = 0; i < rightItemList.length; i++) {
-            var item = {};
-            item['id'] = 0;
-            item['index'] = 0;
-            item['yPos'] = 0;
-            item['visualIndex'] = 0;
-            newListRight.push(item);
-        }
-
-        var avgPos = 0;
-        avgPos = biset.entList.topGap + item_set_left.size / 2 * biset.entity.height;
-        var inc_num = 0;
-        while (avgPos < d.yPos) {
-            if (avgPos + biset.entity.height > d.yPos)
-                break;
-            else {
-                inc_num++;
-                avgPos += biset.entity.height;
-            }
-        }
-        if (avgPos + biset.entity.height - d.yPos < d.yPos - avgPos) {
-            inc_num++;
-            avgPos += biset.entity.height;
-        }
-
-        if (inc_num + item_set_left.size >= leftItemList.length)
-            inc_num = leftItemList.length - item_set_left.size;
-        //shuffling the left part
-        //var pos_2 = item_set_left.size;
-        var pos_2 = 0;
-        pos = inc_num - 1;
-        for (var i = 0; i < leftItemList.length; i++) {
-            if (item_set_left.has(leftItemList[i].id)) {
-                pos++;
-                newListLeft[pos]['visualIndex'] = pos;
-                newListLeft[pos]['id'] = leftItemList[i]['id'];
-                newListLeft[pos]['index'] = leftItemList[i]['index'];
-            } else {
-                if (pos_2 == inc_num)
-                    pos_2 += item_set_left.size;
-                newListLeft[pos_2]['visualIndex'] = pos_2;
-                newListLeft[pos_2]['id'] = leftItemList[i]['id'];
-                newListLeft[pos_2]['index'] = leftItemList[i]['index'];
-                pos_2++;
-            }
-        }
-
-        // shuffling the right part
-        pos = -1;
-        pos_2 = item_set_right.size;
-        avgPos = biset.entList.topGap + item_set_right.size / 2 * biset.entity.height;
-        inc_num = 0;
-        while (avgPos < d.yPos) {
-            if (avgPos + biset.entity.height > d.yPos)
-                break;
-            else {
-                inc_num++;
-                avgPos += biset.entity.height;
-            }
-        }
-        if (avgPos + biset.entity.height - d.yPos < d.yPos - avgPos) {
-            inc_num++;
-            avgPos += biset.entity.height;
-        }
-
-        if (inc_num + item_set_right.size >= rightItemList.length)
-            inc_num = rightItemList.length - item_set_right.size;
-        pos_2 = 0;
-        pos = inc_num - 1;
-        for (var i = 0; i < rightItemList.length; i++) {
-            if (item_set_right.has(rightItemList[i].id)) {
-                pos++;
-                newListRight[pos]['visualIndex'] = pos;
-                newListRight[pos]['id'] = rightItemList[i]['id'];
-                newListRight[pos]['index'] = rightItemList[i]['index'];
-            } else {
-                if (pos_2 == inc_num)
-                    pos_2 += item_set_right.size;
-                newListRight[pos_2]['visualIndex'] = pos_2;
-                newListRight[pos_2]['id'] = rightItemList[i]['id'];
-                newListRight[pos_2]['index'] = rightItemList[i]['index'];
-                pos_2++;
-            }
-        }
-
-        //reverse back to the original order;
-        newListLeft.sort(function(a, b) {
-            return a.index - b.index;
-        });
-        newListRight.sort(function(a, b) {
-            return a.index - b.index;
-        });
-
-        var yAxisOrderLeft = [];
-        for (var i = 0; i < leftItemList.length; i++)
-            yAxisOrderLeft.push(i);
-        for (var i = 0; i < leftItemList.length; i++)
-            leftList[newListLeft[i].index].entVisualOrder = newListLeft[i].visualIndex;
-
-        var yAxisOrderRight = [];
-        for (var i = 0; i < rightItemList.length; i++)
-            yAxisOrderRight.push(i);
-        for (var i = 0; i < rightItemList.length; i++)
-            rightList[newListRight[i].index].entVisualOrder = newListRight[i].visualIndex;
-
-        var yAxis = d3.scale.ordinal()
-            .domain(yAxisOrderLeft)
-            .rangePoints([biset.entList.topGap, leftItemList.length * biset.entity.height + biset.entList.topGap], 0);
-
-        d3.selectAll("." + lListType).transition()
-            .attr("transform", function(d, i) {
-                d.xPos = 2;
-                d.yPos = yAxis(d.entVisualOrder);
-                return "translate(2," + yAxis(d.entVisualOrder) + ")";
-            })
-            .call(endall, function() {
-                biset.updateLink(connections);
-            });
-
-        yAxis = d3.scale.ordinal()
-            .domain(yAxisOrderRight)
-            .rangePoints([biset.entList.topGap, rightItemList.length * biset.entity.height + biset.entList.topGap], 0);
-
-        d3.selectAll("." + rListType).transition()
-            .attr("transform", function(d, i) {
-                d.xPos = 2;
-                d.yPos = yAxis(d.entVisualOrder);
-                return "translate(2," + yAxis(d.entVisualOrder) + ")";
-            })
-            .call(endall, function() {
-                biset.updateLink(connections);
-            });
+        // place entities near a bic
+        biset.placeEntNearBic(d);
     });
 
     // add links between bic and ent
@@ -1646,6 +1241,206 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
         }
     }
 }
+
+
+/*
+ * pull entities to the position near a clicked bic
+ * @param bicData, data object, the data object of a bic
+ */
+biset.placeEntNearBic = function(bicData) {
+    var bicVisID = bicData.bicIDCmp,
+        lListType = bicData.rowField,
+        rListType = bicData.colField;
+
+    var leftList = [], //only need update the visualOrder
+        rightList = [], //only need update the visualOrder
+        idx = 0,
+        leftItemList = [],
+        rightItemList = [];
+
+    //prepare the left part data
+    d3.selectAll("." + lListType).each(function(d) {
+        var index = d3.select(this).attr("id");
+        leftList.push(d);
+        var item = {};
+        item['yPos'] = d.yPos;
+        item['id'] = d.entityID;
+        item['index'] = idx;
+        leftItemList.push(item);
+        idx++;
+    });
+
+    //prepare the right part data
+    idx = 0;
+    d3.selectAll("." + rListType).each(function(d) {
+        var index = d3.select(this).attr("id");
+        rightList.push(d);
+        var item = {};
+        item['yPos'] = d.yPos;
+        item['id'] = d.entityID;
+        item['index'] = idx;
+        rightItemList.push(item);
+        idx++;
+    });
+
+    //sort based on the y value;
+    leftItemList.sort(function(a, b) {
+        return a.yPos - b.yPos;
+    });
+    rightItemList.sort(function(a, b) {
+        return a.yPos - b.yPos;
+    });
+
+    var item_set_left = new Set(bicData.row),
+        item_set_right = new Set(bicData.col),
+        pos = -1,
+        newListLeft = [],
+        newListRight = [];
+
+    //prepare the data
+    for (var i = 0; i < leftItemList.length; i++) {
+        var item = {};
+        item['id'] = 0;
+        item['index'] = 0;
+        item['yPos'] = 0;
+        item['visualIndex'] = 0;
+        newListLeft.push(item);
+    }
+
+    for (var i = 0; i < rightItemList.length; i++) {
+        var item = {};
+        item['id'] = 0;
+        item['index'] = 0;
+        item['yPos'] = 0;
+        item['visualIndex'] = 0;
+        newListRight.push(item);
+    }
+
+    var avgPos = 0;
+    avgPos = biset.entList.topGap + item_set_left.size / 2 * biset.entity.height;
+    var inc_num = 0;
+    while (avgPos < bicData.yPos) {
+        if (avgPos + biset.entity.height > bicData.yPos)
+            break;
+        else {
+            inc_num++;
+            avgPos += biset.entity.height;
+        }
+    }
+    if (avgPos + biset.entity.height - bicData.yPos < bicData.yPos - avgPos) {
+        inc_num++;
+        avgPos += biset.entity.height;
+    }
+
+    if (inc_num + item_set_left.size >= leftItemList.length)
+        inc_num = leftItemList.length - item_set_left.size;
+    //shuffling the left part
+    //var pos_2 = item_set_left.size;
+    var pos_2 = 0;
+    pos = inc_num - 1;
+    for (var i = 0; i < leftItemList.length; i++) {
+        if (item_set_left.has(leftItemList[i].id)) {
+            pos++;
+            newListLeft[pos]['visualIndex'] = pos;
+            newListLeft[pos]['id'] = leftItemList[i]['id'];
+            newListLeft[pos]['index'] = leftItemList[i]['index'];
+        } else {
+            if (pos_2 == inc_num)
+                pos_2 += item_set_left.size;
+            newListLeft[pos_2]['visualIndex'] = pos_2;
+            newListLeft[pos_2]['id'] = leftItemList[i]['id'];
+            newListLeft[pos_2]['index'] = leftItemList[i]['index'];
+            pos_2++;
+        }
+    }
+
+    // shuffling the right part
+    pos = -1;
+    pos_2 = item_set_right.size;
+    avgPos = biset.entList.topGap + item_set_right.size / 2 * biset.entity.height;
+    inc_num = 0;
+    while (avgPos < bicData.yPos) {
+        if (avgPos + biset.entity.height > bicData.yPos)
+            break;
+        else {
+            inc_num++;
+            avgPos += biset.entity.height;
+        }
+    }
+    if (avgPos + biset.entity.height - bicData.yPos < bicData.yPos - avgPos) {
+        inc_num++;
+        avgPos += biset.entity.height;
+    }
+
+    if (inc_num + item_set_right.size >= rightItemList.length)
+        inc_num = rightItemList.length - item_set_right.size;
+    pos_2 = 0;
+    pos = inc_num - 1;
+    for (var i = 0; i < rightItemList.length; i++) {
+        if (item_set_right.has(rightItemList[i].id)) {
+            pos++;
+            newListRight[pos]['visualIndex'] = pos;
+            newListRight[pos]['id'] = rightItemList[i]['id'];
+            newListRight[pos]['index'] = rightItemList[i]['index'];
+        } else {
+            if (pos_2 == inc_num)
+                pos_2 += item_set_right.size;
+            newListRight[pos_2]['visualIndex'] = pos_2;
+            newListRight[pos_2]['id'] = rightItemList[i]['id'];
+            newListRight[pos_2]['index'] = rightItemList[i]['index'];
+            pos_2++;
+        }
+    }
+
+    //reverse back to the original order;
+    newListLeft.sort(function(a, b) {
+        return a.index - b.index;
+    });
+    newListRight.sort(function(a, b) {
+        return a.index - b.index;
+    });
+
+    var yAxisOrderLeft = [];
+    for (var i = 0; i < leftItemList.length; i++)
+        yAxisOrderLeft.push(i);
+    for (var i = 0; i < leftItemList.length; i++)
+        leftList[newListLeft[i].index].entVisualOrder = newListLeft[i].visualIndex;
+
+    var yAxisOrderRight = [];
+    for (var i = 0; i < rightItemList.length; i++)
+        yAxisOrderRight.push(i);
+    for (var i = 0; i < rightItemList.length; i++)
+        rightList[newListRight[i].index].entVisualOrder = newListRight[i].visualIndex;
+
+    var yAxis = d3.scale.ordinal()
+        .domain(yAxisOrderLeft)
+        .rangePoints([biset.entList.topGap, leftItemList.length * biset.entity.height + biset.entList.topGap], 0);
+
+    d3.selectAll("." + lListType).transition()
+        .attr("transform", function(d, i) {
+            d.xPos = 2;
+            d.yPos = yAxis(d.entVisualOrder);
+            return "translate(2," + yAxis(d.entVisualOrder) + ")";
+        })
+        .call(endall, function() {
+            biset.updateLink(connections);
+        });
+
+    yAxis = d3.scale.ordinal()
+        .domain(yAxisOrderRight)
+        .rangePoints([biset.entList.topGap, rightItemList.length * biset.entity.height + biset.entList.topGap], 0);
+
+    d3.selectAll("." + rListType).transition()
+        .attr("transform", function(d, i) {
+            d.xPos = 2;
+            d.yPos = yAxis(d.entVisualOrder);
+            return "translate(2," + yAxis(d.entVisualOrder) + ")";
+        })
+        .call(endall, function() {
+            biset.updateLink(connections);
+        });
+}
+
 
 
 /*
@@ -2531,6 +2326,22 @@ biset.addBicListCtrl = function(lsts) {
 
                         var mergedBic = biset.addMergedBic("vis_canvas", mbicData);
 
+                        // get min and max frequency
+                        var rowEntFreq = [],
+                            colEntFreq = [],
+                            allEntFreq = [];
+                        for (key in rowEntIDs)
+                            rowEntFreq.push(rowEntIDs[key]["lFreq"]);
+                        for (key in colEntIDs)
+                            colEntFreq.push(colEntIDs[key]["lFreq"]);
+                        allEntFreq = rowEntFreq.concat(colEntFreq);
+                        var rmaxFreq = Array.max(rowEntFreq),
+                            rminFreq = Array.min(rowEntFreq),
+                            cmaxFreq = Array.max(colEntFreq),
+                            cminFreq = Array.min(colEntFreq),
+                            maxFreq = Array.max(allEntFreq),
+                            minFreq = Array.min(allEntFreq);
+
                         for (key in rowEntIDs) {
                             var obj1 = d3.select("#" + key),
                                 rlwRatio = rowEntIDs[key]["lFreq"],
@@ -3247,13 +3058,8 @@ biset.addOriginalLinks = function(linkLsts) {
             obj2 = d3.select("#" + obj2ID),
             lineObj = biset.addLink(obj1, obj2, biset.colors.lineNColor, canvas, "", 1, "normal");
 
-
-
         biset.setVisibility(lineObj.lineID, "hidden");
-
         connections[lineObj.lineID] = lineObj;
-
-        // connections.push(biset.addLink(obj1, obj2, biset.colors.lineNColor, canvas));
     }
 }
 
@@ -3375,23 +3181,3 @@ biset.getClass = function(elementID, className) {
 biset.setClass = function(elementID, className, TorF) {
     d3.select(elementID).classed(className, TorF);
 }
-
-
-/*
- * Get the max value in an array
- * @param {int}, an array only with integer value
- * @return {int}, the max value in this array
- */
-Array.max = function(array) {
-    return Math.max.apply(Math, array);
-};
-
-
-/*
- * Get the min value in an array
- * @param {int}, an array only with integer value
- * @return {int}, the min value in this array
- */
-Array.min = function(array) {
-    return Math.min.apply(Math, array);
-};

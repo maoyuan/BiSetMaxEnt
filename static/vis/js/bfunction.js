@@ -274,3 +274,23 @@ function kGroups(node, matrix, threshold) {
         return res;
     }
 }
+
+
+/*
+ * Get the max value in an array
+ * @param {int}, an array only with integer value
+ * @return {int}, the max value in this array
+ */
+Array.max = function(array) {
+    return Math.max.apply(Math, array);
+};
+
+
+/*
+ * Get the min value in an array
+ * @param {int}, an array only with integer value
+ * @return {int}, the min value in this array
+ */
+Array.min = function(array) {
+    return Math.min.apply(Math, array);
+};
