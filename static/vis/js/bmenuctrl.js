@@ -10,10 +10,11 @@ var bicMenuMark = function(bicMenuID, markCtrlName) {
             thisBicSelOption = allBics[thisBicID].bicSelectOn;
 
         // set the switch for each bic
-        if (thisBicSelOption == false)
+        if (thisBicSelOption == false) {
             $("[name='" + markCtrlName + "']").bootstrapSwitch('state', false, true);
-        else
+        } else {
             $("[name='" + markCtrlName + "']").bootstrapSwitch('state', true, true);
+        }
 
         $("input[name='" + markCtrlName + "']").on('switchChange.bootstrapSwitch', function(event, state) {
             allBics[thisBicID].bicSelectOn = state;

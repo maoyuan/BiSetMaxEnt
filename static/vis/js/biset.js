@@ -792,6 +792,44 @@ biset.entsUpdate = function(entSet, entValList, updateType) {
     // }
 }
 
+
+/*
+ * update the color of entities associated with a merged bic
+ * @param entList, a list of entity objects
+ * @param utype, string, "highlight" or "normal"
+ */
+biset.mergedBicEntsUpdate = function(entList, utype) {
+    if (utype == "highlight") {
+        for (e in entList) {
+            var alfaVal = 0.15 + 0.08 * (entList[e].lFreq - 1),
+                colEntNewColor = "rgba(228, 122, 30, " + alfaVal + ")";
+            biset.barUpdate("#" + e + "_frame", colEntNewColor, "", "");
+        }
+    } else {
+        for (e in entList) {
+            biset.barUpdate("#" + e + "_frame", biset.colors.entNormal, "", "");
+        }
+    }
+}
+
+
+/*
+ * set the frame color of a bic
+ * @param bicData, the binded data of a bic 
+ * @param utype, string, the type of updates
+ */
+biset.setMergedBicColor = function(bicData, utype) {
+    var bicId = bicData.bicIDCmp;
+    if (utype == "highlight") {
+        var alfaVal = 0.15 + 0.08 * (bicData.bicNum - 1),
+            colEntNewColor = "rgba(228, 122, 30, " + alfaVal + ")";
+        biset.barUpdate("#" + bicId + "_frame", colEntNewColor, "", "");
+    } else {
+        biset.barUpdate("#" + bicId + "_frame", biset.colors.bicFrame, "", "");
+    }
+}
+
+
 /*
  * function to update the color of correlated entities
  * @param entID, the ID of correlated entities
@@ -800,7 +838,7 @@ biset.entsUpdate = function(entSet, entValList, updateType) {
  * @param bdColor, the color for border
  * @param bdStrokeWidth, border width of the bar
  */
-biset.barUpdate = function(entID, barColor, bdColor, bdStrokeWidth) { //barClass, 
+biset.barUpdate = function(entID, barColor, bdColor, bdStrokeWidth) {
     // only update the color of the bar
     if (bdColor == "" && bdStrokeWidth == "") {
         d3.select(entID)
@@ -1026,7 +1064,6 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
             biset.entsUpdate(highlightEntSet, highlightEntList, "ent");
             // highlight related bics
             biset.entsUpdate(highlightBicSet, highlightBicList, "bic");
-
 
             links.forEach(function(lk) {
                 highlightLinkSet.add(lk);
@@ -2446,7 +2483,7 @@ biset.addMergedBic = function(canvasID, bData) {
 
     // proportion of row
     mbic.append("rect")
-        .attr("id", "[" + bData.bicIDCmp + "]_row")
+        .attr("id", bData.bicIDCmp + "_row")
         .attr("class", bData.mbicClass)
         .attr("width", bData.mbicWithUnit * bData.rowEntNum)
         .attr("x", -bData.mbicWithUnit * bData.rowEntNum)
@@ -2457,7 +2494,7 @@ biset.addMergedBic = function(canvasID, bData) {
 
     // set the length of a bicluster based on its component
     mbic.append("rect")
-        .attr("id", "[" + bData.bicIDCmp + "]_col")
+        .attr("id", bData.bicIDCmp + "_col")
         .attr("class", bData.mbicClass)
         .attr("width", bData.mbicWithUnit * bData.colEntNum)
         .attr("x", 0)
@@ -2467,7 +2504,7 @@ biset.addMergedBic = function(canvasID, bData) {
         .attr("fill", biset.colors.bicFre);
 
     mbic.append("rect")
-        .attr("id", "[" + bData.bicIDCmp + "]_frame")
+        .attr("id", bData.bicIDCmp + "_frame")
         .attr("class", bData.mbicClass)
         .attr("width", bData.mbicWithUnit * (bData.colEntNum + bData.rowEntNum))
         .attr("x", -bData.mbicWithUnit * bData.rowEntNum)
@@ -2475,6 +2512,34 @@ biset.addMergedBic = function(canvasID, bData) {
         .attr("rx", biset.bic.frameRdCorner)
         .attr("ry", biset.bic.frameRdCorner)
         .attr("fill", biset.colors.bicFrame);
+
+    mbic.on("mouseover", function(d) {
+        var bicID = d.bicIDCmp,
+            rowEnts = d.rowEnts,
+            colEnts = d.colEnts;
+        biset.mergedBicEntsUpdate(rowEnts, "highlight");
+        biset.mergedBicEntsUpdate(colEnts, "highlight");
+
+        biset.setMergedBicColor(d, "highlight");
+
+        biset.barUpdate("#" + bicID + "_frame", "", biset.colors.bicFrameHColor, 2);
+    });
+
+    mbic.on("mouseout", function(d) {
+        var bicID = d.bicIDCmp,
+            rowEnts = d.rowEnts,
+            colEnts = d.colEnts;
+        biset.mergedBicEntsUpdate(rowEnts, "normal");
+        biset.mergedBicEntsUpdate(colEnts, "normal");
+
+        biset.setMergedBicColor(d, "normal");
+
+        biset.barUpdate("#" + bicID + "_frame", "", biset.colors.bicFrame, 0);
+    });
+
+    mbic.on("click", function(d) {
+
+    });
 
     return mbic;
 }
