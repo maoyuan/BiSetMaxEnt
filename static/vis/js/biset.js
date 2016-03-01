@@ -1167,6 +1167,11 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
             biset.placeEntNearBic(d, "bic");
         }
         console.log(d.mergeOption);
+
+        if (d.mergeOption == true) {
+            console.log("attempt to merge");
+            var threshold = 0.5;
+        }
     });
 
     // add links between bic and ent
@@ -1921,14 +1926,9 @@ biset.addBicListCtrl = function(lsts) {
                     var cluster_type = 3
 
                 //step one: obtain the correspoing colom of bic
-                var cur_bic = [],
+                var cur_bic = biset.getBicsByField(field1, field2, allBics),
                     idx_left = 0,
                     idx_right = 0;
-                for (e in allBics) {
-                    if (e.indexOf(field1) >= 0 && e.indexOf(field2) >= 0) {
-                        cur_bic.push(allBics[e]);
-                    }
-                }
 
                 if (cluster_type != 3) {
 
@@ -2241,12 +2241,7 @@ biset.addBicListCtrl = function(lsts) {
                 console.log(selVal);
 
                 // obtain the correspoing colom of bic
-                var cur_bic = [];
-                for (e in allBics) {
-                    if (e.indexOf(field1) >= 0 && e.indexOf(field2) >= 0) {
-                        cur_bic.push(allBics[e]);
-                    }
-                }
+                var cur_bic = biset.getBicsByField(field1, field2, allBics);
 
                 var jacMatrix = {}, // for total entity
                     lJacMatrix = {}, // for entities in row (left)
@@ -2492,6 +2487,83 @@ biset.addBicListCtrl = function(lsts) {
 
 
 /*
+ * get jaccard index matrix for a given list of bics
+ * @param bicList, a list of bics
+ * @param rtype, string, entity type on the left
+ * @param ctype, string, entity type on the right
+ * @return, three matrix of jaccard index (overall, left, right)
+ */
+biset.getJindexMatrix = function(bicList, rtype, ctype) {
+
+    var bic_prefix = rtype + "_" + ctype + "_bic_",
+        jmatrix = {},
+        ljmatrix = {},
+        rjmatrix = {},
+        res = {};
+
+    // megBicsPairs = new Set();
+
+    for (var j = 0; j < bicList.length; j++) {
+        var bicID1 = bic_prefix + bicList[j]["bicID"],
+            entsInRow1 = biset.getBicEntsInRowOrCol(bicList[j], "row"),
+            entsInCol1 = biset.getBicEntsInRowOrCol(bicList[j], "col"),
+            allEnts1 = entsInRow1.concat(entsInCol1);
+        jmatrix[bicID1] = {};
+        ljmatrix[bicID1] = {};
+        rjmatrix[bicID1] = {};
+
+        for (var k = 0; k < bicList.length; k++) {
+            var bicID2 = bic_prefix + bicList[k]["bicID"],
+                entsInRow2 = biset.getBicEntsInRowOrCol(bicList[k], "row"),
+                entsInCol2 = biset.getBicEntsInRowOrCol(bicList[k], "col"),
+                allEnts2 = entsInRow2.concat(entsInCol2);
+
+            var tmpIntersect = lstIntersect(allEnts1, allEnts2),
+                tmpUnion = lstUnion(allEnts1, allEnts2),
+
+                ltmpIntersect = lstIntersect(entsInRow1, entsInRow2),
+                ltmpUnion = lstUnion(entsInRow1, entsInRow2),
+
+                rtmpIntersect = lstIntersect(entsInCol1, entsInCol2),
+                rtmpUnion = lstUnion(entsInCol1, entsInCol2),
+
+                jVal = jacIndex(tmpIntersect.length, tmpUnion.length),
+                ljVal = jacIndex(ltmpIntersect.length, ltmpUnion.length),
+                rjVal = jacIndex(rtmpIntersect.length, rtmpUnion.length);
+
+            jmatrix[bicID1][bicID2] = jVal;
+            ljmatrix[bicID1][bicID2] = ljVal;
+            rjmatrix[bicID1][bicID2] = rjVal;
+        }
+    }
+
+    res["jmatrix"] = jmatrix;
+    res["ljmatrix"] = ljmatrix;
+    res["rjmatrix"] = rjmatrix;
+
+    return res;
+}
+
+
+/*
+ * get bicluster between two fieldsss
+ * @param rtype, string, the row type
+ * @param ctype, string, the col type
+ * @param bDict, object, the dictionary of all bics
+ * @return a list of bic object
+ */
+biset.getBicsByField = function(rtype, ctype, bDict) {
+    var bics = [];
+    for (e in bDict) {
+        if (e.indexOf(rtype) >= 0 && e.indexOf(ctype) >= 0) {
+            bics.push(bDict[e]);
+        }
+    }
+    return bics;
+}
+
+
+/*
  * set visibility of a bic
  * @param bicID, string, the id of a bic
  * @param visibility, string, show or hide
@@ -2505,7 +2577,6 @@ biset.bicVisible = function(bicID, visibility) {
     biset.setVisibility(theBicRight, visibility);
     biset.setVisibility(theBicFrame, visibility);
 }
-
 
 
 /*
