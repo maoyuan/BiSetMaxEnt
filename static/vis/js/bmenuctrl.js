@@ -4,15 +4,14 @@
  * @param markCtrlName, string, the mark ctrl name
  */
 var bicMenuMark = function(bicMenuID, markCtrlName) {
-    console.log("here12344");
     $('#' + bicMenuID).on('show.bs.context', function(context, e) {
 
         var thisBicID = $(context.target).attr("id"),
             thisBicSelOption = allBics[thisBicID].bicSelectOn;
 
         d3.select("#" + thisBicID).data()[0].bicMenuOnShow = true;
-
-        console.log("add mark menu");
+        // use a global array to maintain the bic whose menu is shown
+        bicShowMenu.push(thisBicID);
 
         // set the switch for each bic
         if (thisBicSelOption == false) {
@@ -25,6 +24,17 @@ var bicMenuMark = function(bicMenuID, markCtrlName) {
             allBics[thisBicID].bicSelectOn = state;
         });
     });
+
+    $('#' + bicMenuID).on('hide.bs.context', function(context, e) {
+        var thisBicID = bicShowMenu.pop(),
+            thisBicData = d3.select("#" + thisBicID).data()[0];
+        thisBicData.bicMenuOnShow = false;
+
+        // make sure the mouse is not on a bic
+        if (bicOnMouseover.length == 0) {
+            biset.bicMoutHandler(thisBicData, relations, entPathCaled);
+        }
+    });
 }
 
 /*
@@ -32,7 +42,6 @@ var bicMenuMark = function(bicMenuID, markCtrlName) {
  * @param bicCssClass, string, the css class of bic objects
  */
 var addMenuToBic = function(bicCssClass) {
-    console.log("here1234556");
     // add contextmenu to bics
     $("." + bicCssClass).contextmenu({
         target: '#bic-context-menu',
