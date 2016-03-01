@@ -1179,15 +1179,27 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
 
                 jmatrix = jmatrices.jmatrix,
                 ljmatrix = jmatrices.ljmatrix,
-                rjmatrix = jmatrices.rjmatrix;
+                rjmatrix = jmatrices.rjmatrix,
 
-            var similarBics = biset.getSimilarBics(bID, bList, "bicIDCmp", jmatrix, threshold);
-            console.log(bID);
-            console.log(bList);
-            console.log(jmatrix);
-            console.log(threshold);
+                similarBics = biset.getSimilarBics(bID, bList, "bicIDCmp", jmatrix, threshold);
 
-            console.log(similarBics);
+            console.log(d.yPos);
+            console.log(d.xPos);
+            var pos = 25;
+            for (b in similarBics) {
+                var y = parseInt(d.yPos) + pos;
+                d3.select("#" + b)
+                    // .transition()
+                    .attr("transform", "translate(" + d.xPos + "," + y + ")");
+
+                pos += 25;
+
+                console.log(similarBics[b])
+                    // update related lines
+                var blinks = biset.getLinksbyBic(similarBics[b], connections);
+                biset.updateLink(blinks);
+            }
+
         }
     });
 
@@ -3087,6 +3099,7 @@ biset.genLinkID = function(lEntID, rEntID) {
  * @return object dict
  */
 biset.getLinksbyBic = function(bicData, allLinks) {
+    console.log("here 3102");
     var thisBicID = bicData["bicIDCmp"],
         res = {};
 
@@ -3120,7 +3133,7 @@ biset.getLinksbyBic = function(bicData, allLinks) {
  * find all bics between two lists
  * @param ldomain, the type of left list
  * @param rdomain, the type of right list
- 
+ */
 biset.findBicsInBetween = function(ldomain, rdomain) {
     var bicsInbetween = {};
     for (e in allBics) {
