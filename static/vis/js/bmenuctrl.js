@@ -191,12 +191,16 @@ var bicMenuMark = function(bicMenuID, markCtrlName) {
 }
 
 
-
-bicMenuMoveEnt = function(bicMenuID, ctrlName) {
+/*
+ * set the switch widget in the bic menu
+ * @param bicMenuID, string, the id of ctrl menu on bics
+ * @param ctrlName, string, the mark ctrl name
+ * @param field, string, the field in the bic data
+ */
+var bicMenuSwitch = function(bicMenuID, ctrlName, field) {
     $('#' + bicMenuID).on('show.bs.context', function(context, e) {
         var thisBicID = $(context.target).attr("id"),
-            // thisBicData = d3.select("#" + thisBicID).data()[0],
-            thisBicMoveEntOption = allBics[thisBicID].moveEntOption;
+            thisBicMoveEntOption = allBics[thisBicID][field];
 
         if (thisBicMoveEntOption == false) {
             $("[name='" + ctrlName + "']").bootstrapSwitch('state', false, true);
@@ -205,7 +209,7 @@ bicMenuMoveEnt = function(bicMenuID, ctrlName) {
         }
 
         $("input[name='" + ctrlName + "']").on('switchChange.bootstrapSwitch', function(event, state) {
-            allBics[thisBicID].moveEntOption = state;
+            allBics[thisBicID][field] = state;
         });
     });
 }

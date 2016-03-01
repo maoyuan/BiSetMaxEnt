@@ -1027,6 +1027,7 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
     // set switch style
     setSwitchMenuItem("bicSelectSwitch");
     setSwitchMenuItem("moveEntSwitch");
+    setSwitchMenuItem("bicMergeSwitch");
 
     // add contextmenu to bics
     addMenuToBic("bics");
@@ -1165,6 +1166,7 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
         if (d.moveEntOption == true) {
             biset.placeEntNearBic(d, "bic");
         }
+        console.log(d.mergeOption);
     });
 
     // add links between bic and ent

@@ -480,7 +480,8 @@ function loadVisHelper(resData) {
 
     // event handler when showing the menu
     bicMenuMark("bic-context-menu", "bicSelectSwitch");
-    bicMenuMoveEnt("bic-context-menu", "moveEntSwitch");
+    bicMenuSwitch("bic-context-menu", "moveEntSwitch", "moveEntOption");
+    bicMenuSwitch("bic-context-menu", "bicMergeSwitch", "mergeOption");
 
     // add all original links
     biset.addOriginalLinks(oriLinks);
