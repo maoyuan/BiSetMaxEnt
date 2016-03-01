@@ -1,43 +1,4 @@
 /*
- * set the mark selection in the bic menu
- * @param bicMenuID, string, the id of ctrl menu on bics
- * @param markCtrlName, string, the mark ctrl name
- */
-var bicMenuMark = function(bicMenuID, markCtrlName) {
-    $('#' + bicMenuID).on('show.bs.context', function(context, e) {
-
-        var thisBicID = $(context.target).attr("id"),
-            thisBicSelOption = allBics[thisBicID].bicSelectOn;
-
-        d3.select("#" + thisBicID).data()[0].bicMenuOnShow = true;
-        // use a global array to maintain the bic whose menu is shown
-        bicShowMenu.push(thisBicID);
-
-        // set the switch for each bic
-        if (thisBicSelOption == false) {
-            $("[name='" + markCtrlName + "']").bootstrapSwitch('state', false, true);
-        } else {
-            $("[name='" + markCtrlName + "']").bootstrapSwitch('state', true, true);
-        }
-
-        $("input[name='" + markCtrlName + "']").on('switchChange.bootstrapSwitch', function(event, state) {
-            allBics[thisBicID].bicSelectOn = state;
-        });
-    });
-
-    $('#' + bicMenuID).on('hide.bs.context', function(context, e) {
-        var thisBicID = bicShowMenu.pop(),
-            thisBicData = d3.select("#" + thisBicID).data()[0];
-        thisBicData.bicMenuOnShow = false;
-
-        // make sure the mouse is not on a bic
-        if (bicOnMouseover.length == 0) {
-            biset.bicMoutHandler(thisBicData, relations, entPathCaled);
-        }
-    });
-}
-
-/*
  * add menu to bics
  * @param bicCssClass, string, the css class of bic objects
  */
@@ -46,8 +7,6 @@ var addMenuToBic = function(bicCssClass) {
     $("." + bicCssClass).contextmenu({
         target: '#bic-context-menu',
         onItem: function(context, e) {
-
-            console.log("add to bic");
 
             var thisBicID = $(context).attr("id"),
                 selItem = $(e.target).attr("data-index");
@@ -129,7 +88,11 @@ var addMenuToBic = function(bicCssClass) {
             }
 
             if (selItem == "selection") {
-                console.log("here");
+                console.log("bic selection switch");
+            }
+
+            if (selItem == "entMove") {
+                console.log("move ent switch");
             }
 
             // user choose to do stepwise evaluations
@@ -175,5 +138,74 @@ var addMenuToBic = function(bicCssClass) {
                 }
             }
         }
+    });
+}
+
+
+/*
+ * set checkbox to the a switch style
+ * @param name, string, the name of the checkbox
+ */
+var setSwitchMenuItem = function(name) {
+    $("[name='" + name + "']").bootstrapSwitch();
+}
+
+
+/*
+ * set the mark selection in the bic menu
+ * @param bicMenuID, string, the id of ctrl menu on bics
+ * @param markCtrlName, string, the mark ctrl name
+ */
+var bicMenuMark = function(bicMenuID, markCtrlName) {
+    $('#' + bicMenuID).on('show.bs.context', function(context, e) {
+
+        var thisBicID = $(context.target).attr("id"),
+            thisBicSelOption = allBics[thisBicID].bicSelectOn;
+
+        d3.select("#" + thisBicID).data()[0].bicMenuOnShow = true;
+        // use a global array to maintain the bic whose menu is shown
+        bicShowMenu.push(thisBicID);
+
+        // set the switch for each bic
+        if (thisBicSelOption == false) {
+            $("[name='" + markCtrlName + "']").bootstrapSwitch('state', false, true);
+        } else {
+            $("[name='" + markCtrlName + "']").bootstrapSwitch('state', true, true);
+        }
+
+        $("input[name='" + markCtrlName + "']").on('switchChange.bootstrapSwitch', function(event, state) {
+            allBics[thisBicID].bicSelectOn = state;
+        });
+    });
+
+    $('#' + bicMenuID).on('hide.bs.context', function(context, e) {
+        var thisBicID = bicShowMenu.pop(),
+            thisBicData = d3.select("#" + thisBicID).data()[0];
+        thisBicData.bicMenuOnShow = false;
+
+        // make sure the mouse is not on a bic
+        if (bicOnMouseover.length == 0) {
+            biset.bicMoutHandler(thisBicData, relations, entPathCaled);
+        }
+    });
+}
+
+
+
+bicMenuMoveEnt = function(bicMenuID, ctrlName) {
+    $('#' + bicMenuID).on('show.bs.context', function(context, e) {
+        var thisBicID = $(context.target).attr("id"),
+            // thisBicData = d3.select("#" + thisBicID).data()[0],
+            thisBicMoveEntOption = allBics[thisBicID].moveEntOption;
+
+        if (thisBicMoveEntOption == false) {
+            $("[name='" + ctrlName + "']").bootstrapSwitch('state', false, true);
+        } else {
+            $("[name='" + ctrlName + "']").bootstrapSwitch('state', true, true);
+        }
+
+        $("input[name='" + ctrlName + "']").on('switchChange.bootstrapSwitch', function(event, state) {
+            allBics[thisBicID].moveEntOption = state;
+        });
     });
 }

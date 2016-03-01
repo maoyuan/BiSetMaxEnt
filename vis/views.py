@@ -1734,6 +1734,7 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
                     biclusDict[row[2]]['bicNumCoSelected'] = 0
                     biclusDict[row[2]]['bicDisplayed'] = True
                     biclusDict[row[2]]['bicSelectOn'] = False
+                    biclusDict[row[2]]['moveEntOption'] = True
                     biclusDict[row[2]]['bicSeredOrder'] = int(bicOrderDict[str(row[2])])
                 else:
                     biclusDict[row[2]]["row"].append(row[1])
