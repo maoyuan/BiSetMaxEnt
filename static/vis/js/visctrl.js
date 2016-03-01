@@ -478,6 +478,9 @@ function loadVisHelper(resData) {
         biset.addBics(entLists[i], aBicList, aListData, theList, bicStartPos, rowField, colField, networkData);
     }
 
+    // event handler when showing the menu
+    bicMenuMark("bic-context-menu", "bicSelectSwitch");
+
     // add all original links
     biset.addOriginalLinks(oriLinks);
     // hide all original links

@@ -1730,6 +1730,7 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
                     biclusDict[row[2]]['docs'] = []
                     biclusDict[row[2]]['bicSelected'] = False
                     biclusDict[row[2]]['bicMouseOvered'] = False
+                    biclusDict[row[2]]['bicMenuOnShow'] = False
                     biclusDict[row[2]]['bicNumCoSelected'] = 0
                     biclusDict[row[2]]['bicDisplayed'] = True
                     biclusDict[row[2]]['bicSelectOn'] = False

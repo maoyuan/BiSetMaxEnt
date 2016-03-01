@@ -4,10 +4,15 @@
  * @param markCtrlName, string, the mark ctrl name
  */
 var bicMenuMark = function(bicMenuID, markCtrlName) {
+    console.log("here12344");
     $('#' + bicMenuID).on('show.bs.context', function(context, e) {
 
         var thisBicID = $(context.target).attr("id"),
             thisBicSelOption = allBics[thisBicID].bicSelectOn;
+
+        d3.select("#" + thisBicID).data()[0].bicMenuOnShow = true;
+
+        console.log("add mark menu");
 
         // set the switch for each bic
         if (thisBicSelOption == false) {
@@ -27,10 +32,13 @@ var bicMenuMark = function(bicMenuID, markCtrlName) {
  * @param bicCssClass, string, the css class of bic objects
  */
 var addMenuToBic = function(bicCssClass) {
+    console.log("here1234556");
     // add contextmenu to bics
     $("." + bicCssClass).contextmenu({
         target: '#bic-context-menu',
         onItem: function(context, e) {
+
+            console.log("add to bic");
 
             var thisBicID = $(context).attr("id"),
                 selItem = $(e.target).attr("data-index");

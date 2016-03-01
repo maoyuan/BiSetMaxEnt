@@ -1017,9 +1017,6 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
 
     $("[name='bicSelectSwitch']").bootstrapSwitch();
 
-    // event handler when showing the menu
-    bicMenuMark("bic-context-menu", "bicSelectSwitch");
-
     // add contextmenu to bics
     addMenuToBic("bics");
 
@@ -1110,7 +1107,7 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
     // mouseout event for bic
     bics.on("mouseout", function(d) {
 
-        if (d.bicMouseOvered == true && d.bicSelected == false) {
+        if (d.bicMouseOvered == true && d.bicSelected == false) { //  && d.bicMeuOnShow == false
 
             var thisID = d.bicIDCmp;
 
