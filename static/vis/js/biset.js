@@ -1166,11 +1166,28 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
         if (d.moveEntOption == true) {
             biset.placeEntNearBic(d, "bic");
         }
-        console.log(d.mergeOption);
 
+        // merge similar bics with the dragged one
         if (d.mergeOption == true) {
-            console.log("attempt to merge");
-            var threshold = 0.5;
+            var threshold = 0.4,
+                rfield = d.rowField,
+                cfield = d.colField,
+                bID = d.bicIDCmp,
+
+                bList = biset.getBicsByField(rfield, cfield, allBics),
+                jmatrices = biset.getJindexMatrix(bList, rfield, cfield),
+
+                jmatrix = jmatrices.jmatrix,
+                ljmatrix = jmatrices.ljmatrix,
+                rjmatrix = jmatrices.rjmatrix;
+
+            var similarBics = biset.getSimilarBics(bID, bList, "bicIDCmp", jmatrix, threshold);
+            console.log(bID);
+            console.log(bList);
+            console.log(jmatrix);
+            console.log(threshold);
+
+            console.log(similarBics);
         }
     });
 
@@ -2487,6 +2504,24 @@ biset.addBicListCtrl = function(lsts) {
 
 
 /*
+ * get bicluster between two fieldsss
+ * @param rtype, string, the row type
+ * @param ctype, string, the col type
+ * @param bDict, object, the dictionary of all bics
+ * @return a list of bic object
+ */
+biset.getBicsByField = function(rtype, ctype, bDict) {
+    var bics = [];
+    for (e in bDict) {
+        if (e.indexOf(rtype) >= 0 && e.indexOf(ctype) >= 0) {
+            bics.push(bDict[e]);
+        }
+    }
+    return bics;
+}
+
+
+/*
  * get jaccard index matrix for a given list of bics
  * @param bicList, a list of bics
  * @param rtype, string, entity type on the left
@@ -2546,20 +2581,22 @@ biset.getJindexMatrix = function(bicList, rtype, ctype) {
 
 
 /*
- * get bicluster between two fieldsss
- * @param rtype, string, the row type
- * @param ctype, string, the col type
- * @param bDict, object, the dictionary of all bics
- * @return a list of bic object
+ * get similar bics based on jaccard index with a given threshold
+ * @param bID, string, the given bicluster
+ * @param bList, a list of biclusters
+ * @param idField, string, the field of bic id
+ * @param jmatrix, matrix, paire-wise jaccard index value
+ * @param val, int/float, the threshold
  */
-biset.getBicsByField = function(rtype, ctype, bDict) {
-    var bics = [];
-    for (e in bDict) {
-        if (e.indexOf(rtype) >= 0 && e.indexOf(ctype) >= 0) {
-            bics.push(bDict[e]);
+biset.getSimilarBics = function(bID, bList, idField, jmatrix, val) {
+    var r = {};
+    for (var i = 0; i < bList.length; i++) {
+        var curBicID = bList[i][idField];
+        if (curBicID != bID && jmatrix[bID][curBicID] >= val) {
+            r[curBicID] = bList[i];
         }
     }
-    return bics;
+    return r;
 }
 
 
