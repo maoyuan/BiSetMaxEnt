@@ -3327,6 +3327,55 @@ biset.getOffset = function(element) {
     };
 }
 
+
+/*
+ * order bics in a object list
+ * @param bList, a bic object list
+ * @param field, string, the field of ent number
+ * @return a list of bic ID, ordered from max to min
+ */
+biset.bicOrderBySize = function(bList, field) {
+    var r = [];
+    for (b in bList) {
+        r.push(bList[b]);
+    }
+    r.sort(function(a, b) {
+        return b[field] - a[field];
+    });
+    for (var i = 0; i < r.length; i++) {
+        var bID = r[i].bicIDCmp;
+        r[i] = bID;
+    }
+    return r;
+}
+
+
+/*
+ * order similar bics based on jaccardy index
+ * @param bList, a list of bic object
+ * @param bID, string, the bic id to compute similarity
+ * @param jmatrix, a matrix of similarity values
+ * @return a list of bic object, ordered from max to min
+ */
+biset.bicOrderBySimilarity = function(bList, bID, jmatrix) {
+    var r = [],
+        simple = [];
+    for (b in bList) {
+        var tmp = {};
+        tmp.bicIDCmp = b;
+        tmp.bicJindex = jmatrix[bID][b];
+        simple.push(tmp);
+    }
+    simple.sort(function(a, b) {
+        return b.bicJindex - a.bicJindex;
+    });
+    for (var i = 0; i < simple.length; i++) {
+        r.push(simple[i].bicIDCmp);
+    }
+    return r;
+}
+
+
 // drag function for a d3 object
 biset.objDrag = d3.behavior.drag()
     .origin(function() {
@@ -3341,8 +3390,8 @@ biset.objDrag = d3.behavior.drag()
         d3.select(this).classed("dragging", true);
 
         if (d.mergeOption == true) {
-            var threshold = 0.4
-            rfield = d.rowField,
+            var threshold = 0.4,
+                rfield = d.rowField,
                 cfield = d.colField,
                 bID = d.bicIDCmp,
 
@@ -3353,7 +3402,9 @@ biset.objDrag = d3.behavior.drag()
                 ljmatrix = jmatrices.ljmatrix,
                 rjmatrix = jmatrices.rjmatrix,
 
-                similarBics = biset.getSimilarBics(bID, bList, "bicIDCmp", jmatrix, threshold);
+                similarBics = biset.getSimilarBics(bID, bList, "bicIDCmp", jmatrix, threshold),
+                simBicBySize = biset.bicOrderBySize(similarBics, "totalEntNum"),
+                orderSimBics = biset.bicOrderBySimilarity(similarBics, bID, jmatrix);
 
             // the shared data for merge
             dragShareData = {};
@@ -3367,6 +3418,8 @@ biset.objDrag = d3.behavior.drag()
             dragShareData.ljMatrix = ljmatrix;
             dragShareData.rjMatrix = rjmatrix;
             dragShareData.similarBics = similarBics;
+            dragShareData.simBicBySize = simBicBySize;
+            dragShareData.orderSimBics = orderSimBics;
         }
     })
     .on("drag", function(d) {
@@ -3374,8 +3427,6 @@ biset.objDrag = d3.behavior.drag()
             dragY = d3.event.y;
 
         // TO DO: BOUNDARY CHECK!!!
-
-        console.log(dragShareData);
 
         // rfield = d.rowField,
         //     cfield = d.colField,
@@ -3414,6 +3465,7 @@ biset.objDrag = d3.behavior.drag()
 
         if (d.mergeOption == true) {
             var pos = 25;
+            // for (var i = 0; )
             for (b in dragShareData.similarBics) {
                 var y = parseInt(d.yPos) + pos;
                 d3.select("#" + b)
