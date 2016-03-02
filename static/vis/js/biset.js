@@ -1334,6 +1334,80 @@ biset.bicMoutHandler = function(d, networkData, entPathCaled) {
 }
 
 
+/*
+ * get entity info from a list for ordering
+ * @param etype, string, the type of entities
+ * @return an object with all / partial ent info
+ */
+biset.prepEntsInfoForOrdering = function(etype) {
+    var entsInfo = {},
+        objList = [],
+        simpleObjList = [],
+        idx = 0;
+
+    d3.selectAll("." + etype).each(function(d) {
+        var index = d3.select(this).attr("id");
+        objList.push(d);
+        var item = {};
+        item['yPos'] = d.yPos;
+        item['id'] = d.entityID;
+        item['index'] = idx;
+        simpleObjList.push(item);
+        idx++;
+    });
+
+    entsInfo.fullEntInfoList = objList;
+    entsInfo.simplifiedEntInfoList = simpleObjList;
+
+    return entsInfo;
+}
+
+
+/*
+ * initialize visual order of objects
+ * @param objList, a list of object with simplified info
+ * @return lst, with all info initialized as 0
+ */
+biset.initObjVisualOrder = function(objList) {
+    var lst = [];
+    for (var i = 0; i < objList.length; i++) {
+        var item = {};
+        item['id'] = 0;
+        item['index'] = 0;
+        item['yPos'] = 0;
+        item['visualIndex'] = 0;
+        lst.push(item);
+    }
+    return lst;
+}
+
+
+/*
+ * get a set of row or col ent ids
+ * @param rowOrCol, list of ids from a bic
+ * @return a set of ids
+ */
+biset.getEntSetFromBic = function(rowOrCol) {
+    var r = new Set(rowOrCol);
+    return r;
+}
+
+
+/*
+ * get a set of row or col ent ids
+ * @param rowOrCol, list of ids from a merged bic
+ * @return a set of ids
+ */
+biset.getEntSetFromMbic = function(rowOrCol) {
+    var entIDs = [];
+    for (e in rowOrCol) {
+        var theID = parseInt(e.split("_")[1]);
+        entIDs.push(theID);
+    }
+    var r = new Set(entIDs);
+    return r;
+}
+
 
 /*
  * pull entities to the position near a clicked bic
@@ -1345,36 +1419,15 @@ biset.placeEntNearBic = function(bicData, bicType) {
         lListType = bicData.rowField,
         rListType = bicData.colField;
 
-    var leftList = [], //only need update the visualOrder
-        rightList = [], //only need update the visualOrder
-        idx = 0,
-        leftItemList = [],
-        rightItemList = [];
-
     //prepare the left part data
-    d3.selectAll("." + lListType).each(function(d) {
-        var index = d3.select(this).attr("id");
-        leftList.push(d);
-        var item = {};
-        item['yPos'] = d.yPos;
-        item['id'] = d.entityID;
-        item['index'] = idx;
-        leftItemList.push(item);
-        idx++;
-    });
+    lEntInfo = biset.prepEntsInfoForOrdering(lListType);
+    leftList = lEntInfo.fullEntInfoList;
+    leftItemList = lEntInfo.simplifiedEntInfoList;
 
     //prepare the right part data
-    idx = 0;
-    d3.selectAll("." + rListType).each(function(d) {
-        var index = d3.select(this).attr("id");
-        rightList.push(d);
-        var item = {};
-        item['yPos'] = d.yPos;
-        item['id'] = d.entityID;
-        item['index'] = idx;
-        rightItemList.push(item);
-        idx++;
-    });
+    rEntInfo = biset.prepEntsInfoForOrdering(rListType);
+    rightList = rEntInfo.fullEntInfoList;
+    rightItemList = rEntInfo.simplifiedEntInfoList;
 
     //sort based on the y value;
     leftItemList.sort(function(a, b) {
@@ -1385,53 +1438,19 @@ biset.placeEntNearBic = function(bicData, bicType) {
     });
 
     if (bicType == "bic") {
-        var item_set_left = new Set(bicData.row),
-            item_set_right = new Set(bicData.col);
-    } else {
-        var entLeft = bicData.rowEnts,
-            entRight = bicData.colEnts;
-
-        var lentList = [],
-            rentList = [];
-
-        for (e in entLeft) {
-            var theID = parseInt(e.split("_")[1]);
-            lentList.push(theID);
-        }
-        for (e in entRight) {
-            var theID = parseInt(e.split("_")[1]);
-            rentList.push(theID);
-        }
-
-        var item_set_left = new Set(lentList),
-            item_set_right = new Set(rentList);
+        var item_set_left = biset.getEntSetFromBic(bicData.row),
+            item_set_right = biset.getEntSetFromBic(bicData.col);
+    } else { // for the case of merged bic
+        var item_set_left = biset.getEntSetFromMbic(bicData.rowEnts),
+            item_set_right = biset.getEntSetFromMbic(bicData.colEnts);
     }
-
-    var pos = -1,
-        newListLeft = [],
-        newListRight = [];
 
     //prepare the data
-    for (var i = 0; i < leftItemList.length; i++) {
-        var item = {};
-        item['id'] = 0;
-        item['index'] = 0;
-        item['yPos'] = 0;
-        item['visualIndex'] = 0;
-        newListLeft.push(item);
-    }
+    var newListLeft = biset.initObjVisualOrder(leftItemList),
+        newListRight = biset.initObjVisualOrder(rightItemList);
 
-    for (var i = 0; i < rightItemList.length; i++) {
-        var item = {};
-        item['id'] = 0;
-        item['index'] = 0;
-        item['yPos'] = 0;
-        item['visualIndex'] = 0;
-        newListRight.push(item);
-    }
-
-    var avgPos = 0;
-    avgPos = biset.entList.topGap + item_set_left.size / 2 * biset.entity.height;
+    var pos = -1,
+        avgPos = biset.entList.topGap + item_set_left.size / 2 * biset.entity.height;
     var inc_num = 0;
     while (avgPos < bicData.yPos) {
         if (avgPos + biset.entity.height > bicData.yPos)
@@ -3484,8 +3503,8 @@ biset.getEntsFromSimBics = function(bList) {
 biset.objDrag = d3.behavior.drag()
     .origin(function(d) {
         return {
-            x: d3.select(this).datum().xPos,
-            y: d3.select(this).datum().yPos
+            x: d.xPos, // d3.select(this).datum()
+            y: d.yPos
         };
     })
     .on("dragstart", function(d) {
@@ -3497,7 +3516,7 @@ biset.objDrag = d3.behavior.drag()
         dragShareData = {};
 
         if (d.mergeOption == true) {
-            var threshold = 0.4,
+            var threshold = 0.3,
                 rfield = d.rowField,
                 cfield = d.colField,
                 bID = d.bicIDCmp,
@@ -3544,8 +3563,6 @@ biset.objDrag = d3.behavior.drag()
         // if (objClass.indexOf("mergedBic") < 0) {
         //     // dragX -= d3.select(this).datum().startPos;
         //     
-        //     // if (dragY < 0)
-        //     //     dragY = 0;
         //     // if (dragX >= biset.entList.gap * 2)
         //     //     dragX = biset.entList.gap * 2;
         //     // if (dragX + biset.entList.gap * 2 <= 0)
@@ -3554,8 +3571,8 @@ biset.objDrag = d3.behavior.drag()
         // }
 
         // boundary check
-        if (dragY < 0)
-            dragY = 0;
+        if (dragY < 10)
+            dragY = 10;
 
         d3.select(this).attr("transform", "translate(" + dragX + "," + dragY + ")");
         d.yPos = dragY;
@@ -3583,30 +3600,32 @@ biset.objDrag = d3.behavior.drag()
                 }
 
                 var y = parseInt(d.yPos) + pos,
-                    dtimer = i * 50;
+                    dtimer = i * 50,
+                    thisBicData = biset.getBindDataByBid(thisBicID);
+
+                // update the position of similar bics
+                thisBicData.xPos = d.xPos;
+                thisBicData.yPos = y;
+
                 d3.select("#" + thisBicID)
                     .transition()
-                    .delay(i * 50)
+                    .delay(i * 60)
                     .attr("transform", "translate(" + d.xPos + "," + y + ")");
 
                 // update related lines
                 var blinks = biset.getBindDataByBid(sortedSimBics[i]).linkObjs;
-                // biset.getLinksbyBic(dragShareData.similarBics[sortedSimBics[i]], connections);
-                setTimeout(biset.updateLink(blinks), dtimer);
+                // setTimeout(biset.updateLink(blinks), dtimer);
+                biset.updateLink(blinks);
             }
         }
-
-        // console.log(dragShareData);
     })
     .on("dragend", function(d) {
         draged = 0;
-
         if (dragShareData.relatedLinks != undefined) {
             biset.updateLink(dragShareData.relatedLinks);
         } else {
             biset.updateLink(d.linkObjs);
         }
-        // biset.updateLink(connections);
         d3.select(this).classed("dragging", false);
     });
 
