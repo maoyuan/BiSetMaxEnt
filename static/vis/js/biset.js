@@ -1459,6 +1459,27 @@ biset.updateVisualOrder = function(bPos, entSet, entSimpleInfoList, entVisualLis
 
 
 /*
+ * shift entities based on a field in the bind data
+ * @param etype, string, the type of entity
+ * @param field, string, the field in data for ordering
+ * @param x, int/float, x position
+ * @param y, d3 scale function
+ * @param links, all links with the entities
+ */
+biset.shiftEnt = function(etype, field, x, y, links) {
+    d3.selectAll("." + etype).transition()
+        .attr("transform", function(d, i) {
+            d.xPos = x;
+            d.yPos = y(d[field]);
+            return "translate(" + d.xPos + "," + d.yPos + ")";
+        })
+        .call(endall, function() {
+            biset.updateLink(links);
+        });
+}
+
+
+/*
  * pull entities to the position near a clicked bic
  * @param bicData, data object, the data object of a bic
  * @param bicType, string, the type of bic, "bic" or "mbic"
@@ -1522,33 +1543,17 @@ biset.placeEntNearBic = function(bicData, bicType) {
     for (var i = 0; i < rightItemList.length; i++)
         rightList[newListRight[i].index].entVisualOrder = newListRight[i].visualIndex;
 
-    var yAxis = d3.scale.ordinal()
+    var lYaxis = d3.scale.ordinal()
         .domain(yAxisOrderLeft)
         .rangePoints([biset.entList.topGap, leftItemList.length * biset.entity.height + biset.entList.topGap], 0);
 
-    d3.selectAll("." + lListType).transition()
-        .attr("transform", function(d, i) {
-            d.xPos = 2;
-            d.yPos = yAxis(d.entVisualOrder);
-            return "translate(2," + yAxis(d.entVisualOrder) + ")";
-        })
-        .call(endall, function() {
-            biset.updateLink(connections);
-        });
+    biset.shiftEnt(lListType, "entVisualOrder", 2, lYaxis, connections);
 
-    yAxis = d3.scale.ordinal()
+    var rYaxis = d3.scale.ordinal()
         .domain(yAxisOrderRight)
         .rangePoints([biset.entList.topGap, rightItemList.length * biset.entity.height + biset.entList.topGap], 0);
 
-    d3.selectAll("." + rListType).transition()
-        .attr("transform", function(d, i) {
-            d.xPos = 2;
-            d.yPos = yAxis(d.entVisualOrder);
-            return "translate(2," + yAxis(d.entVisualOrder) + ")";
-        })
-        .call(endall, function() {
-            biset.updateLink(connections);
-        });
+    biset.shiftEnt(rListType, "entVisualOrder", 2, rYaxis, connections);
 }
 
 
