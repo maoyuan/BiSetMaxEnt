@@ -1166,41 +1166,6 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
         if (d.moveEntOption == true) {
             biset.placeEntNearBic(d, "bic");
         }
-
-        // merge similar bics with the dragged one
-        if (d.mergeOption == true) {
-            var threshold = 0.4,
-                rfield = d.rowField,
-                cfield = d.colField,
-                bID = d.bicIDCmp,
-
-                bList = biset.getBicsByField(rfield, cfield, allBics),
-                jmatrices = biset.getJindexMatrix(bList, rfield, cfield),
-
-                jmatrix = jmatrices.jmatrix,
-                ljmatrix = jmatrices.ljmatrix,
-                rjmatrix = jmatrices.rjmatrix,
-
-                similarBics = biset.getSimilarBics(bID, bList, "bicIDCmp", jmatrix, threshold);
-
-            console.log(d.yPos);
-            console.log(d.xPos);
-            var pos = 25;
-            for (b in similarBics) {
-                var y = parseInt(d.yPos) + pos;
-                d3.select("#" + b)
-                    // .transition()
-                    .attr("transform", "translate(" + d.xPos + "," + y + ")");
-
-                pos += 25;
-
-                console.log(similarBics[b])
-                    // update related lines
-                var blinks = biset.getLinksbyBic(similarBics[b], connections);
-                biset.updateLink(blinks);
-            }
-
-        }
     });
 
     // add links between bic and ent
@@ -1215,20 +1180,17 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
             var obj1 = d3.select("#" + rowType + "_" + rowIDs[j]),
                 obj2 = d3.select("#" + rowType + "_" + colType + "_bic_" + bicID),
                 lineObj = biset.addLink(obj1, obj2, biset.colors.lineNColor, canvas, "", 1, "normal");
-
             connections[lineObj.lineID] = lineObj;
-            obj2.call(biset.objDrag);
         }
 
         for (var k = 0; k < colIDs.length; k++) {
             var obj1 = d3.select("#" + rowType + "_" + colType + "_bic_" + bicID),
                 obj2 = d3.select("#" + colType + "_" + colIDs[k]),
                 lineObj = biset.addLink(obj1, obj2, biset.colors.lineNColor, canvas, "", 1, "normal");
-
             connections[lineObj.lineID] = lineObj;
-            obj1.call(biset.objDrag);
         }
     }
+    bics.call(biset.objDrag);
 }
 
 
@@ -3099,7 +3061,6 @@ biset.genLinkID = function(lEntID, rEntID) {
  * @return object dict
  */
 biset.getLinksbyBic = function(bicData, allLinks) {
-    console.log("here 3102");
     var thisBicID = bicData["bicIDCmp"],
         res = {};
 
@@ -3378,12 +3339,57 @@ biset.objDrag = d3.behavior.drag()
         draged = 1;
         d3.event.sourceEvent.stopPropagation();
         d3.select(this).classed("dragging", true);
+
+        if (d.mergeOption == true) {
+            var threshold = 0.4
+            rfield = d.rowField,
+                cfield = d.colField,
+                bID = d.bicIDCmp,
+
+                bList = biset.getBicsByField(rfield, cfield, allBics),
+                jmatrices = biset.getJindexMatrix(bList, rfield, cfield),
+
+                jmatrix = jmatrices.jmatrix,
+                ljmatrix = jmatrices.ljmatrix,
+                rjmatrix = jmatrices.rjmatrix,
+
+                similarBics = biset.getSimilarBics(bID, bList, "bicIDCmp", jmatrix, threshold);
+
+            // the shared data for merge
+            dragShareData = {};
+
+            dragShareData.rowField = rfield;
+            dragShareData.colField = cfield;
+            dragShareData.bicIDCmp = bID;
+            dragShareData.bicList = bList;
+            dragShareData.threshVal = threshold;
+            dragShareData.jMatrix = jmatrix;
+            dragShareData.ljMatrix = ljmatrix;
+            dragShareData.rjMatrix = rjmatrix;
+            dragShareData.similarBics = similarBics;
+        }
     })
     .on("drag", function(d) {
         var dragX = d3.event.x,
             dragY = d3.event.y;
 
         // TO DO: BOUNDARY CHECK!!!
+
+        console.log(dragShareData);
+
+        // rfield = d.rowField,
+        //     cfield = d.colField,
+        //     bID = d.bicIDCmp,
+
+        //     bList = biset.getBicsByField(rfield, cfield, allBics),
+        //     jmatrices = biset.getJindexMatrix(bList, rfield, cfield),
+
+        //     jmatrix = jmatrices.jmatrix,
+        //     ljmatrix = jmatrices.ljmatrix,
+        //     rjmatrix = jmatrices.rjmatrix,
+
+        //     similarBics = biset.getSimilarBics(bID, bList, "bicIDCmp", jmatrix, threshold);
+
 
         // var objClass = d3.select(this).attr("class");
         // if (objClass.indexOf("mergedBic") < 0) {
@@ -3405,6 +3411,22 @@ biset.objDrag = d3.behavior.drag()
         // update related lines (imporve dragging performance)
         var relatedLinks = biset.getLinksbyBic(d3.select(this).datum(), connections);
         biset.updateLink(relatedLinks);
+
+        if (d.mergeOption == true) {
+            var pos = 25;
+            for (b in dragShareData.similarBics) {
+                var y = parseInt(d.yPos) + pos;
+                d3.select("#" + b)
+                    .transition()
+                    .attr("transform", "translate(" + d.xPos + "," + y + ")");
+
+                pos += 25;
+
+                // update related lines
+                var blinks = biset.getLinksbyBic(dragShareData.similarBics[b], connections);
+                biset.updateLink(blinks);
+            }
+        }
     })
     .on("dragend", function(d) {
         draged = 0;
