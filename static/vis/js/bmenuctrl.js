@@ -161,7 +161,7 @@ var bicMenuMark = function(bicMenuID, markCtrlName) {
 
         var thisBicID = $(context.target).attr("id"),
             thisBicSelOption = allBics[thisBicID].bicSelectOn,
-            thisBicData = biset.getBicDataByBid(thisBicID);
+            thisBicData = biset.getBindDataByBid(thisBicID);
         thisBicData.bicMenuOnShow = true;
 
         // use a global array to maintain the bic whose menu is shown
@@ -181,7 +181,7 @@ var bicMenuMark = function(bicMenuID, markCtrlName) {
 
     $('#' + bicMenuID).on('hide.bs.context', function(context, e) {
         var thisBicID = bicShowMenu.pop(),
-            thisBicData = biset.getBicDataByBid(thisBicID);
+            thisBicData = biset.getBindDataByBid(thisBicID);
         thisBicData.bicMenuOnShow = false;
 
         // make sure the mouse is not on a bic

@@ -1184,6 +1184,10 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
             biclusters[i].linkIDs.push(lineObj.lineID);
             biclusters[i].linkObjs.push(lineObj);
 
+            var entData = biset.getBindDataByBid(rowType + "_" + rowIDs[j]);
+            entData.linkIDs.push(lineObj.lineID);
+            entData.linkObjs.push(lineObj);
+
             connections[lineObj.lineID] = lineObj;
         }
 
@@ -1194,6 +1198,10 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
 
             biclusters[i].linkIDs.push(lineObj.lineID);
             biclusters[i].linkObjs.push(lineObj);
+
+            var entData = biset.getBindDataByBid(colType + "_" + colIDs[k]);
+            entData.linkIDs.push(lineObj.lineID);
+            entData.linkObjs.push(lineObj);
 
             connections[lineObj.lineID] = lineObj;
         }
@@ -1207,7 +1215,7 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
  * @param bid, string, the id of a bic
  * @return object, the data object of this bic
  */
-biset.getBicDataByBid = function(bid) {
+biset.getBindDataByBid = function(bid) {
     return d3.select("#" + bid).data()[0];
 }
 
@@ -3310,6 +3318,14 @@ biset.addOriginalLinks = function(linkLsts) {
         var obj1 = d3.select("#" + obj1ID),
             obj2 = d3.select("#" + obj2ID),
             lineObj = biset.addLink(obj1, obj2, biset.colors.lineNColor, canvas, "", 1, "normal");
+
+        var ent1Data = biset.getBindDataByBid(obj1ID),
+            ent2Data = biset.getBindDataByBid(obj2ID);
+
+        ent1Data.linkNotInBicIDs.push(lineObj.lineID);
+        ent1Data.linkNotInBicObjs.push(lineObj);
+        ent2Data.linkNotInBicIDs.push(lineObj.lineID);
+        ent2Data.linkNotInBicObjs.push(lineObj);
 
         biset.setVisibility(lineObj.lineID, "hidden");
         connections[lineObj.lineID] = lineObj;

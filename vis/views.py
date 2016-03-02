@@ -1658,6 +1658,11 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
                 table1_item_dict[row[0]]['entityIDCmp'] = str(table) + "_" + str(row[0])
                 table1_item_dict[row[0]]['xPos'] = 0
                 table1_item_dict[row[0]]['yPos'] = 0
+                table1_item_dict[row[0]]['linkIDs'] = []
+                table1_item_dict[row[0]]['linkObjs'] = []
+                table1_item_dict[row[0]]['linkNotInBicIDs'] = []
+                table1_item_dict[row[0]]['linkNotInBicObjs'] = []
+
 
                 if str(row[0]) in entLseredOrderDict:
                     table1_item_dict[row[0]]["entLseredOrder"] = int(entLseredOrderDict[str(row[0])])
