@@ -1180,6 +1180,10 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
             var obj1 = d3.select("#" + rowType + "_" + rowIDs[j]),
                 obj2 = d3.select("#" + rowType + "_" + colType + "_bic_" + bicID),
                 lineObj = biset.addLink(obj1, obj2, biset.colors.lineNColor, canvas, "", 1, "normal");
+
+            biclusters[i].linkIDs.push(lineObj.lineID);
+            biclusters[i].linkObjs.push(lineObj);
+
             connections[lineObj.lineID] = lineObj;
         }
 
@@ -1187,12 +1191,25 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
             var obj1 = d3.select("#" + rowType + "_" + colType + "_bic_" + bicID),
                 obj2 = d3.select("#" + colType + "_" + colIDs[k]),
                 lineObj = biset.addLink(obj1, obj2, biset.colors.lineNColor, canvas, "", 1, "normal");
+
+            biclusters[i].linkIDs.push(lineObj.lineID);
+            biclusters[i].linkObjs.push(lineObj);
+
             connections[lineObj.lineID] = lineObj;
         }
     }
     bics.call(biset.objDrag);
 }
 
+
+/*
+ * Get the binded data of a bic
+ * @param bid, string, the id of a bic
+ * @return object, the data object of this bic
+ */
+biset.getBicDataByBid = function(bid) {
+    return d3.select("#" + bid).data()[0];
+}
 
 
 /*

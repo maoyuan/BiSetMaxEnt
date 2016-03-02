@@ -160,9 +160,10 @@ var bicMenuMark = function(bicMenuID, markCtrlName) {
     $('#' + bicMenuID).on('show.bs.context', function(context, e) {
 
         var thisBicID = $(context.target).attr("id"),
-            thisBicSelOption = allBics[thisBicID].bicSelectOn;
+            thisBicSelOption = allBics[thisBicID].bicSelectOn,
+            thisBicData = biset.getBicDataByBid(thisBicID);
+        thisBicData.bicMenuOnShow = true;
 
-        d3.select("#" + thisBicID).data()[0].bicMenuOnShow = true;
         // use a global array to maintain the bic whose menu is shown
         bicShowMenu.push(thisBicID);
 
@@ -180,7 +181,7 @@ var bicMenuMark = function(bicMenuID, markCtrlName) {
 
     $('#' + bicMenuID).on('hide.bs.context', function(context, e) {
         var thisBicID = bicShowMenu.pop(),
-            thisBicData = d3.select("#" + thisBicID).data()[0];
+            thisBicData = biset.getBicDataByBid(thisBicID);
         thisBicData.bicMenuOnShow = false;
 
         // make sure the mouse is not on a bic
