@@ -1335,6 +1335,33 @@ biset.bicMoutHandler = function(d, networkData, entPathCaled) {
 
 
 /*
+ * get a set of row or col ent ids
+ * @param rowOrCol, list of ids from a bic
+ * @return a set of ids
+ */
+biset.getEntSetFromBic = function(rowOrCol) {
+    var r = new Set(rowOrCol);
+    return r;
+}
+
+
+/*
+ * get a set of row or col ent ids
+ * @param rowOrCol, list of ids from a merged bic
+ * @return a set of ids
+ */
+biset.getEntSetFromMbic = function(rowOrCol) {
+    var entIDs = [];
+    for (e in rowOrCol) {
+        var theID = parseInt(e.split("_")[1]);
+        entIDs.push(theID);
+    }
+    var r = new Set(entIDs);
+    return r;
+}
+
+
+/*
  * get entity info from a list for ordering
  * @param etype, string, the type of entities
  * @return an object with all / partial ent info
@@ -1383,29 +1410,51 @@ biset.initObjVisualOrder = function(objList) {
 
 
 /*
- * get a set of row or col ent ids
- * @param rowOrCol, list of ids from a bic
- * @return a set of ids
+ * update the visual order of ent based on the pos of a given bic
+ * @param bPos, int/float, the position of a bic
+ * @param entSet, a set of entity id
+ * @param entSimpleInfoList, a list of ent object with simplified info
+ * @param entVisualList, a list of ent object with simplified + visual order info
  */
-biset.getEntSetFromBic = function(rowOrCol) {
-    var r = new Set(rowOrCol);
-    return r;
-}
+biset.updateVisualOrder = function(bPos, entSet, entSimpleInfoList, entVisualList) {
+    var pos = -1,
+        avgPos = biset.entList.topGap + entSet.size / 2 * biset.entity.height,
+        inc_num = 0;
 
-
-/*
- * get a set of row or col ent ids
- * @param rowOrCol, list of ids from a merged bic
- * @return a set of ids
- */
-biset.getEntSetFromMbic = function(rowOrCol) {
-    var entIDs = [];
-    for (e in rowOrCol) {
-        var theID = parseInt(e.split("_")[1]);
-        entIDs.push(theID);
+    while (avgPos < bPos) {
+        if (avgPos + biset.entity.height > bPos)
+            break;
+        else {
+            inc_num++;
+            avgPos += biset.entity.height;
+        }
     }
-    var r = new Set(entIDs);
-    return r;
+    if (avgPos + biset.entity.height - bPos < bPos - avgPos) {
+        inc_num++;
+        avgPos += biset.entity.height;
+    }
+
+    if (inc_num + entSet.size >= entSimpleInfoList.length)
+        inc_num = entSimpleInfoList.length - entSet.size;
+    //shuffling the left part
+    //var pos_2 = entSet.size;
+    var pos_2 = 0;
+    pos = inc_num - 1;
+    for (var i = 0; i < entSimpleInfoList.length; i++) {
+        if (entSet.has(entSimpleInfoList[i].id)) {
+            pos++;
+            entVisualList[pos]['visualIndex'] = pos;
+            entVisualList[pos]['id'] = entSimpleInfoList[i]['id'];
+            entVisualList[pos]['index'] = entSimpleInfoList[i]['index'];
+        } else {
+            if (pos_2 == inc_num)
+                pos_2 += entSet.size;
+            entVisualList[pos_2]['visualIndex'] = pos_2;
+            entVisualList[pos_2]['id'] = entSimpleInfoList[i]['id'];
+            entVisualList[pos_2]['index'] = entSimpleInfoList[i]['index'];
+            pos_2++;
+        }
+    }
 }
 
 
@@ -1449,81 +1498,9 @@ biset.placeEntNearBic = function(bicData, bicType) {
     var newListLeft = biset.initObjVisualOrder(leftItemList),
         newListRight = biset.initObjVisualOrder(rightItemList);
 
-    var pos = -1,
-        avgPos = biset.entList.topGap + item_set_left.size / 2 * biset.entity.height;
-    var inc_num = 0;
-    while (avgPos < bicData.yPos) {
-        if (avgPos + biset.entity.height > bicData.yPos)
-            break;
-        else {
-            inc_num++;
-            avgPos += biset.entity.height;
-        }
-    }
-    if (avgPos + biset.entity.height - bicData.yPos < bicData.yPos - avgPos) {
-        inc_num++;
-        avgPos += biset.entity.height;
-    }
-
-    if (inc_num + item_set_left.size >= leftItemList.length)
-        inc_num = leftItemList.length - item_set_left.size;
-    //shuffling the left part
-    //var pos_2 = item_set_left.size;
-    var pos_2 = 0;
-    pos = inc_num - 1;
-    for (var i = 0; i < leftItemList.length; i++) {
-        if (item_set_left.has(leftItemList[i].id)) {
-            pos++;
-            newListLeft[pos]['visualIndex'] = pos;
-            newListLeft[pos]['id'] = leftItemList[i]['id'];
-            newListLeft[pos]['index'] = leftItemList[i]['index'];
-        } else {
-            if (pos_2 == inc_num)
-                pos_2 += item_set_left.size;
-            newListLeft[pos_2]['visualIndex'] = pos_2;
-            newListLeft[pos_2]['id'] = leftItemList[i]['id'];
-            newListLeft[pos_2]['index'] = leftItemList[i]['index'];
-            pos_2++;
-        }
-    }
-
-    // shuffling the right part
-    pos = -1;
-    pos_2 = item_set_right.size;
-    avgPos = biset.entList.topGap + item_set_right.size / 2 * biset.entity.height;
-    inc_num = 0;
-    while (avgPos < bicData.yPos) {
-        if (avgPos + biset.entity.height > bicData.yPos)
-            break;
-        else {
-            inc_num++;
-            avgPos += biset.entity.height;
-        }
-    }
-    if (avgPos + biset.entity.height - bicData.yPos < bicData.yPos - avgPos) {
-        inc_num++;
-        avgPos += biset.entity.height;
-    }
-
-    if (inc_num + item_set_right.size >= rightItemList.length)
-        inc_num = rightItemList.length - item_set_right.size;
-    pos_2 = 0;
-    pos = inc_num - 1;
-    for (var i = 0; i < rightItemList.length; i++) {
-        if (item_set_right.has(rightItemList[i].id)) {
-            pos++;
-            newListRight[pos]['visualIndex'] = pos;
-            newListRight[pos]['id'] = rightItemList[i]['id'];
-            newListRight[pos]['index'] = rightItemList[i]['index'];
-        } else {
-            if (pos_2 == inc_num)
-                pos_2 += item_set_right.size;
-            newListRight[pos_2]['visualIndex'] = pos_2;
-            newListRight[pos_2]['id'] = rightItemList[i]['id'];
-            newListRight[pos_2]['index'] = rightItemList[i]['index'];
-            pos_2++;
-        }
-    }
+    // update visual order in the left and right part
+    biset.updateVisualOrder(bicData.yPos, item_set_left, leftItemList, newListLeft);
+    biset.updateVisualOrder(bicData.yPos, item_set_right, rightItemList, newListRight);
 
     //reverse back to the original order;
     newListLeft.sort(function(a, b) {
