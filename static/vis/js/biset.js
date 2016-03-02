@@ -2467,7 +2467,6 @@ biset.addBicListCtrl = function(lsts) {
 
                             connections[lineObj.lineID] = lineObj;
                         }
-                        console.log(mbicData);
                         mergedBic.call(biset.objDrag);
 
                         /******************** for spatial merge **********************/
@@ -3483,7 +3482,7 @@ biset.getEntsFromSimBics = function(bList) {
 
 // drag function for a d3 object
 biset.objDrag = d3.behavior.drag()
-    .origin(function() {
+    .origin(function(d) {
         return {
             x: d3.select(this).datum().xPos,
             y: d3.select(this).datum().yPos
@@ -3493,6 +3492,9 @@ biset.objDrag = d3.behavior.drag()
         draged = 1;
         d3.event.sourceEvent.stopPropagation();
         d3.select(this).classed("dragging", true);
+
+        // the shared data for merge
+        dragShareData = {};
 
         if (d.mergeOption == true) {
             var threshold = 0.4,
@@ -3516,12 +3518,6 @@ biset.objDrag = d3.behavior.drag()
             var simBicBySize = biset.bicOrderBySize(tmpBics, "totalEntNum"),
                 relatedEnts = biset.getEntsFromSimBics(tmpBics),
                 entLinks = biset.getLinksFromEntList(relatedEnts.entIDs, connections);
-
-            // console.log(relatedEnts.entIDs);
-            // console.log(entLinks);
-
-            // the shared data for merge
-            dragShareData = {};
 
             dragShareData.rowField = rfield;
             dragShareData.colField = cfield;
@@ -3566,7 +3562,7 @@ biset.objDrag = d3.behavior.drag()
         d.xPos = dragX;
 
         // update related lines (imporve dragging performance)
-        var relatedLinks = biset.getLinksbyBic(d3.select(this).datum(), connections);
+        var relatedLinks = d.linkObjs;
         biset.updateLink(relatedLinks);
 
         if (d.mergeOption == true) {
@@ -3594,21 +3590,23 @@ biset.objDrag = d3.behavior.drag()
                     .attr("transform", "translate(" + d.xPos + "," + y + ")");
 
                 // update related lines
-                var blinks = biset.getLinksbyBic(dragShareData.similarBics[sortedSimBics[i]], connections);
+                var blinks = biset.getBindDataByBid(sortedSimBics[i]).linkObjs;
+                // biset.getLinksbyBic(dragShareData.similarBics[sortedSimBics[i]], connections);
                 setTimeout(biset.updateLink(blinks), dtimer);
             }
         }
+
+        // console.log(dragShareData);
     })
     .on("dragend", function(d) {
         draged = 0;
-        /******************** TO DO ***********************/
-        // FIX THE BUG OF UNDEFINED
 
-        // if (dragShareData != undefined) {
-        //     console.log(dragShareData.relatedLinks);
-        //     biset.updateLink(dragShareData.relatedLinks);
-        // }
-        biset.updateLink(connections);
+        if (dragShareData.relatedLinks != undefined) {
+            biset.updateLink(dragShareData.relatedLinks);
+        } else {
+            biset.updateLink(d.linkObjs);
+        }
+        // biset.updateLink(connections);
         d3.select(this).classed("dragging", false);
     });
 
