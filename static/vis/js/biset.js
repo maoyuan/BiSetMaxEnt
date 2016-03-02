@@ -2449,6 +2449,10 @@ biset.addBicListCtrl = function(lsts) {
                                 rlwRatio = rowEntIDs[key]["lFreq"],
                                 rlType = rowEntIDs[key]["lType"],
                                 lineObj = biset.addLink(obj1, mergedBic, biset.colors.lineNColor, canvas, mLineClass, rlwRatio, rlType);
+
+                            mbicData.linkIDs.push(lineObj.lineID);
+                            mbicData.linkObjs.push(lineObj);
+
                             connections[lineObj.lineID] = lineObj;
                         }
 
@@ -2457,8 +2461,13 @@ biset.addBicListCtrl = function(lsts) {
                                 clwRatio = colEntIDs[key]["lFreq"],
                                 clType = colEntIDs[key]["lType"],
                                 lineObj = biset.addLink(mergedBic, obj2, biset.colors.lineNColor, canvas, mLineClass, clwRatio, clType);
+
+                            mbicData.linkIDs.push(lineObj.lineID);
+                            mbicData.linkObjs.push(lineObj);
+
                             connections[lineObj.lineID] = lineObj;
                         }
+                        console.log(mbicData);
                         mergedBic.call(biset.objDrag);
 
                         /******************** for spatial merge **********************/
@@ -2622,7 +2631,7 @@ biset.genMbicData = function(bids, bclass, stPos, bx, by, rfield, cfield, rObjs,
         if (i == 0) {
             mbicID = bids[i];
         } else {
-            mbicID += "____" + bids[i];
+            mbicID += "----" + bids[i];
         }
     }
     var mbicData = {
@@ -2640,6 +2649,8 @@ biset.genMbicData = function(bids, bclass, stPos, bx, by, rfield, cfield, rObjs,
         "colEntNum": cNum,
         "bicNum": bNum,
         "mbicWithUnit": widthUnit,
+        "linkIDs": [],
+        "linkObjs": []
     }
     return mbicData;
 }
