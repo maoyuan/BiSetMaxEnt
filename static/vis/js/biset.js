@@ -3090,6 +3090,22 @@ biset.getLinksbyBic = function(bicData, allLinks) {
 }
 
 
+biset.getLinksFromEntList = function(entList, allLinks) {
+    var r = {};
+    // console.log("here");
+    // console.log()
+    for (var i = 0; i < entList.length; i++) {
+        var entID = entList[i];
+        for (k in allLinks) {
+            if (k.indexOf(entID) >= 0) {
+                r[k] = allLinks[k];
+            }
+        }
+    }
+    return r;
+}
+
+
 /*
  * find all bics between two lists
  * @param ldomain, the type of left list
@@ -3376,6 +3392,44 @@ biset.bicOrderBySimilarity = function(bList, bID, jmatrix) {
 }
 
 
+/*
+ * get entities from a list of similar bics
+ * @param bList, a list of bic object
+ * @return an object of entities
+ */
+biset.getEntsFromSimBics = function(bList) {
+    var r = {},
+        rEnts = [],
+        cEnts = [],
+        allEnts = [];
+
+    for (b in bList) {
+        var bID = b,
+            rfield = bList[b].rowField,
+            cfield = bList[b].colField,
+            rIDs = bList[b].row,
+            cIDs = bList[b].col;
+
+        for (var i = 0; i < rIDs.length; i++) {
+            var rEntID = rfield + "_" + rIDs[i];
+            rEnts.push(rEntID);
+        }
+        for (var j = 0; j < cIDs.length; j++) {
+            var cEntID = cfield + "_" + cIDs[j];
+            cEnts.push(cEntID);
+        }
+    }
+
+    allEnts = rEnts.concat(cEnts);
+
+    r.rowEntIDs = rEnts;
+    r.colEntIDs = cEnts;
+    r.entIDs = allEnts;
+
+    return r;
+}
+
+
 // drag function for a d3 object
 biset.objDrag = d3.behavior.drag()
     .origin(function() {
@@ -3408,7 +3462,12 @@ biset.objDrag = d3.behavior.drag()
             // order similar bic with the dragged one by size
             var tmpBics = similarBics;
             tmpBics[bID] = d;
-            simBicBySize = biset.bicOrderBySize(tmpBics, "totalEntNum");
+            var simBicBySize = biset.bicOrderBySize(tmpBics, "totalEntNum"),
+                relatedEnts = biset.getEntsFromSimBics(tmpBics),
+                entLinks = biset.getLinksFromEntList(relatedEnts.entIDs, connections);
+
+            // console.log(relatedEnts.entIDs);
+            // console.log(entLinks);
 
             // the shared data for merge
             dragShareData = {};
@@ -3424,6 +3483,8 @@ biset.objDrag = d3.behavior.drag()
             dragShareData.similarBics = similarBics;
             dragShareData.simBicBySize = simBicBySize;
             dragShareData.orderSimBics = orderSimBics;
+            dragShareData.relatedEnts = relatedEnts;
+            dragShareData.relatedLinks = entLinks;
         }
     })
     .on("drag", function(d) {
@@ -3435,7 +3496,7 @@ biset.objDrag = d3.behavior.drag()
         // var objClass = d3.select(this).attr("class");
         // if (objClass.indexOf("mergedBic") < 0) {
         //     // dragX -= d3.select(this).datum().startPos;
-        //     // boundary check
+        //     
         //     // if (dragY < 0)
         //     //     dragY = 0;
         //     // if (dragX >= biset.entList.gap * 2)
@@ -3444,6 +3505,10 @@ biset.objDrag = d3.behavior.drag()
         //     //     dragX = -biset.entList.gap * 2;
 
         // }
+
+        // boundary check
+        if (dragY < 0)
+            dragY = 0;
 
         d3.select(this).attr("transform", "translate(" + dragX + "," + dragY + ")");
         d.yPos = dragY;
@@ -3470,7 +3535,8 @@ biset.objDrag = d3.behavior.drag()
                     pos = 20 * (i + 1);
                 }
 
-                var y = parseInt(d.yPos) + pos;
+                var y = parseInt(d.yPos) + pos,
+                    dtimer = i * 50;
                 d3.select("#" + thisBicID)
                     .transition()
                     .delay(i * 50)
@@ -3478,12 +3544,19 @@ biset.objDrag = d3.behavior.drag()
 
                 // update related lines
                 var blinks = biset.getLinksbyBic(dragShareData.similarBics[sortedSimBics[i]], connections);
-                biset.updateLink(blinks);
+                setTimeout(biset.updateLink(blinks), dtimer);
             }
         }
     })
     .on("dragend", function(d) {
         draged = 0;
+        /******************** TO DO ***********************/
+        // FIX THE BUG OF UNDEFINED
+        
+        // if (dragShareData != undefined) {
+        //     console.log(dragShareData.relatedLinks);
+        //     biset.updateLink(dragShareData.relatedLinks);
+        // }
         biset.updateLink(connections);
         d3.select(this).classed("dragging", false);
     });
