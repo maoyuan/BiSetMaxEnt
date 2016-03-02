@@ -2363,7 +2363,7 @@ biset.addBicListCtrl = function(lsts) {
                             colEntIDs = {},
                             avgXpos = 0,
                             avgYpos = 0,
-                            mbicID = "",
+                            mbicIDs = [],
                             bwidthUnit = 0;
 
                         for (var j = 0; j < thisMergeSet.length; j++) {
@@ -2379,14 +2379,12 @@ biset.addBicListCtrl = function(lsts) {
                             avgYpos += thisMergeSet[j]["yPos"];
 
                             if (j == 0) {
-                                mbicID = thisBicID;
                                 // get the width unit of a bic
                                 var thisBicLeftWidth = d3.select("#" + thisBicLeft).attr("width"),
                                     thisBicRowNum = d3.select("#" + thisBicLeft).datum().rowEntNum,
                                     bwidthUnit = thisBicLeftWidth / thisBicRowNum;
-                            } else {
-                                mbicID = mbicID + "____" + thisBicID;
                             }
+                            mbicIDs.push(thisBicID);
 
                             var thisRowEntIDs = biset.getBicEntsInRowOrCol(thisMergeSet[j], "row"),
                                 thisColEntIDs = biset.getBicEntsInRowOrCol(thisMergeSet[j], "col");
@@ -2401,7 +2399,7 @@ biset.addBicListCtrl = function(lsts) {
                         var rEntNum = Object.keys(rowEntIDs).length,
                             cEntNum = Object.keys(colEntIDs).length,
                             bNum = thisMergeSet.length,
-                            mbicData = biset.genMbicData(mbicID, mbicClass, avgXpos, avgXpos, avgYpos, field1, field2, rowEntIDs, colEntIDs, rEntNum, cEntNum, bNum, bwidthUnit);
+                            mbicData = biset.genMbicData(mbicIDs, mbicClass, avgXpos, avgXpos, avgYpos, field1, field2, rowEntIDs, colEntIDs, rEntNum, cEntNum, bNum, bwidthUnit);
 
                         var mergedBic = biset.addMergedBic("vis_canvas", mbicData);
 
@@ -2593,9 +2591,18 @@ biset.bicVisible = function(bicID, visibility) {
 /*
  * generate data for a merged bic
  */
-biset.genMbicData = function(bid, bclass, stPos, bx, by, rfield, cfield, rObjs, cObjs, rNum, cNum, bNum, widthUnit) {
+biset.genMbicData = function(bids, bclass, stPos, bx, by, rfield, cfield, rObjs, cObjs, rNum, cNum, bNum, widthUnit) {
+    var mbicID = "";
+    for (var i = 0; i < bids.length; i++) {
+        if (i == 0) {
+            mbicID = bids[i];
+        } else {
+            mbicID += "____" + bids[i];
+        }
+    }
     var mbicData = {
-        "bicIDCmp": bid,
+        "bicIDCmp": mbicID,
+        "bics": bids,
         "mbicClass": bclass,
         "startPos": stPos,
         "xPos": bx,
@@ -3552,7 +3559,7 @@ biset.objDrag = d3.behavior.drag()
         draged = 0;
         /******************** TO DO ***********************/
         // FIX THE BUG OF UNDEFINED
-        
+
         // if (dragShareData != undefined) {
         //     console.log(dragShareData.relatedLinks);
         //     biset.updateLink(dragShareData.relatedLinks);
