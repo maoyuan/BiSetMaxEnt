@@ -3403,8 +3403,12 @@ biset.objDrag = d3.behavior.drag()
                 rjmatrix = jmatrices.rjmatrix,
 
                 similarBics = biset.getSimilarBics(bID, bList, "bicIDCmp", jmatrix, threshold),
-                simBicBySize = biset.bicOrderBySize(similarBics, "totalEntNum"),
                 orderSimBics = biset.bicOrderBySimilarity(similarBics, bID, jmatrix);
+
+            // order similar bic with the dragged one by size
+            var tmpBics = similarBics;
+            tmpBics[bID] = d;
+            simBicBySize = biset.bicOrderBySize(tmpBics, "totalEntNum");
 
             // the shared data for merge
             dragShareData = {};
@@ -3428,20 +3432,6 @@ biset.objDrag = d3.behavior.drag()
 
         // TO DO: BOUNDARY CHECK!!!
 
-        // rfield = d.rowField,
-        //     cfield = d.colField,
-        //     bID = d.bicIDCmp,
-
-        //     bList = biset.getBicsByField(rfield, cfield, allBics),
-        //     jmatrices = biset.getJindexMatrix(bList, rfield, cfield),
-
-        //     jmatrix = jmatrices.jmatrix,
-        //     ljmatrix = jmatrices.ljmatrix,
-        //     rjmatrix = jmatrices.rjmatrix,
-
-        //     similarBics = biset.getSimilarBics(bID, bList, "bicIDCmp", jmatrix, threshold);
-
-
         // var objClass = d3.select(this).attr("class");
         // if (objClass.indexOf("mergedBic") < 0) {
         //     // dragX -= d3.select(this).datum().startPos;
@@ -3464,18 +3454,30 @@ biset.objDrag = d3.behavior.drag()
         biset.updateLink(relatedLinks);
 
         if (d.mergeOption == true) {
-            var pos = 25;
-            // for (var i = 0; )
-            for (b in dragShareData.similarBics) {
+            var pos = 0,
+                sortedSimBics = dragShareData.orderSimBics,
+                sizebasedSimBics = dragShareData.simBicBySize,
+                draggedBicID = dragShareData.bicIDCmp,
+                draggedBicSizeIndex = sizebasedSimBics.indexOf(draggedBicID);
+
+            for (var i = 0; i < sortedSimBics.length; i++) {
+                var thisBicID = sortedSimBics[i],
+                    thisBicSizeIndex = sizebasedSimBics.indexOf(thisBicID);
+
+                if (thisBicSizeIndex < draggedBicSizeIndex) {
+                    pos = (-20) * (i + 1);
+                } else {
+                    pos = 20 * (i + 1);
+                }
+
                 var y = parseInt(d.yPos) + pos;
-                d3.select("#" + b)
+                d3.select("#" + thisBicID)
                     .transition()
+                    .delay(i * 50)
                     .attr("transform", "translate(" + d.xPos + "," + y + ")");
 
-                pos += 25;
-
                 // update related lines
-                var blinks = biset.getLinksbyBic(dragShareData.similarBics[b], connections);
+                var blinks = biset.getLinksbyBic(dragShareData.similarBics[sortedSimBics[i]], connections);
                 biset.updateLink(blinks);
             }
         }
