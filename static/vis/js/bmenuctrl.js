@@ -214,3 +214,26 @@ var bicMenuSwitch = function(bicMenuID, ctrlName, field) {
         });
     });
 }
+
+
+var addMenuToEnt = function(entClass) {
+    $("." + entClass).contextmenu({
+        target: '#ent-context-menu',
+        onItem: function(context, e) {
+            var thisID = context.attr("id"),
+                thisFrameID = thisID + "_frame";
+            console.log("ent menu!");
+        }
+    });
+}
+
+
+var addMenuToMbic = function(mbClass) {
+    $("." + mbClass).contextmenu({
+        target: '#mbic-context-menu',
+        onItem: function(context, e) {
+            var thisMbicID = context.attr("id");
+            console.log("mbic menu!");
+        }
+    });
+}

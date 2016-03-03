@@ -285,30 +285,8 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
         .attr("fill", biset.colors.entNormal);
 
 
-    // add contextmenu to bics
-    $("." + type).contextmenu({
-        target: '#ent-context-menu',
-        onItem: function(context, e) {
-            var thisID = context.attr("id"),
-                thisFrameID = thisID + "_frame";
-
-            // consider nodes with biclusters
-            if (networkData[thisID] !== undefined) {
-
-                // releated info for current node
-                var relInfo = biset.findAllCons(thisID, networkData, entPathCaled),
-                    nodes = relInfo.ents,
-                    links = relInfo.paths;
-
-                nodes.forEach(function(n) {
-                    if (n.indexOf("bic") < 0)
-                        console.log(allEnts[n].numCoSelected);
-                    else
-                        console.log(allBics[n].bicNumCoSelected);
-                });
-            }
-        }
-    });
+    // add contextmenu to ents
+    addMenuToEnt(type);
 
     // mouseover event
     bar.on("mouseover", function(d, i) {
@@ -2577,6 +2555,8 @@ biset.addBicListCtrl = function(lsts) {
                             connections[lineObj.lineID] = lineObj;
                         }
                         mergedBic.call(biset.objDrag);
+                        // add context menu to merged bic
+                        addMenuToMbic(mbicClass);
 
                         /******************** for spatial merge **********************/
                         /*
@@ -3962,6 +3942,8 @@ biset.objDrag = d3.behavior.drag()
                         connections[lineObj.lineID] = lineObj;
                     }
                     mergedBic.call(biset.objDrag);
+
+                    addMenuToMbic(mbicClass);
 
                     // remove all sem circles
                     vis.svgRemovebyClass("semRange");
