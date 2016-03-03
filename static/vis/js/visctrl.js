@@ -492,8 +492,6 @@ function loadVisHelper(resData) {
     // }
 
 
-
-
     // load highlight entities
     // this code block will not run, 
     // if there is no highlight entities

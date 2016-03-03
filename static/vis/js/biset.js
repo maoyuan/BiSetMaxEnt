@@ -3744,7 +3744,7 @@ biset.objDrag = d3.behavior.drag()
                 if (thisBicSizeIndex < draggedBicSizeIndex) {
                     pos = (-20) * (i + 1);
                 } else {
-                    pos = 20 * (i + 1);
+                    pos = 20 * (i + 1) + biset.bic.frameHeight;
                 }
 
                 var y = parseInt(d.yPos) + pos,
@@ -3782,6 +3782,61 @@ biset.objDrag = d3.behavior.drag()
         //     console.log("no similar links");
         //     biset.updateLink(d.linkObjs);
         // }
+        if (d.mergeOption == true && !$.isEmptyObject(dragShareData)) {
+            var draggedBicID = d.bicIDCmp,
+                cx = d.xPos + d.startPos,
+                cy = d.yPos + biset.bic.frameHeight / 2,
+                bics = dragShareData.similarBics,
+                jmatrix = dragShareData.jMatrix;
+
+            var cdata = [],
+                y = [],
+                simVal = [];
+            for (b in bics) {
+                var thisBicID = bics[b].bicIDCmp;
+                if (thisBicID != draggedBicID) {
+                    var tmp = {};
+                    tmp.yPos = bics[b].yPos;
+                    tmp.xPos = bics[b].xPos;
+                    tmp.startPos = bics[b].startPos;
+                    tmp.simVal = jmatrix[draggedBicID][thisBicID];
+                    cdata.push(tmp);
+                }
+            }
+
+            // var rmax = Array.max(y);
+            objArraySortMaxToMin(cdata, "yPos");
+
+            if (cdata.length > 0) {
+                var srange = d3.select("#vis_canvas")
+                    .selectAll(".semRange")
+                    .data(cdata)
+                    .enter().append("g")
+                    .attr("class", "semRange")
+                    .attr("transform", "translate(" + cx + "," + cy + ")");
+
+                srange.append("circle")
+                    // .attr("id", bData.bicIDCmp + "_row")
+                    .attr("class", "rcircle")
+                    .attr("cx", 0)
+                    .attr("cy", 0)
+                    .attr("r", function(d, i) {
+                        var diff = d.yPos - cy;
+                        if (diff > 0) {
+                            var r = diff + biset.bic.frameHeight / 2 + 2;
+                        } else {
+                            var r = Math.abs(diff) + 2;
+                        }
+
+                        return r;
+                    })
+                    .attr("fill", "rgba(224, 110, 92, 0.18)");
+            }
+
+            // console.log(dragShareData);
+            console.log(cdata);
+        }
+
         d3.select(this).classed("dragging", false);
     });
 
