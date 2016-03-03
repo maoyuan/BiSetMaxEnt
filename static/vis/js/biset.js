@@ -1164,7 +1164,31 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
 
         // place entities near a bic
         if (d.moveEntOption == true) {
-            biset.placeEntNearBic(d, "bic");
+            if (d.mergeOption == false) {
+                biset.placeEntNearBic(d, "bic");
+            } else {
+                var threshold = 0.3,
+                    rfield = d.rowField,
+                    cfield = d.colField,
+                    bID = d.bicIDCmp,
+
+                    bList = biset.getBicsByField(rfield, cfield, allBics),
+                    jmatrices = biset.getJindexMatrix(bList, rfield, cfield),
+
+                    jmatrix = jmatrices.jmatrix,
+                    ljmatrix = jmatrices.ljmatrix,
+                    rjmatrix = jmatrices.rjmatrix,
+
+                    similarBics = biset.getSimilarBics(bID, bList, "bicIDCmp", jmatrix, threshold);
+
+                var tmpBics = similarBics;
+                tmpBics[bID] = d;
+                relatedEnts = biset.getEntsFromSimBics(tmpBics);
+                entLinks = biset.getLinksFromEntList(relatedEnts.entIDs, connections);
+
+                // move similar bics and all related entities
+                biset.placeEntNearSimilarBics(rfield, cfield, tmpBics, d.yPos);
+            }
         }
     });
 
@@ -1561,6 +1585,84 @@ biset.placeEntNearBic = function(bicData, bicType) {
         biset.shiftEnt(lListType, "entVisualOrder", 2, lYaxis, connections);
         biset.shiftEnt(rListType, "entVisualOrder", 2, rYaxis, connections);
     }
+}
+
+
+biset.placeEntNearSimilarBics = function(rtype, ctype, bicObjs, yPos) {
+    var lListType = rtype,
+        rListType = ctype;
+
+    //prepare the left part data
+    lEntInfo = biset.prepEntsInfoForOrdering(lListType);
+    leftList = lEntInfo.fullEntInfoList;
+    leftItemList = lEntInfo.simplifiedEntInfoList;
+
+    //prepare the right part data
+    rEntInfo = biset.prepEntsInfoForOrdering(rListType);
+    rightList = rEntInfo.fullEntInfoList;
+    rightItemList = rEntInfo.simplifiedEntInfoList;
+
+    //sort based on the y value;
+    leftItemList.sort(function(a, b) {
+        return a.yPos - b.yPos;
+    });
+    rightItemList.sort(function(a, b) {
+        return a.yPos - b.yPos;
+    });
+
+    var left = [],
+        right = [];
+
+    for (b in bicObjs) {
+        var tmpRowIDs = biset.getEntSetFromBic(bicObjs[b].row),
+            tmpColIDs = biset.getEntSetFromBic(bicObjs[b].col);
+        for (r of tmpRowIDs)
+            left.push(r);
+        for (c of tmpColIDs)
+            right.push(c);
+    }
+
+    var item_set_left = new Set(left),
+        item_set_right = new Set(right);
+
+    //prepare the data
+    var newListLeft = biset.initObjVisualOrder(leftItemList),
+        newListRight = biset.initObjVisualOrder(rightItemList);
+
+    // update visual order in the left and right part
+    biset.updateVisualOrder(yPos, item_set_left, leftItemList, newListLeft);
+    biset.updateVisualOrder(yPos, item_set_right, rightItemList, newListRight);
+
+    //reverse back to the original order;
+    newListLeft.sort(function(a, b) {
+        return a.index - b.index;
+    });
+    newListRight.sort(function(a, b) {
+        return a.index - b.index;
+    });
+
+    var yAxisOrderLeft = [];
+    for (var i = 0; i < leftItemList.length; i++)
+        yAxisOrderLeft.push(i);
+    for (var i = 0; i < leftItemList.length; i++)
+        leftList[newListLeft[i].index].entVisualOrder = newListLeft[i].visualIndex;
+
+    var yAxisOrderRight = [];
+    for (var i = 0; i < rightItemList.length; i++)
+        yAxisOrderRight.push(i);
+    for (var i = 0; i < rightItemList.length; i++)
+        rightList[newListRight[i].index].entVisualOrder = newListRight[i].visualIndex;
+
+    var lYaxis = d3.scale.ordinal()
+        .domain(yAxisOrderLeft)
+        .rangePoints([biset.entList.topGap, leftItemList.length * biset.entity.height + biset.entList.topGap], 0);
+
+    var rYaxis = d3.scale.ordinal()
+        .domain(yAxisOrderRight)
+        .rangePoints([biset.entList.topGap, rightItemList.length * biset.entity.height + biset.entList.topGap], 0);
+
+    biset.shiftEnt(lListType, "entVisualOrder", 2, lYaxis, connections);
+    biset.shiftEnt(rListType, "entVisualOrder", 2, rYaxis, connections);
 }
 
 
