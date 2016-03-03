@@ -1732,6 +1732,7 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
                     biclusDict[row[2]]['colField'] = tableRight #orderList[1] 
                     biclusDict[row[2]]['bicIDCmp'] = str(table) + "_" + str(tableRight) + "_bic_" + str(row[2])  #str(orderList[0]) + "_" + str(orderList[1])
                     biclusDict[row[2]]['bicID'] = row[2]
+                    biclusDict[row[2]]['bicClass'] = "bic"
                     biclusDict[row[2]]['docs'] = []
                     biclusDict[row[2]]['bicSelected'] = False
                     biclusDict[row[2]]['bicMouseOvered'] = False

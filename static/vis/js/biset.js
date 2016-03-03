@@ -1546,15 +1546,22 @@ biset.placeEntNearBic = function(bicData, bicType) {
         .domain(yAxisOrderLeft)
         .rangePoints([biset.entList.topGap, leftItemList.length * biset.entity.height + biset.entList.topGap], 0);
 
-    biset.shiftEnt(lListType, "entVisualOrder", 2, lYaxis, bicData.linkObjs);
-
     var rYaxis = d3.scale.ordinal()
         .domain(yAxisOrderRight)
         .rangePoints([biset.entList.topGap, rightItemList.length * biset.entity.height + biset.entList.topGap], 0);
 
-    biset.shiftEnt(rListType, "entVisualOrder", 2, rYaxis, bicData.linkObjs);
-}
+    if (bicData.bicClass == "bic") {
+        var rowEntLinks = biset.getHalfEntLinksFromBic(bicData, "row");
+        biset.shiftEnt(lListType, "entVisualOrder", 2, lYaxis, rowEntLinks.allLinkOjbs);
 
+        var colEntLinks = biset.getHalfEntLinksFromBic(bicData, "col");
+        biset.shiftEnt(rListType, "entVisualOrder", 2, rYaxis, colEntLinks.allLinkOjbs);
+    } else { // for merged bics
+        // TO DO: CALCULATE THE LINKS TO IMPROVE PERFORMANCE
+        biset.shiftEnt(lListType, "entVisualOrder", 2, lYaxis, connections);
+        biset.shiftEnt(rListType, "entVisualOrder", 2, rYaxis, connections);
+    }
+}
 
 
 /*
@@ -2636,7 +2643,7 @@ biset.genMbicData = function(bids, bclass, stPos, bx, by, rfield, cfield, rObjs,
     var mbicData = {
         "bicIDCmp": mbicID,
         "bics": bids,
-        "mbicClass": bclass,
+        "bicClass": bclass,
         "startPos": stPos,
         "xPos": bx,
         "yPos": by,
@@ -2660,13 +2667,13 @@ biset.addMergedBic = function(canvasID, bData) {
         .append("g")
         .datum(bData)
         .attr("id", bData.bicIDCmp)
-        .attr("class", bData.mbicClass)
+        .attr("class", bData.bicClass)
         .attr("transform", "translate(" + bData.startPos + "," + bData.yPos + ")");
 
     // proportion of row
     mbic.append("rect")
         .attr("id", bData.bicIDCmp + "_row")
-        .attr("class", bData.mbicClass)
+        .attr("class", bData.bicClass)
         .attr("width", bData.mbicWithUnit * bData.rowEntNum)
         .attr("x", -bData.mbicWithUnit * bData.rowEntNum)
         .attr("height", biset.entity.height * 0.45 * bData.bicNum)
@@ -2677,7 +2684,7 @@ biset.addMergedBic = function(canvasID, bData) {
     // set the length of a bicluster based on its component
     mbic.append("rect")
         .attr("id", bData.bicIDCmp + "_col")
-        .attr("class", bData.mbicClass)
+        .attr("class", bData.bicClass)
         .attr("width", bData.mbicWithUnit * bData.colEntNum)
         .attr("x", 0)
         .attr("height", biset.entity.height * 0.45 * bData.bicNum)
@@ -2687,7 +2694,7 @@ biset.addMergedBic = function(canvasID, bData) {
 
     mbic.append("rect")
         .attr("id", bData.bicIDCmp + "_frame")
-        .attr("class", bData.mbicClass)
+        .attr("class", bData.bicClass)
         .attr("width", bData.mbicWithUnit * (bData.colEntNum + bData.rowEntNum))
         .attr("x", -bData.mbicWithUnit * bData.rowEntNum)
         .attr("height", biset.entity.height * 0.45 * bData.bicNum)
@@ -3149,6 +3156,64 @@ biset.getLinksFromEntList = function(entList, allLinks) {
 
 
 /*
+ * get all links from entities of a bic
+ * @param bData, the binded data of this bic
+ */
+biset.getEntLinksFromBic = function(bData) {
+    var r = {},
+        blinks = [], // link with bic
+        olinks = [], // link without bic (ent - ent)
+        rowEntIDs = biset.getBicEntsInRowOrCol(bData, "row"),
+        colEntIDs = biset.getBicEntsInRowOrCol(bData, "col");
+
+    for (var i = 0; i < rowEntIDs.length; i++) {
+        var thisEntData = biset.getBindDataByBid(rowEntIDs[i]);
+        blinks = blinks.concat(thisEntData.linkObjs);
+        olinks = olinks.concat(thisEntData.linkNotInBicObjs);
+    }
+
+    for (var i = 0; i < colEntIDs.length; i++) {
+        var thisEntData = biset.getBindDataByBid(colEntIDs[i]);
+        blinks = blinks.concat(thisEntData.linkObjs);
+        olinks = olinks.concat(thisEntData.linkNotInBicObjs);
+    }
+
+    var allLinks = blinks.concat(olinks);
+    r.linkObjs = blinks;
+    r.linkNotInBicObjs = olinks;
+    r.allLinkOjbs = allLinks;
+
+    return r;
+}
+
+
+/*
+ * get all links from row or col entities of a bic
+ * @param bData, the binded data of this bic
+ * @param rowOrCol, string, "row" or "col"
+ */
+biset.getHalfEntLinksFromBic = function(bData, rowOrCol) {
+    var r = {},
+        blinks = [], // link with bic
+        olinks = [], // link without bic (ent - ent)
+        entIDs = biset.getBicEntsInRowOrCol(bData, rowOrCol);
+
+    for (var i = 0; i < entIDs.length; i++) {
+        var thisEntData = biset.getBindDataByBid(entIDs[i]);
+        blinks = blinks.concat(thisEntData.linkObjs);
+        olinks = olinks.concat(thisEntData.linkNotInBicObjs);
+    }
+
+    var allLinks = blinks.concat(olinks);
+    r.linkObjs = blinks;
+    r.linkNotInBicObjs = olinks;
+    r.allLinkOjbs = allLinks;
+
+    return r;
+}
+
+
+/*
  * find all bics between two lists
  * @param ldomain, the type of left list
  * @param rdomain, the type of right list
@@ -3590,7 +3655,7 @@ biset.objDrag = d3.behavior.drag()
 
                 d3.select("#" + thisBicID)
                     .transition()
-                    .delay(i * 60)
+                    .delay(i * 50)
                     .attr("transform", "translate(" + d.xPos + "," + y + ")");
 
                 // update related lines
@@ -3602,11 +3667,19 @@ biset.objDrag = d3.behavior.drag()
     })
     .on("dragend", function(d) {
         draged = 0;
-        if (dragShareData.relatedLinks != undefined) {
-            biset.updateLink(dragShareData.relatedLinks);
-        } else {
+        if (d.mergeOption == false && d.moveEntOption == false) {
             biset.updateLink(d.linkObjs);
+        } else {
+            biset.updateLink(connections);
         }
+        // TO DO: CALCUALTE LINKS TO IMPORVE PERFORMANCE
+
+        // if (dragShareData.relatedLinks != undefined) {
+        //     biset.updateLink(dragShareData.relatedLinks);
+        // } else {
+        //     console.log("no similar links");
+        //     biset.updateLink(d.linkObjs);
+        // }
         d3.select(this).classed("dragging", false);
     });
 
