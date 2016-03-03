@@ -1485,8 +1485,7 @@ biset.shiftEnt = function(etype, field, x, y, links) {
  * @param bicType, string, the type of bic, "bic" or "mbic"
  */
 biset.placeEntNearBic = function(bicData, bicType) {
-    var bicVisID = bicData.bicIDCmp,
-        lListType = bicData.rowField,
+    var lListType = bicData.rowField,
         rListType = bicData.colField;
 
     //prepare the left part data
@@ -1547,13 +1546,13 @@ biset.placeEntNearBic = function(bicData, bicType) {
         .domain(yAxisOrderLeft)
         .rangePoints([biset.entList.topGap, leftItemList.length * biset.entity.height + biset.entList.topGap], 0);
 
-    biset.shiftEnt(lListType, "entVisualOrder", 2, lYaxis, connections);
+    biset.shiftEnt(lListType, "entVisualOrder", 2, lYaxis, bicData.linkObjs);
 
     var rYaxis = d3.scale.ordinal()
         .domain(yAxisOrderRight)
         .rangePoints([biset.entList.topGap, rightItemList.length * biset.entity.height + biset.entList.topGap], 0);
 
-    biset.shiftEnt(rListType, "entVisualOrder", 2, rYaxis, connections);
+    biset.shiftEnt(rListType, "entVisualOrder", 2, rYaxis, bicData.linkObjs);
 }
 
 
