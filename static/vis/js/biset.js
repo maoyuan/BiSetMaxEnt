@@ -3650,10 +3650,17 @@ biset.getEntsFromSimBics = function(bList) {
 // drag function for a d3 object
 biset.objDrag = d3.behavior.drag()
     .origin(function(d) {
+        // if (d.bicClass == "bic") {
         return {
             x: d.xPos, // d3.select(this).datum()
             y: d.yPos
         };
+        // // } else {
+        //     return {
+        //         x: d.xPos + d.startPos,
+        //         y: d.yPos
+        //     }
+        // }
     })
     .on("dragstart", function(d) {
         draged = 1;
@@ -3794,18 +3801,34 @@ biset.objDrag = d3.behavior.drag()
                 simVal = [];
             for (b in bics) {
                 var thisBicID = bics[b].bicIDCmp;
-                if (thisBicID != draggedBicID) {
+                if (thisBicID != draggedBicID && bics[b].merged == false) {
                     var tmp = {};
                     tmp.yPos = bics[b].yPos;
                     tmp.xPos = bics[b].xPos;
                     tmp.startPos = bics[b].startPos;
                     tmp.simVal = jmatrix[draggedBicID][thisBicID];
+                    tmp.bicIDCmp = thisBicID;
+                    tmp.rfield = bics[b].rowField;
+                    tmp.cfield = bics[b].colField;
+
+                    var diff = bics[b].yPos - cy;
+                    if (diff > 0) {
+                        var r = diff + biset.bic.frameHeight / 2 + 2;
+                    } else {
+                        var r = Math.abs(diff) + 2;
+                    }
+                    tmp.radius = r;
+
                     cdata.push(tmp);
                 }
             }
 
-            // var rmax = Array.max(y);
-            objArraySortMaxToMin(cdata, "yPos");
+            objArraySortMaxToMin(cdata, "radius");
+
+            var semBicIDs = [];
+            for (var i = 0; i < cdata.length; i++)
+                semBicIDs.push(cdata[i].bicIDCmp);
+            semBicIDs.push(draggedBicID);
 
             if (cdata.length > 0) {
                 var srange = d3.select("#vis_canvas")
@@ -3816,27 +3839,136 @@ biset.objDrag = d3.behavior.drag()
                     .attr("transform", "translate(" + cx + "," + cy + ")");
 
                 srange.append("circle")
-                    // .attr("id", bData.bicIDCmp + "_row")
-                    .attr("class", "rcircle")
+                    .attr("id", function(d) {
+                        return "semCircle" + "_" + d.bicIDCmp;
+                    })
+                    .attr("class", "semCircle")
                     .attr("cx", 0)
                     .attr("cy", 0)
-                    .attr("r", function(d, i) {
-                        var diff = d.yPos - cy;
-                        if (diff > 0) {
-                            var r = diff + biset.bic.frameHeight / 2 + 2;
-                        } else {
-                            var r = Math.abs(diff) + 2;
-                        }
-
-                        return r;
+                    .attr("r", function(d) {
+                        return d.radius;
                     })
                     .attr("fill", "rgba(224, 110, 92, 0.18)");
+
+                srange.on("mouseover", function(d) {
+                    vis.setObjBorder(d3.select(this), "blue", 2);
+                });
+
+                srange.on("mouseout", function(d) {
+                    vis.setObjBorder(d3.select(this), "blue", 0);
+                });
+
+                // merge bics within this circle
+                srange.on("click", function(d) {
+                    var bicID = d.bicIDCmp,
+                        startIndex = semBicIDs.indexOf(bicID),
+                        bNum = semBicIDs.length - startIndex,
+
+                        rfield = d.rfield,
+                        cfield = d.cfield,
+                        mbicIDs = [],
+                        mbicClass = rfield + "_" + cfield + "_" + "mergedBic",
+                        mLineClass = rfield + "_" + cfield + "_" + "mergedBicLine",
+                        startPos = d.startPos,
+
+                        avgXpos = d.xPos,
+                        avgYpos = 0,
+                        bwidthUnit = 0,
+                        rowEntIDs = {},
+                        colEntIDs = {},
+
+                        mergeSet = [];
+
+
+                    for (var i = startIndex; i < semBicIDs.length; i++) {
+                        var bData = biset.getBindDataByBid(semBicIDs[i]);
+                        if (bData["merged"] == false) {
+                            mbicIDs.push(semBicIDs[i]);
+                            mergeSet.push(bData);
+                        }
+                    }
+
+                    for (var j = 0; j < mergeSet.length; j++) {
+                        var thisBicID = mergeSet[j]["bicIDCmp"],
+                            thisBicLeft = thisBicID + "_left",
+                            thisBicRight = thisBicID + "_right",
+                            thisBicFrame = thisBicID + "_frame";
+                        // set this bic has been merged
+                        mergeSet[j]["merged"] = true;
+
+                        vis.setPathVisibilitybyClass(thisBicID, "hidden");
+                        biset.bicVisible(thisBicID, "hidden");
+
+                        avgYpos += mergeSet[j]["yPos"];
+
+                        if (j == 0) {
+                            // get the width unit of a bic
+                            var thisBicLeftWidth = d3.select("#" + thisBicLeft).attr("width"),
+                                thisBicRowNum = d3.select("#" + thisBicLeft).datum().rowEntNum,
+                                bwidthUnit = thisBicLeftWidth / thisBicRowNum;
+                        }
+
+                        var thisRowEntIDs = biset.getBicEntsInRowOrCol(mergeSet[j], "row"),
+                            thisColEntIDs = biset.getBicEntsInRowOrCol(mergeSet[j], "col");
+
+                        lstEntCount(thisRowEntIDs, rowEntIDs);
+                        lstEntCount(thisColEntIDs, colEntIDs);
+                    }
+                    avgYpos /= mergeSet.length;
+
+                    var rEntNum = Object.keys(rowEntIDs).length,
+                        cEntNum = Object.keys(colEntIDs).length;
+
+                    var mbicData = biset.genMbicData(mbicIDs, mbicClass, startPos, startPos, avgYpos, rfield, cfield, rowEntIDs, colEntIDs, rEntNum, cEntNum, bNum, bwidthUnit);
+                    var mergedBic = biset.addMergedBic("vis_canvas", mbicData);
+
+                    // get min and max frequency
+                    var rowEntFreq = [],
+                        colEntFreq = [],
+                        allEntFreq = [];
+                    for (key in rowEntIDs)
+                        rowEntFreq.push(rowEntIDs[key]["lFreq"]);
+                    for (key in colEntIDs)
+                        colEntFreq.push(colEntIDs[key]["lFreq"]);
+                    allEntFreq = rowEntFreq.concat(colEntFreq);
+                    var rmaxFreq = Array.max(rowEntFreq),
+                        rminFreq = Array.min(rowEntFreq),
+                        cmaxFreq = Array.max(colEntFreq),
+                        cminFreq = Array.min(colEntFreq),
+                        maxFreq = Array.max(allEntFreq),
+                        minFreq = Array.min(allEntFreq);
+
+                    for (key in rowEntIDs) {
+                        var obj1 = d3.select("#" + key),
+                            rlwRatio = rowEntIDs[key]["lFreq"],
+                            rlType = rowEntIDs[key]["lType"],
+                            lineObj = biset.addLink(obj1, mergedBic, biset.colors.lineNColor, canvas, mLineClass, rlwRatio, rlType);
+
+                        mbicData.linkIDs.push(lineObj.lineID);
+                        mbicData.linkObjs.push(lineObj);
+
+                        connections[lineObj.lineID] = lineObj;
+                    }
+
+                    for (key in colEntIDs) {
+                        var obj2 = d3.select("#" + key),
+                            clwRatio = colEntIDs[key]["lFreq"],
+                            clType = colEntIDs[key]["lType"],
+                            lineObj = biset.addLink(mergedBic, obj2, biset.colors.lineNColor, canvas, mLineClass, clwRatio, clType);
+
+                        mbicData.linkIDs.push(lineObj.lineID);
+                        mbicData.linkObjs.push(lineObj);
+
+                        connections[lineObj.lineID] = lineObj;
+                    }
+                    mergedBic.call(biset.objDrag);
+
+                    // remove all sem circles
+                    vis.svgRemovebyClass("semRange");
+                });
+
             }
-
-            // console.log(dragShareData);
-            console.log(cdata);
         }
-
         d3.select(this).classed("dragging", false);
     });
 

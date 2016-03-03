@@ -1742,6 +1742,7 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
                     biclusDict[row[2]]['bicSelectOn'] = False
                     biclusDict[row[2]]['moveEntOption'] = True
                     biclusDict[row[2]]['mergeOption'] = False
+                    biclusDict[row[2]]['merged'] = False
                     biclusDict[row[2]]['linkIDs'] = []
                     biclusDict[row[2]]['linkObjs'] = []
                     biclusDict[row[2]]['bicSeredOrder'] = int(bicOrderDict[str(row[2])])

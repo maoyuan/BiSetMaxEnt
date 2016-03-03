@@ -62,6 +62,11 @@ vis.setSvgBorderByID = function(svgID, bColor, bWidth) {
         .style("stroke-width", bWidth);
 }
 
+vis.setObjBorder = function(obj, bColor, bWidth) {
+    obj.style("stroke", bColor)
+        .style("stroke-width", bWidth);
+}
+
 
 /*
  * set opacity of a svg object
