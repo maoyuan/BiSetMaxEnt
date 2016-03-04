@@ -232,8 +232,22 @@ var addMenuToMbic = function(mbClass) {
     $("." + mbClass).contextmenu({
         target: '#mbic-context-menu',
         onItem: function(context, e) {
-            var thisMbicID = context.attr("id");
-            console.log("mbic menu!");
+            var thisMbicFrameID = context.attr("id"),
+                selItem = $(e.target).attr("data-index");
+
+            if (selItem == "split") {
+                var mbData = biset.getBindDataByBid(thisMbicFrameID),
+                    mbID = mbData.bicIDCmp,
+                    mergedBics = mbData.bics,
+                    links = mbData.linkIDs;
+
+                // remove the merged bic with its links
+                biset.removeMbicByID(mbID);
+                biset.removeLinks(links);
+
+                console.log(mbData);
+            }
+
         }
     });
 }

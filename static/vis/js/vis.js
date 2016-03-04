@@ -73,6 +73,11 @@ vis.svgRemovebyClass = function(svgClass) {
 }
 
 
+vis.svgRemovebyID = function(svgID) {
+    d3.select("#" + svgID).remove();
+}
+
+
 vis.addRect = function(canvasID, rID, rClass, x, y, h, w, rx, ry, c) {
     return d3.select("#" + canvasID).append("rect")
         .attr("x", x)

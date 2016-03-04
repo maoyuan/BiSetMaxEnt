@@ -2825,6 +2825,29 @@ biset.addMergedBic = function(canvasID, bData) {
 
 
 /*
+ * remove a merged bic
+ * @param mbicID, string, the id of this merged bic
+ */
+biset.removeMbicByID = function(mbicID) {
+    vis.svgRemovebyID(mbicID + "_row");
+    vis.svgRemovebyID(mbicID + "_col");
+    vis.svgRemovebyID(mbicID + "_frame");
+}
+
+
+/*
+ * remove a list of links
+ * @param lList, array, a list of link ids
+ */
+biset.removeLinks = function(lList) {
+    for (var i = 0; i < lList.length; i++) {
+        var lID = lList[i];
+        vis.svgRemovebyID(lID);
+    }
+}
+
+
+/*
  * perform seriation to a pair of entity list
  * @param bics, list, a list of bics inbetween the tow ent list
  * @param rfield, string, the domain of list on the left
