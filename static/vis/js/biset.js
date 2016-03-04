@@ -203,7 +203,7 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
             ClusterModeRight = "clusterRight_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
             seriationMode = "seriation_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
 
-            sliderID = "slider_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum];
+            sliderID = "metricSlider_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum];
 
         $("#biset_control").append("<div class='BiclistControlGroup'>" +
             "<select class='bListCtrl' id='" + bListRGroupName + "'>" +
@@ -2332,7 +2332,7 @@ biset.addBicListCtrl = function(lsts) {
                     biset.connectionDisplayed(field1, field2, selMode, preMode);
             });
 
-        $("#slider_" + lsts[i] + "_" + lsts[i + 1])
+        $("#metricSlider_" + lsts[i] + "_" + lsts[i + 1])
             .on("mouseup", function() {
                 var selVal = $(this).val(),
                     field1 = $(this).attr("id").split("_")[1],

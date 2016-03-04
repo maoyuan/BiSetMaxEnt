@@ -44,8 +44,6 @@ dimGraph.dimCanvas = vis.addSvg("dimContainer", "dimCanvas",
     dimGraph.canvas.width, dimGraph.canvas.height);
 
 dimGraph.draw = function(nodes, edges) {
-    console.log(nodes);
-
     var minEntCounts = objArrayExtremeVal(nodes, "entCounts", "min"),
         maxEntCounts = objArrayExtremeVal(nodes, "entCounts", "max"),
         nodesNum = nodes.length,

@@ -14,7 +14,6 @@ $("#dataDimensionList").append(
 );
 
 $(document).ready(function() {
-    console.log("jere");
     var rstJSON = {
         "dimensions": "all"
     }
@@ -248,8 +247,6 @@ function visCtrlRequest(rJson, rType) {
                         console.log(repData);
                         var dims = repData.nodes,
                             rels = repData.edges;
-                        console.log(dims);
-                        console.log(rels);
                         dimGraph.draw(dims, rels);
                         break;
                     }
