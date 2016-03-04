@@ -1027,6 +1027,35 @@ def loadMaxEntModelStep(request):
     return HttpResponse(json.dumps(resultDict), content_type = "application/json")
 
 
+def mbicMaxEntModelStep(request):
+    # get the request from front end
+    rq = json.loads(request.body)
+    searchterm = rq['query']
+
+    print(searchterm)
+
+    resultDict = {}
+    resultDict["msg"] = "success"
+    resultDict["data"] = "step"
+
+    return HttpResponse(json.dumps(resultDict), content_type = "application/json")
+
+
+
+def mbicMaxEntModelFullPath(request):
+    # get the request from front end
+    rq = json.loads(request.body)
+    searchterm = rq['query']
+
+    print(searchterm)
+
+    resultDict = {}
+    resultDict["msg"] = "success"
+    resultDict["data"] = "full path"
+
+    return HttpResponse(json.dumps(resultDict), content_type = "application/json")
+
+
 def chainEvaPrep(pathList, bicInfoDict, transDict):
     thisBicTiles = None
 

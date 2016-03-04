@@ -233,12 +233,13 @@ var addMenuToMbic = function(mbClass) {
         target: '#mbic-context-menu',
         onItem: function(context, e) {
             var thisMbicFrameID = context.attr("id"),
-                selItem = $(e.target).attr("data-index");
+                selItem = $(e.target).attr("data-index"),
+                mbData = biset.getBindDataByBid(thisMbicFrameID),
+                mbID = mbData.bicIDCmp,
+                bics = mbData.bics;
 
             if (selItem == "split") {
-                var mbData = biset.getBindDataByBid(thisMbicFrameID),
-                    mbID = mbData.bicIDCmp,
-                    mergedBics = mbData.bics,
+                var mergedBics = mbData.bics,
                     links = mbData.linkIDs;
 
                 // remove the merged bic with its links
@@ -256,6 +257,15 @@ var addMenuToMbic = function(mbClass) {
                     // flag this individual bic is not merged
                     thisBicData.merged = false;
                 }
+            }
+            // user choose to do stepwise evaluations
+            if (selItem == "modelEvaStep") {
+                biset.mbicStepModelEvaluate(bics);
+            }
+
+            // user choose to full path evaluation
+            if (selItem == "modelEvaPath") {
+                biset.mbicFullPathModelEvaluate(bics);
             }
         }
     });

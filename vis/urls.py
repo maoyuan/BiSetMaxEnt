@@ -15,6 +15,8 @@ urlpatterns = patterns('',
     url(r'^loadVisList/$', views.loadVisList, name='loadVisList'),
     url(r'^loadMaxEntModelStep/$', views.loadMaxEntModelStep, name='loadMaxEntModelStep'),
     url(r'^maxEntModelFullPath/$', views.maxEntModelFullPath, name='maxEntModelFullPath'),
+    url(r'^mbicMaxEntModelStep/$', views.mbicMaxEntModelStep, name='mbicMaxEntModelStep'),
+    url(r'^mbicMaxEntModelFullPath/$', views.mbicMaxEntModelFullPath, name='mbicMaxEntModelFullPath'),
     url(r'^dimGraph/$', views.loadOverviewInfo, name='dimGraph'),
 )
 

@@ -1697,6 +1697,108 @@ biset.bicStepModelEvaluate = function(bicID) {
 }
 
 
+/*
+ * stepwise evaluate user selected mbic using max ent model
+ * @param bicIDs, a list of bic ids in a mbic
+ */
+biset.mbicStepModelEvaluate = function(bicIDs) {
+    console.log(bicIDs);
+    var requestVal = bicIDs,
+        requestJSON = {
+            "query": requestVal
+        };
+
+    var csrftoken = $('#csrf_token').val();
+
+    // retrieve information from MaxEnt Model
+    $.ajax({
+        url: window.SERVER_PATH + 'vis/mbicMaxEntModelStep/',
+        type: "POST",
+        data: JSON.stringify(requestJSON),
+        contentType: "application/json",
+        success: function(data) {
+            var msg = data.msg;
+
+            if (msg == "success") {
+            	console.log(data);
+                // var bicScore = data.bicScore,
+                //     curBicID = data.curBicID,
+                //     tmpScores = [];
+
+                // for (var b in bicScore)
+                //     tmpScores.push(bicScore[b]);
+
+                // var opcScale = vis.linearScale(tmpScores, 0, 0.5);
+
+                // for (var b in bicScore) {
+                //     // do not change the color of the one being evaluated
+                //     if (opcScale(bicScore[b]) != 0) {
+                //         vis.setSvgOpacityByID(b + "_frame", "rgba(255,0,0, ", opcScale(bicScore[b])); // 51, 204, 51
+                //     } else if (b == curBicID) {
+                //         vis.setSvgBorderByID(b + "_frame", "rgba(0, 0, 0, 0.9)", "4");
+                //     }
+                // }
+            }
+        },
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain)
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    });
+}
+
+
+/*
+ * full path evaluate user selected mbic using max ent model
+ * @param bicIDs, a list of bic ids in a mbic
+ */
+biset.mbicFullPathModelEvaluate = function(bicIDs) {
+    console.log(bicIDs);
+
+    var requestVal = bicIDs,
+        requestJSON = {
+            "query": requestVal
+        };
+
+    var csrftoken = $('#csrf_token').val();
+
+    // retrieve information from MaxEnt Model
+    $.ajax({
+        url: window.SERVER_PATH + 'vis/mbicMaxEntModelFullPath/',
+        type: "POST",
+        data: JSON.stringify(requestJSON),
+        contentType: "application/json",
+        success: function(data) {
+            var msg = data.msg;
+
+            if (msg == "success") {
+            	console.log(data);
+                // var bicScore = data.bicScore,
+                //     curBicID = data.curBicID,
+                //     tmpScores = [];
+
+                // for (var b in bicScore)
+                //     tmpScores.push(bicScore[b]);
+
+                // var opcScale = vis.linearScale(tmpScores, 0, 0.5);
+
+                // for (var b in bicScore) {
+                //     // do not change the color of the one being evaluated
+                //     if (opcScale(bicScore[b]) != 0) {
+                //         vis.setSvgOpacityByID(b + "_frame", "rgba(255,0,0, ", opcScale(bicScore[b])); // 51, 204, 51
+                //     } else if (b == curBicID) {
+                //         vis.setSvgBorderByID(b + "_frame", "rgba(0, 0, 0, 0.9)", "4");
+                //     }
+                // }
+            }
+        },
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain)
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    });
+}
+
 
 /*
  * full path evaluation for user selected bic using max ent model
