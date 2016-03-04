@@ -3666,17 +3666,10 @@ biset.getEntsFromSimBics = function(bList) {
 // drag function for a d3 object
 biset.objDrag = d3.behavior.drag()
     .origin(function(d) {
-        // if (d.bicClass == "bic") {
         return {
-            x: d.xPos, // d3.select(this).datum()
+            x: d.xPos,
             y: d.yPos
         };
-        // // } else {
-        //     return {
-        //         x: d.xPos + d.startPos,
-        //         y: d.yPos
-        //     }
-        // }
     })
     .on("dragstart", function(d) {
         draged = 1;
@@ -3686,7 +3679,7 @@ biset.objDrag = d3.behavior.drag()
         // the shared data for merge
         dragShareData = {};
 
-        if (d.mergeOption == true) {
+        if (d.bicClass == "bic" && d.mergeOption == true) {
             var threshold = 0.3,
                 rfield = d.rowField,
                 cfield = d.colField,
@@ -3805,6 +3798,7 @@ biset.objDrag = d3.behavior.drag()
         //     console.log("no similar links");
         //     biset.updateLink(d.linkObjs);
         // }
+
         if (d.bicClass == "bic" && d.mergeOption == true && !$.isEmptyObject(dragShareData)) {
 
             var draggedBicID = d.bicIDCmp,
@@ -3849,7 +3843,7 @@ biset.objDrag = d3.behavior.drag()
 
             if (cdata.length > 0) {
                 var srange = vis.addSvgGroup("vis_canvas", "semRange", cdata, cx, cy);
-                vis.addCircies(srange, "bicIDCmp", "semCircle", 0, 0, "radius", "rgba(224, 110, 92, 0.18)");
+                vis.addCircies(srange, "bicIDCmp", "semCircle", 0, 0, "radius", biset.colors.semCircle);
 
                 srange.on("mouseover", function(d) {
                     vis.setObjBorder(d3.select(this), "blue", 2);
@@ -3879,7 +3873,6 @@ biset.objDrag = d3.behavior.drag()
                         colEntIDs = {},
 
                         mergeSet = [];
-
 
                     for (var i = startIndex; i < semBicIDs.length; i++) {
                         var bData = biset.getBindDataByBid(semBicIDs[i]);
@@ -3968,14 +3961,18 @@ biset.objDrag = d3.behavior.drag()
 
                     // remove all sem circles
                     vis.svgRemovebyClass("semRange");
-
-                    // set individual bics as not merged
-                    for (var i = 0; i < semBicIDs.length; i++) {
-                        var bData = biset.getBindDataByBid(semBicIDs[i]);
-                        bData.merged = false;
-                    }
-
                 });
+            }
+        }
+        // update the position of similar bics while dragging the merged one
+        else if (d.bicClass.indexOf("mergedBic") >= 0) {
+            var bicIDs = d.bics,
+                xPos = d.xPos,
+                yPos = d.yPos;
+
+            for (var i = 0; i < bicIDs.length; i++) {
+                var thisBicData = biset.getBindDataByBid(bicIDs[i]);
+                vis.svgTransform(bicIDs[i], xPos - thisBicData.startPos, yPos + 20 * (i + 1));
             }
         }
         d3.select(this).classed("dragging", false);

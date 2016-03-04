@@ -252,6 +252,9 @@ var addMenuToMbic = function(mbClass) {
 
                     biset.setLinksVisible(thisBicLinkIDs, "show");
                     biset.bicVisible(mergedBics[i], "show");
+
+                    // flag this individual bic is not merged
+                    thisBicData.merged = false;
                 }
             }
         }

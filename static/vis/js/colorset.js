@@ -30,8 +30,11 @@ var colorSet = {
     // line almost hide
     lineHDColor: "rgba(0, 0, 0, 0.04)",
     // hover entity to show links
-    linePreHColor: "rgba(252, 30, 36, 0.2)" // 0.28
+    linePreHColor: "rgba(252, 30, 36, 0.2)", // 0.28
 
     // selecte entity to highlight links
     // lineHColor: "rgba(252, 30, 36, 0.35)"
+
+    // circile around simlar bics
+    semCircle:"rgba(224, 110, 92, 0.18)",
 }
