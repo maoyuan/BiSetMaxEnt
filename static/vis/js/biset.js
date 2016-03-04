@@ -203,7 +203,8 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
             ClusterModeRight = "clusterRight_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
             seriationMode = "seriation_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
 
-            sliderID = "metricSlider_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum];
+            metricSliderID = "metricSliderID" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
+            threasholdSliderID = "threasholdSlider_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum];
 
         $("#biset_control").append("<div class='BiclistControlGroup'>" +
             "<select class='bListCtrl' id='" + bListRGroupName + "'>" +
@@ -212,7 +213,7 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
             "<option value='" + HybridMode + "'>Hybrid</option>" +
             "</select>" +
 
-            "<select class='bListCtrlSortBic' id='" + bListRGroupName + "_sort_bic' style='margin-left: 25px'>" +
+            "<select class='bListCtrlSortBic' id='" + bListRGroupName + "_sort_bic' style='margin-left: 15px'>" +
             "<option value='ClusterSize'>Default</option>" +
             "<option value='" + ClusterMode + "'>sort by two</option>" +
             "<option value='" + ClusterModeLeft + "'>sort by left</option>" +
@@ -220,7 +221,8 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
             "<option value='" + seriationMode + "'>seriation</option>" +
             "</select>" +
 
-            "<input type='range' id=" + sliderID + " min='-1' max='1' value= '0' step='0.001' style='display:inline; width:130px; margin-left:15px'/>" +
+            "<input type='range' id=" + metricSliderID + " min='0' max='1' value= '0.5' step='0.0001' class='metrixSlider' style='display:inline; width:65px; margin-left:20px;'/>" +
+            "<input type='range' id=" + threasholdSliderID + " min='-1' max='1' value= '0' step='0.0001' class='threasholdSlider' style='display:inline; width:65px; margin-left:15px'/>" +
 
             "</div>");
     }
@@ -2332,7 +2334,7 @@ biset.addBicListCtrl = function(lsts) {
                     biset.connectionDisplayed(field1, field2, selMode, preMode);
             });
 
-        $("#metricSlider_" + lsts[i] + "_" + lsts[i + 1])
+        $("#threasholdSlider_" + lsts[i] + "_" + lsts[i + 1])
             .on("mouseup", function() {
                 var selVal = $(this).val(),
                     field1 = $(this).attr("id").split("_")[1],
