@@ -37,4 +37,5 @@ var colorSet = {
 
     // circile around simlar bics
     semCircle:"rgba(224, 110, 92, 0.18)",
+    semCircleBorder: "rgba(50, 113, 255, 0.8)"
 }

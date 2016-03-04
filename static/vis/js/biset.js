@@ -1147,9 +1147,11 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
             if (d.mergeOption == false) {
                 biset.placeEntNearBic(d, "bic");
             } else {
-                var threshold = 0.3,
-                    rfield = d.rowField,
+                var rfield = d.rowField,
                     cfield = d.colField,
+                    threshold = 0.3,
+                    //biset.getSliderVal("threasholdSlider", rfield, cfield);
+
                     bID = d.bicIDCmp,
 
                     bList = biset.getBicsByField(rfield, cfield, allBics),
@@ -3837,11 +3839,11 @@ biset.objDrag = d3.behavior.drag()
                 vis.addCircies(srange, "bicIDCmp", "semCircle", 0, 0, "radius", biset.colors.semCircle);
 
                 srange.on("mouseover", function(d) {
-                    vis.setObjBorder(d3.select(this), "blue", 2);
+                    vis.setObjBorder(d3.select(this), biset.colors.semCircleBorder, 2);
                 });
 
                 srange.on("mouseout", function(d) {
-                    vis.setObjBorder(d3.select(this), "blue", 0);
+                    vis.setObjBorder(d3.select(this), biset.colors.semCircleBorder, 0);
                 });
 
                 // merge bics within this circle
@@ -3961,10 +3963,18 @@ biset.objDrag = d3.behavior.drag()
                 xPos = d.xPos,
                 yPos = d.yPos;
 
+            var linksToUpdate = {};
             for (var i = 0; i < bicIDs.length; i++) {
-                var thisBicData = biset.getBindDataByBid(bicIDs[i]);
+                var thisBicData = biset.getBindDataByBid(bicIDs[i]),
+                    thisBicLinks = thisBicData.linkObjs;
                 vis.svgTransform(bicIDs[i], xPos - thisBicData.startPos, yPos + 20 * (i + 1));
+                for (var j = 0; j < thisBicLinks.length; j++) {
+                    var linkID = thisBicLinks[j]["lineID"];
+                    linksToUpdate[linkID] = thisBicLinks[j];
+                }
             }
+            // update all connected links
+            biset.updateLink(linksToUpdate);
         }
         d3.select(this).classed("dragging", false);
     });
@@ -3989,4 +3999,16 @@ biset.getClass = function(elementID, className) {
  */
 biset.setClass = function(elementID, className, TorF) {
     d3.select(elementID).classed(className, TorF);
+}
+
+
+/*
+ * get the value of a slider
+ * @param preSliderID, string, the prefix of a slider id
+ * @param rfield, string, row field
+ * @param cfiled, string, col field
+ * @return int/float, the value of this slider
+ */
+biset.getSliderVal = function(preSliderID, rfield, cfield) {
+    return $("#" + preSliderID + "_" + rfield + "_" + cfield).val();
 }
