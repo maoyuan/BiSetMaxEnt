@@ -1032,7 +1032,26 @@ def mbicMaxEntModelStep(request):
     rq = json.loads(request.body)
     searchterm = rq['query']
 
+    global gbic_dictionary
+    global gdict_transactions
+
+    rowIDs = Set()
+    colIDs = Set()
+    for b in searchterm:
+        thisRowIDs = gbic_dictionary[b]["rowEntIDs"]
+        thisColIDs = gbic_dictionary[b]["colEntIDs"]
+
+        # print(gbic_dictionary[b]["rowEntIDs"])
+        # rowIDs += gbic_dictionary[b]["rowEntIDs"]
+        # colIDs += gbic_dictionary[b]["colEntIDs"]
+
+    # thisBicRowIDs = gbic_dictionary[searchterm]["rowEntIDs"]
+    # thisBicColIDs = gbic_dictionary[searchterm]["colEntIDs"]
+
+
     print(searchterm)
+    # print(rowIDs)
+    # print(colIDs) 
 
     resultDict = {}
     resultDict["msg"] = "success"
