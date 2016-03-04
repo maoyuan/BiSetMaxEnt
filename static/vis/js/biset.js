@@ -2848,6 +2848,19 @@ biset.removeLinks = function(lList) {
 
 
 /*
+ * set visibility of a list of links
+ * @param lList, a list of link ids
+ * @param visible, string, "show" or "hidden"
+ */
+biset.setLinksVisible = function(lList, visible) {
+    for (var i = 0; i < lList.length; i++) {
+        var lID = lList[i];
+        biset.setVisibility(lID, visible);
+    }
+}
+
+
+/*
  * perform seriation to a pair of entity list
  * @param bics, list, a list of bics inbetween the tow ent list
  * @param rfield, string, the domain of list on the left

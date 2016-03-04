@@ -245,9 +245,15 @@ var addMenuToMbic = function(mbClass) {
                 biset.removeMbicByID(mbID);
                 biset.removeLinks(links);
 
-                console.log(mbData);
-            }
+                // show individual bic and their links
+                for (var i = 0; i < mergedBics.length; i++) {
+                    var thisBicData = biset.getBindDataByBid(mergedBics[i]),
+                        thisBicLinkIDs = thisBicData.linkIDs;
 
+                    biset.setLinksVisible(thisBicLinkIDs, "show");
+                    biset.bicVisible(mergedBics[i], "show");
+                }
+            }
         }
     });
 }
