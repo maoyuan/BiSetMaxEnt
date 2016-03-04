@@ -3753,7 +3753,7 @@ biset.objDrag = d3.behavior.drag()
         var relatedLinks = d.linkObjs;
         biset.updateLink(relatedLinks);
 
-        if (d.mergeOption == true) {
+        if (d.mergeOption == true && d.bicClass == "bic") {
             var pos = 0,
                 sortedSimBics = dragShareData.orderSimBics,
                 sizebasedSimBics = dragShareData.simBicBySize,
@@ -3805,7 +3805,8 @@ biset.objDrag = d3.behavior.drag()
         //     console.log("no similar links");
         //     biset.updateLink(d.linkObjs);
         // }
-        if (d.mergeOption == true && !$.isEmptyObject(dragShareData)) {
+        if (d.bicClass == "bic" && d.mergeOption == true && !$.isEmptyObject(dragShareData)) {
+
             var draggedBicID = d.bicIDCmp,
                 cx = d.xPos + d.startPos,
                 cy = d.yPos + biset.bic.frameHeight / 2,
@@ -3967,8 +3968,14 @@ biset.objDrag = d3.behavior.drag()
 
                     // remove all sem circles
                     vis.svgRemovebyClass("semRange");
-                });
 
+                    // set individual bics as not merged
+                    for (var i = 0; i < semBicIDs.length; i++) {
+                        var bData = biset.getBindDataByBid(semBicIDs[i]);
+                        bData.merged = false;
+                    }
+
+                });
             }
         }
         d3.select(this).classed("dragging", false);
