@@ -1,8 +1,6 @@
-
-* This file contains all necessary style controls in views
-*/
-
+* This file contains all necessary style controls in views */
 /* login page body style */
+
 body {
     margin-top: 10px;
     margin-bottom: 10px;
@@ -11,7 +9,9 @@ body {
     background: #ffffff !important;
 }
 
+
 /* system body style after login */
+
 body.db_after_login {
     min-height: 800px;
     padding-top: 70px;
@@ -22,32 +22,42 @@ body.db_after_login {
     background: #ffffff !important;
 }
 
+
 /* style for the four blocks in the homepage */
-.panel-body .btn.block_btn { 
+
+.panel-body .btn.block_btn {
     width: 100%;
     margin-bottom: 15px;
     margin-top: 15px;
 }
 
+
 /* control group style of the login and register page */
+
 .control-group > div {
     margin-bottom: 25px;
 }
 
+
 /* position for the branding in the login page */
+
 #pheader {
     margin-top: 10px;
     margin-bottom: 10px;
     margin-left: 15px;
 }
 
+
 /* change the color of the branding (after login) of the website */
+
 .navbar-inverse .navbar-brand {
     background-color: transparent;
     color: #eeccaa;
 }
 
+
 /* style for the slides in the login page */
+
 #slider h2 {
     margin: 0;
     color: #666;
@@ -55,37 +65,53 @@ body.db_after_login {
     font-size: 55px;
     font-family: "trebuchet ms", sans-serif;
 }
+
 .item {
     background: #a0a0a0;
     text-align: center;
     height: 460px !important;
 }
-.carousel { margin-top: 20px; }
-#slider { margin-top: 35px; }
+
+.carousel {
+    margin-top: 20px;
+}
+
+#slider {
+    margin-top: 35px;
+}
+
 #discription {
     text-align: center;
     margin-top: 25px;
 }
 
+
 /* style for sign in and register panel */
+
 #pregister {
     margin-top: 35px;
     height: 395px;
 }
 
+
 /* position for forget password */
+
 #forgetPass {
     margin-top: 5px;
     margin-right: 10px;
 }
 
+
 /* input style in add view and edit view */
+
 .control-group {
     margin-top: 15px;
     margin-bottom: 15px;
 }
 
+
 /* add border for fieldset in add and edit view */
+
 fieldset.field-border {
     border: 1px groove #fff !important;
     padding: 0 1.4em 1.4em 1.4em !important;
@@ -93,7 +119,9 @@ fieldset.field-border {
     box-shadow: 0px 0px 0px 0px #000;
 }
 
+
 /* add label in the fieldset in add and edit view */
+
 legend.field-border {
     font-size: 1.1em !important;
     font-weight: bold !important;
@@ -103,113 +131,221 @@ legend.field-border {
     border-bottom: none;
 }
 
+
 /* position for privacy radio button */
-div.radio { display: inline; }
-#visability_no { margin-left: 40px; }
+
+div.radio {
+    display: inline;
+}
+
+#visability_no {
+    margin-left: 40px;
+}
+
 
 /* position for data view */
-#main_data_preview { margin-top: 15px; }
-#main_table_view { height: 490px; }
+
+#main_data_preview {
+    margin-top: 15px;
+}
+
+#main_table_view {
+    height: 490px;
+}
 
 
 /* add shade in a container */
-div.shade-container{
+
+div.shade-container {
     z-index: 10;
     background-color: #ffffff;
     padding: 0 !important;
     border-radius: 4px;
     -moz-border-radius: 4px;
-    border:1px solid #ddd;
+    border: 1px solid #ddd;
     margin-top: 20px;
     margin-left: 0px;
-    -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
-    box-shadow: 0 6px 12px rgba(0,0,0,.175);
-    -moz-box-shadow: 0 6px 12px rgba(0,0,0,.175);
+    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+    -moz-box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
     background-clip: padding-box;
     opacity: 0.97;
     filter: alpha(opacity=97);
 }
 
+
 /* add shade in a container */
-div.shade-container-light{
+
+div.shade-container-light {
     z-index: 10;
     background-color: #ffffff;
     padding: 0 !important;
     border-radius: 4px;
     -moz-border-radius: 4px;
-    border:1px solid #ddd;
+    border: 1px solid #ddd;
     margin-top: 20px;
     margin-left: 0px;
-    -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
-    box-shadow: 0 6px 12px rgba(0,0,0,.175);
-    -moz-box-shadow: 0 6px 12px rgba(0,0,0,.175);
+    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+    -moz-box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
     background-clip: padding-box;
     opacity: 0.85;
     filter: alpha(opacity=85);
 }
 
-
-
-
-.widget .panel-body { 
-    padding-left: 0px; 
-    padding-right: 0px; 
-    padding-top: 0px; 
-    padding-bottom: 0px; 
+.widget .panel-body {
+    padding-left: 0px;
+    padding-right: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
 }
-.widget .list-group { margin-bottom: 0; }
-.widget .panel-title { display:inline }
-.widget .label-info { float: right; margin-left: 5px;}
-.widget li.list-group-item {border-radius: 0;border: 0;border-top: 1px solid #ddd; margin-left: 0px !important;}
-.widget li.list-group-item div.left_15_gap {margin-left: 15px;}
-.widget li.list-group-item:hover { background-color: rgba(86,61,124,.1); }
-.widget .mic-info { color: #666666;font-size: 11px; }
-.widget .action { margin-top:5px; }
-.widget .comment-text { font-size: 12px; }
-.widget .btn-block { border-top-left-radius:0px;border-top-right-radius:0px; }
-.widget .btn_appended {margin-left: 4px;}
 
-/*for profile*/ 
+.widget .list-group {
+    margin-bottom: 0;
+}
+
+.widget .panel-title {
+    display: inline
+}
+
+.widget .label-info {
+    float: right;
+    margin-left: 5px;
+}
+
+.widget li.list-group-item {
+    border-radius: 0;
+    border: 0;
+    border-top: 1px solid #ddd;
+    margin-left: 0px !important;
+}
+
+.widget li.list-group-item div.left_15_gap {
+    margin-left: 15px;
+}
+
+.widget li.list-group-item:hover {
+    background-color: rgba(86, 61, 124, .1);
+}
+
+.widget .mic-info {
+    color: #666666;
+    font-size: 11px;
+}
+
+.widget .action {
+    margin-top: 5px;
+}
+
+.widget .comment-text {
+    font-size: 12px;
+}
+
+.widget .btn-block {
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+}
+
+.widget .btn_appended {
+    margin-left: 4px;
+}
+
+
+/*for profile*/
+
 .p_aligh_lable {
     padding-top: 7px;
     margin-bottom: 0;
 }
 
+
 /*hide a div*/
-.hide_this { display: none; }
+
+.hide_this {
+    display: none;
+}
+
 
 /*change mosue for delete sign*/
-.remove_collaborators:hover { cursor: pointer; }
 
-/*set the size of the message board*/
-#comment_message_board { margin-bottom: 0px !important; }
-
-/*style for registration*/
-#id_username { width: 100%; margin-bottom: 10px;}
-#id_email { width: 100%; margin-bottom: 10px;}
-#id_password1 { width: 100%; margin-bottom: 10px;}
-#id_password2 { width: 100%; margin-bottom: 10px;}
-#id_first_name { width: 100%; margin-bottom: 10px;}
-#id_last_name { width: 100%; margin-bottom: 10px;}
-#id_location { width: 100%; margin-bottom: 10px;}
-#id_career { width: 100%; margin-bottom: 15px;}
-.errorlist > li { color: red;}
-#reg_login {margin-left: 20px;}
-
-
-/*vis view style*/
-#vis_canvas rect:hover{
+.remove_collaborators:hover {
     cursor: pointer;
 }
 
 
-#vis_canvas text {
-  fill: black;
-  font: 11px sans-serif;
-  text-anchor: start;
+/*set the size of the message board*/
+
+#comment_message_board {
+    margin-bottom: 0px !important;
 }
 
+
+/*style for registration*/
+
+#id_username {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+#id_email {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+#id_password1 {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+#id_password2 {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+#id_first_name {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+#id_last_name {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+#id_location {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+#id_career {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.errorlist > li {
+    color: red;
+}
+
+#reg_login {
+    margin-left: 20px;
+}
+
+
+/*vis view style*/
+
+#vis_canvas rect:hover {
+    cursor: pointer;
+}
+
+#vis_canvas text {
+    fill: black;
+    font: 11px sans-serif;
+    text-anchor: start;
+}
+
+
 /*size of the list control group*/
+
 #biset_control {
     height: 30px;
     width: 3800px;
@@ -218,7 +354,7 @@ div.shade-container-light{
 .listTileContainer {
     margin-left: 10px;
     width: 60px;
-    display: inline;    
+    display: inline;
 }
 
 .listTitle {
@@ -244,9 +380,8 @@ div.BiclistControlGroup {
     float: left;
 }
 
-#biset_canvas{
+#biset_canvas {
     position: absolute;
-
     background-color: white;
 }
 
@@ -273,14 +408,14 @@ div.BiclistControlGroup {
     margin-bottom: 15px;
 }
 
-#pdetail_activity{
+#pdetail_activity {
     height: 460px;
-    overflow-y: auto; 
+    overflow-y: auto;
 }
 
 #pdetail_comment_list {
     height: 360px;
-    overflow-y: auto;     
+    overflow-y: auto;
 }
 
 #uprofile_info {
@@ -293,11 +428,11 @@ div.BiclistControlGroup {
 
 #uprofile_activity {
     height: 390px;
-    overflow-y: auto;    
+    overflow-y: auto;
 }
 
 #myturk_create_detail {
-    margin: 30px; 
+    margin: 30px;
 }
 
 #myturnk_create_title {
@@ -305,7 +440,7 @@ div.BiclistControlGroup {
 }
 
 #myturnk_create_dataset {
-    margin-right: 20px;    
+    margin-right: 20px;
 }
 
 .myturnk_create_margin {
@@ -334,6 +469,7 @@ div.BiclistControlGroup {
 
 
 /* document view */
+
 #biset_doc {
     position: fixed;
     bottom: 3%;
@@ -341,8 +477,8 @@ div.BiclistControlGroup {
 }
 
 #doc_ctrl_icon {
-    position: absolute; 
-    top: 0; 
+    position: absolute;
+    top: 0;
     right: 0;
     display: inline-block;
     background-repeat: no-repeat;
@@ -360,20 +496,28 @@ div.BiclistControlGroup {
     margin-right: 0px;
 }
 
-/* avoid '[]' in the document name list */
-a.doc-list::before { content:''; }
 
-.biset_docView_panel { margin-top: 10px; }
+/* avoid '[]' in the document name list */
+
+a.doc-list::before {
+    content: '';
+}
+
+.biset_docView_panel {
+    margin-top: 10px;
+}
 
 .biset_docView_panelTitle {
     padding-top: 2px;
     padding-bottom: 2px;
 }
 
+
 /*the list of document id*/
+
 #doc_name_list {
-    overflow-y: auto; 
-    height: 300px; 
+    overflow-y: auto;
+    height: 300px;
     margin-top: 15px;
     margin-left: 1px;
 }
@@ -383,23 +527,23 @@ a.doc-list::before { content:''; }
     overflow-y: auto;
 }
 
+
 /*this code is for debugging*/
+
+
 /*#vis_canvas {
     background: #fff;
 }*/
 
-
-
 input[type=range] {
     /*removes default webkit styles*/
     -webkit-appearance: none;
-    
     /*fix for FF unable to apply focus style bug */
     border: 1px solid white;
-    
     /*required for proper track sizing in FF*/
     width: 300px;
 }
+
 input[type=range]::-webkit-slider-runnable-track {
     width: 300px;
     height: 5px;
@@ -407,16 +551,8 @@ input[type=range]::-webkit-slider-runnable-track {
     border: none;
     border-radius: 3px;
 }
+
 input.threasholdSlider[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    border: none;
-    height: 13px;
-    width: 13px;
-    border-radius: 50%;
-    background: goldenrod;
-    margin-top: -4px;
-}
-input.metrixSlider[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none;
     border: none;
     height: 13px;
@@ -425,9 +561,21 @@ input.metrixSlider[type=range]::-webkit-slider-thumb {
     background: MediumSlateBlue;
     margin-top: -4px;
 }
+
+input.metrixSlider[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: none;
+    height: 13px;
+    width: 13px;
+    border-radius: 50%;
+    background: goldenrod;
+    margin-top: -4px;
+}
+
 input[type=range]:focus {
     outline: none;
 }
+
 input[type=range]:focus::-webkit-slider-runnable-track {
     background: #ccc;
 }
@@ -439,6 +587,7 @@ input[type=range]::-moz-range-track {
     border: none;
     border-radius: 3px;
 }
+
 input[type=range]::-moz-range-thumb {
     border: none;
     height: 16px;
@@ -447,8 +596,10 @@ input[type=range]::-moz-range-thumb {
     background: goldenrod;
 }
 
+
 /*hide the outline behind the border*/
-input[type=range]:-moz-focusring{
+
+input[type=range]:-moz-focusring {
     outline: 1px solid white;
     outline-offset: -1px;
 }
@@ -456,25 +607,25 @@ input[type=range]:-moz-focusring{
 input[type=range]::-ms-track {
     width: 300px;
     height: 5px;
-    
     /*remove bg colour from the track, we'll use ms-fill-lower and ms-fill-upper instead */
     background: transparent;
-    
     /*leave room for the larger thumb to overflow with a transparent border */
     border-color: transparent;
     border-width: 6px 0;
-
     /*remove default tick marks*/
     color: transparent;
 }
+
 input[type=range]::-ms-fill-lower {
     background: #777;
     border-radius: 10px;
 }
+
 input[type=range]::-ms-fill-upper {
     background: #ddd;
     border-radius: 10px;
 }
+
 input[type=range]::-ms-thumb {
     border: none;
     height: 16px;
@@ -482,9 +633,15 @@ input[type=range]::-ms-thumb {
     border-radius: 50%;
     background: goldenrod;
 }
+
 input[type=range]:focus::-ms-fill-lower {
     background: #888;
 }
+
 input[type=range]:focus::-ms-fill-upper {
     background: #ccc;
+}
+
+.bListCtrlSortBic {
+    margin-left: 15px
 }

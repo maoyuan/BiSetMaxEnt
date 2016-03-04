@@ -203,7 +203,7 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
             ClusterModeRight = "clusterRight_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
             seriationMode = "seriation_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
 
-            metricSliderID = "metricSliderID" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
+            metricSliderID = "metricSliderID_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
             threasholdSliderID = "threasholdSlider_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum];
 
         $("#biset_control").append("<div class='BiclistControlGroup'>" +
@@ -213,7 +213,7 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
             "<option value='" + HybridMode + "'>Hybrid</option>" +
             "</select>" +
 
-            "<select class='bListCtrlSortBic' id='" + bListRGroupName + "_sort_bic' style='margin-left: 15px'>" +
+            "<select class='bListCtrlSortBic' id='" + bListRGroupName + "_sort_bic'>" +
             "<option value='ClusterSize'>Default</option>" +
             "<option value='" + ClusterMode + "'>sort by two</option>" +
             "<option value='" + ClusterModeLeft + "'>sort by left</option>" +
@@ -221,8 +221,8 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
             "<option value='" + seriationMode + "'>seriation</option>" +
             "</select>" +
 
-            "<input type='range' id=" + metricSliderID + " min='0' max='1' value= '0.5' step='0.0001' class='metrixSlider' style='display:inline; width:65px; margin-left:20px;'/>" +
-            "<input type='range' id=" + threasholdSliderID + " min='-1' max='1' value= '0' step='0.0001' class='threasholdSlider' style='display:inline; width:65px; margin-left:15px'/>" +
+            "<input type='range' id=" + metricSliderID + " min='0' max='1' value= '0.5' step='0.0001' class='metrixSlider' style='display:inline; width:75px; margin-left:20px;'/>" +
+            "<input type='range' id=" + threasholdSliderID + " min='0' max='1' value= '1' step='0.0001' class='threasholdSlider' style='display:inline; width:75px; margin-left:15px'/>" +
 
             "</div>");
     }
@@ -2341,9 +2341,8 @@ biset.addBicListCtrl = function(lsts) {
                     field2 = $(this).attr("id").split("_")[2],
                     bic_prefix = field1 + "_" + field2 + "_bic_";
 
-                var megthreshold = Math.abs(selVal);
-                // megthreshold = 1 - selVal;
-                console.log(selVal);
+                var metricVal = $("#metricSliderID_" + field1 + "_" + field2).val(),
+                    megthreshold = selVal;
 
                 // obtain the correspoing colom of bic
                 var cur_bic = biset.getBicsByField(field1, field2, allBics);
@@ -2385,7 +2384,7 @@ biset.addBicListCtrl = function(lsts) {
                         jacMatrix[bicID1][bicID2] = jVal;
                         lJacMatrix[bicID1][bicID2] = ljVal;
                         rJacMatrix[bicID1][bicID2] = rjVal;
-                        cJacMatrix[bicID1][bicID2] = ljVal * megthreshold + (1 - megthreshold) * rjVal;
+                        cJacMatrix[bicID1][bicID2] = ljVal * (1 - metricVal) + metricVal * rjVal;
 
                         if (jVal >= megthreshold && bicID1 != bicID2) {
                             if (bicID1 <= bicID2)
@@ -2423,23 +2422,13 @@ biset.addBicListCtrl = function(lsts) {
                     curBicDict[cur_bic[b]["bicIDCmp"]] = cur_bic[b];
                 }
 
-                if (selVal < 0) {
-                    var threshVal = 1 - megthreshold;
-                    if (selVal > -0.1) {
-                        var threshMatrix = jacMatrix;
-                    } else {
-                        var threshMatrix = lJacMatrix;
-                    }
+                if (metricVal > 0.45 && metricVal < 0.55) {
+                    var threshMatrix = jacMatrix;
                 } else {
-                    var threshVal = 1 - megthreshold;
-                    if (selVal < 0.1) {
-                        var threshMatrix = jacMatrix;
-                    } else {
-                        var threshMatrix = rJacMatrix;
-                    }
+                    var threshMatrix = cJacMatrix;
                 }
-                console.log(threshVal);
-                var bGroups = kGroups(curBicIDs, threshMatrix, threshVal);
+
+                var bGroups = kGroups(curBicIDs, threshMatrix, megthreshold);
                 var mergeSets = [];
                 for (var g = 0; g < bGroups.length; g++) {
                     if (bGroups[g].length > 1) {
