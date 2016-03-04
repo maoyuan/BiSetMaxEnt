@@ -25,6 +25,49 @@ vis.addSvg = function(canvasID, svgID, sHeight, sWidth) {
 }
 
 
+/*
+ * add svg g to a canvas
+ * @param canvasID, string, the id of a canvas
+ * @param gClass, string, the css class of g
+ * @param gdata, data array, the data to bind
+ * @param tx, int/float, transition x position
+ * @param ty, int/float, transition y position
+ */
+vis.addSvgGroup = function(canvasID, gclass, gdata, tx, ty) {
+    return d3.select("#" + canvasID)
+        .selectAll("." + gclass)
+        .data(gdata)
+        .enter().append("g")
+        .attr("class", gclass)
+        .attr("transform", "translate(" + tx + "," + ty + ")");
+}
+
+
+/*
+ * add ciricle to a svg g
+ * @param svgGroup, the svg g object
+ * @param idField, string, data field to form svg id
+ * @param cClass, string, circle class
+ * @param cx, int/float, x position of the circle center
+ * @param cy, int/float, y position of the circel center
+ * @param radiusField, string, data field of circle center
+ * @param cColor, string, the color of the circle
+ */
+vis.addCircies = function(svgGroup, idField, cClass, cx, cy, radiusField, cColor) {
+    svgGroup.append("circle")
+        .attr("id", function(d) {
+            return cClass + "_" + d[idField];
+        })
+        .attr("class", cClass)
+        .attr("cx", cx)
+        .attr("cy", cy)
+        .attr("r", function(d) {
+            return d[radiusField];
+        })
+        .attr("fill", cColor);
+}
+
+
 vis.svgRemovebyClass = function(svgClass) {
     d3.selectAll("." + svgClass).remove();
 }

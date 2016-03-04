@@ -2397,7 +2397,7 @@ biset.addBicListCtrl = function(lsts) {
                     }
                 }
                 // perform seriation
-                biset.seriation(cur_bic, field1, field2, allEnts, "original");
+                // biset.seriation(cur_bic, field1, field2, allEnts, "original");
 
                 /********************* start spatial based merge ************************/
                 // sort distance
@@ -3811,24 +3811,8 @@ biset.objDrag = d3.behavior.drag()
             semBicIDs.push(draggedBicID);
 
             if (cdata.length > 0) {
-                var srange = d3.select("#vis_canvas")
-                    .selectAll(".semRange")
-                    .data(cdata)
-                    .enter().append("g")
-                    .attr("class", "semRange")
-                    .attr("transform", "translate(" + cx + "," + cy + ")");
-
-                srange.append("circle")
-                    .attr("id", function(d) {
-                        return "semCircle" + "_" + d.bicIDCmp;
-                    })
-                    .attr("class", "semCircle")
-                    .attr("cx", 0)
-                    .attr("cy", 0)
-                    .attr("r", function(d) {
-                        return d.radius;
-                    })
-                    .attr("fill", "rgba(224, 110, 92, 0.18)");
+                var srange = vis.addSvgGroup("vis_canvas", "semRange", cdata, cx, cy);
+                vis.addCircies(srange, "bicIDCmp", "semCircle", 0, 0, "radius", "rgba(224, 110, 92, 0.18)");
 
                 srange.on("mouseover", function(d) {
                     vis.setObjBorder(d3.select(this), "blue", 2);
