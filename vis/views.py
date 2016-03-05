@@ -1035,8 +1035,6 @@ def mbicMaxEntModelStep(request):
     global gbic_dictionary
     global gdict_transactions
 
-    rowIDs = Set()
-    colIDs = Set()
     tiles = []
     for b in searchterm:
         thisRowIDs = gbic_dictionary[b]["rowEntIDs"]
@@ -1083,9 +1081,51 @@ def mbicMaxEntModelFullPath(request):
 
     print(searchterm)
 
+    global gbic_dictionary
+    global gdict_transactions
+    global gJaccard_index_threshold
+    global networkData
+    global entPathCaled
+
+    # all ents and links associated with these merged bics
+    ents = set()
+    links = set()
+    for b in searchterm:
+        relInfo = findAllCons(b, networkData, entPathCaled)
+        ents = ents.union(relInfo["ents"])
+        links = links.union(relInfo["paths"])
+
+    # a dictionary of bics on paths by types
+    bicTypedDict = {}
+    for e in ents:
+        entType = getKeyfromNode(e)
+        if "_" in entType:
+            if bicTypedDict.has_key(entType) == False:
+                bicTypedDict[entType] = []
+            bicTypedDict[entType].append(e)
+
+    curBicType = getKeyfromNode(searchterm[0])
+
+    allPaths = {}
+    for b in searchterm:
+        allPathfromThisBic = depthSearch(b, networkData)
+        allPaths = dict(allPaths.items() + allPathfromThisBic.items())
+
+    pathScore = {}
+    for p in allPaths:
+        tiles = chainEvaPrep(allPaths[p], gbic_dictionary, gdict_transactions)
+        gscore = obj_maxent.evaluate_biTiles(tiles, "global")
+        pathScore[p] = gscore
+
+    sortedScore = sorted(pathScore.items(), key=operator.itemgetter(1))
+    maxScoredChain = sortedScore[len(sortedScore) - 1][0]
+    overlaps = findBicOverlaps(allPaths[maxScoredChain], networkData)
+
     resultDict = {}
     resultDict["msg"] = "success"
-    resultDict["data"] = "full path"
+    resultDict["maxScoredChain"] = allPaths[maxScoredChain]
+    resultDict["maxChainEnts"] = list(overlaps["entIDs"])
+    resultDict["maxChainEdges"] = overlaps["edgeIDs"]
 
     return HttpResponse(json.dumps(resultDict), content_type = "application/json")
 

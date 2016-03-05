@@ -1702,7 +1702,6 @@ biset.bicStepModelEvaluate = function(bicID) {
  * @param bicIDs, a list of bic ids in a mbic
  */
 biset.mbicStepModelEvaluate = function(bicIDs) {
-    console.log(bicIDs);
     var requestVal = bicIDs,
         requestJSON = {
             "query": requestVal
@@ -1768,27 +1767,26 @@ biset.mbicFullPathModelEvaluate = function(bicIDs) {
         data: JSON.stringify(requestJSON),
         contentType: "application/json",
         success: function(data) {
-            var msg = data.msg;
+            var msg = data.msg,
+                bicIDs = data.maxScoredChain,
+                entIDs = data.maxChainEnts,
+                edgeIDs = data.maxChainEdges;
 
             if (msg == "success") {
-            	console.log(data);
-                // var bicScore = data.bicScore,
-                //     curBicID = data.curBicID,
-                //     tmpScores = [];
+                for (var i = 0; i < bicIDs.length; i++) {
+                    d3.select("#" + bicIDs[i] + "_frame")
+                        .attr("fill", "rgba(255,0,0,0.4)");
+                }
 
-                // for (var b in bicScore)
-                //     tmpScores.push(bicScore[b]);
+                for (var i = 0; i < entIDs.length; i++) {
+                    d3.select("#" + entIDs[i] + "_frame")
+                        .attr("fill", "rgba(255,0,0,0.4)");
+                }
 
-                // var opcScale = vis.linearScale(tmpScores, 0, 0.5);
-
-                // for (var b in bicScore) {
-                //     // do not change the color of the one being evaluated
-                //     if (opcScale(bicScore[b]) != 0) {
-                //         vis.setSvgOpacityByID(b + "_frame", "rgba(255,0,0, ", opcScale(bicScore[b])); // 51, 204, 51
-                //     } else if (b == curBicID) {
-                //         vis.setSvgBorderByID(b + "_frame", "rgba(0, 0, 0, 0.9)", "4");
-                //     }
-                // }
+                for (var i = 0; i < edgeIDs.length; i++) {
+                    d3.select("#" + edgeIDs[i])
+                        .style("stroke", "rgba(255,0,0,0.4)");
+                }
             }
         },
         beforeSend: function(xhr, settings) {
