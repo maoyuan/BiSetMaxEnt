@@ -1037,25 +1037,40 @@ def mbicMaxEntModelStep(request):
 
     rowIDs = Set()
     colIDs = Set()
+    tiles = []
     for b in searchterm:
         thisRowIDs = gbic_dictionary[b]["rowEntIDs"]
         thisColIDs = gbic_dictionary[b]["colEntIDs"]
 
-        # print(gbic_dictionary[b]["rowEntIDs"])
-        # rowIDs += gbic_dictionary[b]["rowEntIDs"]
-        # colIDs += gbic_dictionary[b]["colEntIDs"]
-
-    # thisBicRowIDs = gbic_dictionary[searchterm]["rowEntIDs"]
-    # thisBicColIDs = gbic_dictionary[searchterm]["colEntIDs"]
-
+        tiles += maxent_utils.convert2TileListEachPair(gdict_transactions, thisRowIDs, thisColIDs)
 
     print(searchterm)
-    # print(rowIDs)
-    # print(colIDs) 
+    print(tiles)
+
+    # update the model with current select mbic
+    obj_maxent.update_maxent(tiles)
+
+    # check the jaccard coefficient for each bicluster
+    overlappedBics = {}
+    global gJaccard_index_threshold
+    for b in gbic_dictionary:
+        if b not in searchterm:
+            jIndex = mbicJacIndex(searchterm, b, gbic_dictionary)
+            if jIndex > gJaccard_index_threshold:
+                print(jIndex)
+                overlappedBics[b] = gbic_dictionary[b]    
+
+    # evaluate only bics that shared entities with current selected one 
+    bicScore = bicsEval(overlappedBics, gdict_transactions, obj_maxent)
 
     resultDict = {}
-    resultDict["msg"] = "success"
-    resultDict["data"] = "step"
+    if len(bicScore) > 0:
+        resultDict["msg"] = "success"
+        resultDict["bicScore"] = bicScore
+    else:
+        resultDict["msg"] = "fail"
+        resultDict["bicScore"] = {}
+    resultDict["curBicID"] = searchterm
 
     return HttpResponse(json.dumps(resultDict), content_type = "application/json")
 
@@ -1231,6 +1246,28 @@ def jacIndex(bic1, bic2, bicDict):
     jaccard_index = float(len(intersectionEntIDs)) / float(len(unionEntIDs))
 
     return jaccard_index
+
+
+'''
+calculate jaccard index between a mbic and a bic
+    @param bics, a list of bic ids that are merged
+    @param bic, the id of a bic
+    @param bicDict, the dictionary of all bics with IDs as keys
+'''
+def mbicJacIndex(bics, bic, bicDict):
+    # get all ents in the similar bics
+    entsInBicList = set()
+    for b in bics:
+        entsInThisBic = bicDict[b]["rowEntIDs"].union(bicDict[b]["colEntIDs"])
+        entsInBicList = entsInBicList.union(entsInThisBic)
+
+    entsInBic = bicDict[bic]["rowEntIDs"].union(bicDict[bic]["colEntIDs"])
+
+    intersectionEntIDs = entsInBicList.intersection(entsInBic)
+    unionEntIDs = entsInBicList.union(entsInBic)
+
+    jIndex = float(len(intersectionEntIDs)) / float(len(unionEntIDs))
+    return jIndex
 
 
 '''

@@ -1720,24 +1720,23 @@ biset.mbicStepModelEvaluate = function(bicIDs) {
             var msg = data.msg;
 
             if (msg == "success") {
-            	console.log(data);
-                // var bicScore = data.bicScore,
-                //     curBicID = data.curBicID,
-                //     tmpScores = [];
+                var bicScore = data.bicScore,
+                    curBicID = data.curBicID,
+                    tmpScores = [];
 
-                // for (var b in bicScore)
-                //     tmpScores.push(bicScore[b]);
+                for (var b in bicScore)
+                    tmpScores.push(bicScore[b]);
 
-                // var opcScale = vis.linearScale(tmpScores, 0, 0.5);
+                var opcScale = vis.linearScale(tmpScores, 0, 0.5);
 
-                // for (var b in bicScore) {
-                //     // do not change the color of the one being evaluated
-                //     if (opcScale(bicScore[b]) != 0) {
-                //         vis.setSvgOpacityByID(b + "_frame", "rgba(255,0,0, ", opcScale(bicScore[b])); // 51, 204, 51
-                //     } else if (b == curBicID) {
-                //         vis.setSvgBorderByID(b + "_frame", "rgba(0, 0, 0, 0.9)", "4");
-                //     }
-                // }
+                for (var b in bicScore) {
+                    // do not change the color of the one being evaluated
+                    if (opcScale(bicScore[b]) != 0) {
+                        vis.setSvgOpacityByID(b + "_frame", "rgba(255,0,0, ", opcScale(bicScore[b])); // 51, 204, 51
+                    } else if (b == curBicID) {
+                        vis.setSvgBorderByID(b + "_frame", "rgba(0, 0, 0, 0.9)", "4");
+                    }
+                }
             }
         },
         beforeSend: function(xhr, settings) {
