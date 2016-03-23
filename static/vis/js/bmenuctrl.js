@@ -267,6 +267,16 @@ var addMenuToMbic = function(mbClass) {
             if (selItem == "modelEvaPath") {
                 biset.mbicFullPathModelEvaluate(bics);
             }
+
+            if (selItem == "hideLine") {
+                var linkIDs = mbData.linkIDs;
+                biset.setLinksVisible(linkIDs, "hidden");
+            }
+
+            if (selItem == "showLine") {
+                var linkIDs = mbData.linkIDs;
+                biset.setLinksVisible(linkIDs, "visable");
+            }
         }
     });
 }

@@ -357,6 +357,8 @@ function loadVisHelper(resData) {
 
     console.log(resData);
 
+    console.log(Object.keys(linkList).length)
+
     // get the total number of bics
     var bicNum = 0;
     for (key in bicList) {
