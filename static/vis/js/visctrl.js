@@ -5,12 +5,12 @@ $('.selectpicker').selectpicker({
 
 // to do get column names from the database about the dataset
 $("#dataDimensionList").append(
-    "<input type='checkbox' name='dimensions' value='person' id='d_person'> Person<br />" +
-    "<input type='checkbox' name='dimensions' value='date' id='d_date'> Date<br />" +
-    "<input type='checkbox' name='dimensions' value='org' id='d_org'> Organization<br />" +
-    "<input type='checkbox' name='dimensions' value='phone' id='d_phone'> Phone<br />" +
-    "<input type='checkbox' name='dimensions' value='location' id='d_location'> Location<br />" +
-    "<input type='checkbox' name='dimensions' value='misc' id='d_misc'> Misc<br />"
+    "<input type='checkbox' name='dimensions' disabled='disabled' value='person' id='d_person'> Person<br />" +
+    "<input type='checkbox' name='dimensions' disabled='disabled' value='date' id='d_date'> Date<br />" +
+    "<input type='checkbox' name='dimensions' disabled='disabled' value='org' id='d_org'> Organization<br />" +
+    "<input type='checkbox' name='dimensions' disabled='disabled' value='phone' id='d_phone'> Phone<br />" +
+    "<input type='checkbox' name='dimensions' disabled='disabled' value='location' id='d_location'> Location<br />" +
+    "<input type='checkbox' name='dimensions' disabled='disabled' value='misc' id='d_misc'> Misc<br />"
 );
 
 $(document).ready(function() {
