@@ -123,6 +123,9 @@ var allEnts = {},
     // a global parameter to maintain the relations for each bic and ent
     relations = {};
 
+// an array to store the mode for each in-between list
+var preMode = [];
+
 // canvas for visualizations
 var canvas = vis.addSvg(biSetContainer, biSetVisCanvas, biset.visCanvas.width, biset.visCanvas.height);
 
@@ -193,7 +196,9 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
 
     // add controller for link list (e.g., bics and links)
     if (listNum < selectedLists.length) {
-        var bListRGroupName = "bListCtrl_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
+        console.log(listNum);
+
+        var bListRGroupName = "bListCtrl_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum] + "__" + listNum,
             bicMode = "bic_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
             linkMode = "link_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
             HybridMode = "hybrid_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
@@ -1774,8 +1779,8 @@ biset.mbicFullPathModelEvaluate = function(bicIDs) {
                 involvedBicIDs = data.curBicID,
                 curBicID = involvedBicIDs[0];
 
-            for (i  = 1; i < involvedBicIDs.length; i++) {
-            	curBicID += "----" + involvedBicIDs[i];
+            for (i = 1; i < involvedBicIDs.length; i++) {
+                curBicID += "----" + involvedBicIDs[i];
             }
 
             if (msg == "success") {
@@ -1784,7 +1789,7 @@ biset.mbicFullPathModelEvaluate = function(bicIDs) {
                         .attr("fill", "rgba(128,0,128,0.4)");
                 }
                 d3.select("#" + curBicID + "_frame")
-                        .attr("fill", "rgba(128,0,128,0.4)");
+                    .attr("fill", "rgba(128,0,128,0.4)");
                 vis.setSvgBorderByID(curBicID + "_frame", "rgba(0, 0, 0, 0.9)", "3");
 
                 console.log(curBicID);
@@ -2434,24 +2439,24 @@ biset.addBicListCtrl = function(lsts) {
                 }
             });
 
-
-        var initOption = $("#bListCtrl_" + lsts[i] + "_" + lsts[i + 1] + "	option:selected").val(),
-        	preMode = initOption.split("_")[0];
-        $("#bListCtrl_" + lsts[i] + "_" + lsts[i + 1])
-            .on('click', function() {
-                var preSelValue = this.value.split("_");
-                preMode = preSelValue[0];
-            })
+		var modeDropMenuID = i + 1;
+        preMode.push(biset.getMode(lsts[i], lsts[i + 1], modeDropMenuID));
+        $("#bListCtrl_" + lsts[i] + "_" + lsts[i + 1] + "__" + modeDropMenuID)
             .change(function() {
-                var selValue = $(this).val().split("_"),
+                var ctrlID = $(this).attr("id").split("__")[1],
+                	selModeIndex = ctrlID - 1,
+ 
+					selValue = $(this).val().split("_"),
                     // get the domain on the left
                     field1 = selValue[1],
                     // get the domain on the right
                     field2 = selValue[2],
                     // get the selected mode
                     selMode = selValue[0];
+
                 if (selMode.indexOf("cluster") < 0)
-                    biset.connectionDisplayed(field1, field2, selMode, preMode);
+                    biset.connectionDisplayed(field1, field2, selMode, preMode[selModeIndex]);
+                preMode[selModeIndex] = selMode;
             });
 
         $("#threasholdSlider_" + lsts[i] + "_" + lsts[i + 1])
@@ -2711,6 +2716,20 @@ biset.addBicListCtrl = function(lsts) {
                 }
             });
     }
+}
+
+
+/*
+ * get the current selection mode
+ * @param ltype, string, the type of the left list  
+ * @param rtype, string, the type of the right list
+ * @param ctrlID, int, the id of a drop down menu
+ * @param selMode, string, the current mode of a in-between list
+ */
+biset.getMode = function(ltype, rtype, ctrlID) {
+    var selVal = $("#bListCtrl_" + ltype + "_" + rtype + "__" + ctrlID + " option:selected").val(),
+        selMode = selVal.split("_")[0];
+    return selMode;
 }
 
 
