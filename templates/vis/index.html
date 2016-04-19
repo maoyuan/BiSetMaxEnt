@@ -53,13 +53,14 @@
             </div>
 
 			<div id="vis_config_ctrl">
-				<input id="btn_new_vis" class="btn btn-info btn-xs" type="button" value="New Vis Config" {%if not prePid %} disabled {% endif %}>
-                <input id="btn_save_config" class="btn btn-info btn-xs" type="button" value="Save Config" disabled>
+				<label>Visualization Control</label><br>
+				<input id="btn_new_vis" class="btn btn-info btn-xs" type="button" value="New Vis" {%if not prePid %} disabled {% endif %}>
+                <input id="btn_save_config" class="btn btn-info btn-xs" type="button" value="Save Vis" disabled>
     			<hr>
 			</div>
 
             <div id="vis_ctrl" class="hide_this">
-				<label>Visualization Control</label><br />
+				<label>Visualization Control</label><br>
 				<input id="btn_vis_save" class="btn btn-info btn-xs" type="button" value="Save" >
             	<input id="btn_vis_del" class="btn btn-info btn-xs" type="button" value="Delete" >
             	<hr>
@@ -84,6 +85,15 @@
 						</div>
 					</div>
 				</div>
+			</div>
+
+			<div id="study-contorl">
+				<label>Study Control</label><br>
+				<input type="radio" name="study" value="jigsaw" checked> Jigsaw<br>
+				<input type="radio" name="study" value="closedBic" disabled> Closed-Bic<br>
+				<input type="radio" name="study" value="partialBic" disabled> Partial-Bic<br>
+				<input type="radio" name="study" value="biset" disabled> BiSet<br>
+				<hr>
 			</div>
 
 			<div id="vis_wiki_summary" class="ui-widget-content shade-container">

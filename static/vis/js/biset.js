@@ -136,7 +136,11 @@ var svgPos = canvas[0][0].getBoundingClientRect(),
     };
 
 // get dataset name
-var selData = $('#selDataSet').val();
+var selData = $('#selDataSet').val(),
+    // get the study setting (jigsaw, closed-bic, partial-bic or all funciton)
+    studySetting = $('input[type="radio"]:checked').val();
+
+console.log(studySetting);
 
 /*
  * Add a list in a canvas and return this list
@@ -184,6 +188,7 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
         .domain([0, d3.max(dataFrequency)])
         .range([3, biset.entity.freqWidth - 1]);
 
+
     // add control group of a list
     $("#biset_control").append("<div class='listControlGroup'>" +
         "<div class='listTileContainer'><h5 class='listTitle' id='listTitle_" + listNum + "'>" + type + "</h5></div> " +
@@ -196,8 +201,6 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
 
     // add controller for link list (e.g., bics and links)
     if (listNum < selectedLists.length) {
-        console.log(listNum);
-
         var bListRGroupName = "bListCtrl_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum] + "__" + listNum,
             bicMode = "bic_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
             linkMode = "link_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
@@ -225,11 +228,20 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
             "<option value='" + ClusterModeRight + "'>sort by right</option>" +
             "<option value='" + seriationMode + "'>seriation</option>" +
             "</select>" +
-
             "<input type='range' id=" + metricSliderID + " min='0' max='1' value= '0.5' step='0.0001' class='metrixSlider' style='display:inline; width:75px; margin-left:20px;'/>" +
             "<input type='range' id=" + threasholdSliderID + " min='0' max='1' value= '0.5' step='0.0001' class='threasholdSlider' style='display:inline; width:75px; margin-left:15px'/>" +
-
             "</div>");
+
+        if (studySetting != "biset") {
+        	$("#" + bListRGroupName).prop('disabled', 'disabled');
+        	$("#" + bListRGroupName).addClass("not-used");
+
+        	$("#" + bListRGroupName + "_sort_bic").prop('disabled', 'disabled');
+        	$("#" + bListRGroupName + "_sort_bic").addClass("not-used");
+        	
+        	$("#" + metricSliderID).hide();
+        	$("#" + threasholdSliderID).hide();
+        }
     }
 
     // add group to the svg
@@ -2439,14 +2451,14 @@ biset.addBicListCtrl = function(lsts) {
                 }
             });
 
-		var modeDropMenuID = i + 1;
+        var modeDropMenuID = i + 1;
         preMode.push(biset.getMode(lsts[i], lsts[i + 1], modeDropMenuID));
         $("#bListCtrl_" + lsts[i] + "_" + lsts[i + 1] + "__" + modeDropMenuID)
             .change(function() {
                 var ctrlID = $(this).attr("id").split("__")[1],
-                	selModeIndex = ctrlID - 1,
- 
-					selValue = $(this).val().split("_"),
+                    selModeIndex = ctrlID - 1,
+
+                    selValue = $(this).val().split("_"),
                     // get the domain on the left
                     field1 = selValue[1],
                     // get the domain on the right

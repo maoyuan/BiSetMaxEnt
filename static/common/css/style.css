@@ -645,3 +645,9 @@ input[type=range]:focus::-ms-fill-upper {
 .bListCtrlSortBic {
     margin-left: 15px
 }
+
+.not-used {
+    background-color: #fff;
+    color: #fff;
+    border: 0px;
+}
