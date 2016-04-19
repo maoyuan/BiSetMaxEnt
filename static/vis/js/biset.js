@@ -58,7 +58,7 @@ var biset = {
     },
     // a connection link between two elements
     conlink: {
-        nwidth: 1.2,
+        nwidth: 1, //1.2,
         hwidth: 1.5
     }, // 0.8, paper pic: 1.1
 
@@ -222,7 +222,7 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
             "</select>" +
 
             "<input type='range' id=" + metricSliderID + " min='0' max='1' value= '0.5' step='0.0001' class='metrixSlider' style='display:inline; width:75px; margin-left:20px;'/>" +
-            "<input type='range' id=" + threasholdSliderID + " min='0' max='1' value= '1' step='0.0001' class='threasholdSlider' style='display:inline; width:75px; margin-left:15px'/>" +
+            "<input type='range' id=" + threasholdSliderID + " min='0' max='1' value= '0.5' step='0.0001' class='threasholdSlider' style='display:inline; width:75px; margin-left:15px'/>" +
 
             "</div>");
     }
@@ -1682,9 +1682,9 @@ biset.bicStepModelEvaluate = function(bicID) {
                 for (var b in bicScore) {
                     // do not change the color of the one being evaluated
                     if (opcScale(bicScore[b]) != 0) {
-                        vis.setSvgOpacityByID(b + "_frame", "rgba(255,0,0, ", opcScale(bicScore[b])); // 51, 204, 51
+                        vis.setSvgOpacityByID(b + "_frame", "rgba(128,0,128, ", opcScale(bicScore[b])); // 51, 204, 51
                     } else if (b == curBicID) {
-                        vis.setSvgBorderByID(b + "_frame", "rgba(0, 0, 0, 0.9)", "4");
+                        vis.setSvgBorderByID(b + "_frame", "rgba(0, 0, 0, 0.9)", "3");
                     }
                 }
             }
@@ -1731,9 +1731,9 @@ biset.mbicStepModelEvaluate = function(bicIDs) {
                 for (var b in bicScore) {
                     // do not change the color of the one being evaluated
                     if (opcScale(bicScore[b]) != 0) {
-                        vis.setSvgOpacityByID(b + "_frame", "rgba(255,0,0, ", opcScale(bicScore[b])); // 51, 204, 51
+                        vis.setSvgOpacityByID(b + "_frame", "rgba(128,0,128, ", opcScale(bicScore[b])); // 51, 204, 51
                     } else if (b == curBicID) {
-                        vis.setSvgBorderByID(b + "_frame", "rgba(0, 0, 0, 0.9)", "4");
+                        vis.setSvgBorderByID(b + "_frame", "rgba(0, 0, 0, 0.9)", "3");
                     }
                 }
             }
@@ -1770,22 +1770,34 @@ biset.mbicFullPathModelEvaluate = function(bicIDs) {
             var msg = data.msg,
                 bicIDs = data.maxScoredChain,
                 entIDs = data.maxChainEnts,
-                edgeIDs = data.maxChainEdges;
+                edgeIDs = data.maxChainEdges,
+                involvedBicIDs = data.curBicID,
+                curBicID = involvedBicIDs[0];
+
+            for (i  = 1; i < involvedBicIDs.length; i++) {
+            	curBicID += "----" + involvedBicIDs[i];
+            }
 
             if (msg == "success") {
                 for (var i = 0; i < bicIDs.length; i++) {
                     d3.select("#" + bicIDs[i] + "_frame")
-                        .attr("fill", "rgba(255,0,0,0.4)");
+                        .attr("fill", "rgba(128,0,128,0.4)");
                 }
+                d3.select("#" + curBicID + "_frame")
+                        .attr("fill", "rgba(128,0,128,0.4)");
+                vis.setSvgBorderByID(curBicID + "_frame", "rgba(0, 0, 0, 0.9)", "3");
+
+                console.log(curBicID);
+                console.log(edgeIDs);
 
                 for (var i = 0; i < entIDs.length; i++) {
                     d3.select("#" + entIDs[i] + "_frame")
-                        .attr("fill", "rgba(255,0,0,0.4)");
+                        .attr("fill", "rgba(128,0,128,0.4)"); // "rgba(255,0,0,0.4)"
                 }
 
                 for (var i = 0; i < edgeIDs.length; i++) {
                     d3.select("#" + edgeIDs[i])
-                        .style("stroke", "rgba(255,0,0,0.4)");
+                        .style("stroke", "rgba(128,0,128,0.4)");
                 }
             }
         },
@@ -1819,7 +1831,10 @@ biset.bicFullPathModelEvaluate = function(bicID) {
             var msg = data.msg,
                 bicIDs = data.maxScoredChain,
                 entIDs = data.maxChainEnts,
-                edgeIDs = data.maxChainEdges;
+                edgeIDs = data.maxChainEdges,
+                curBicID = data.curBicID;
+
+            console.log(data);
 
             // minBicIDs = data.minScoredChain,
             // minEntIDs = data.minChainEnts,
@@ -1828,17 +1843,21 @@ biset.bicFullPathModelEvaluate = function(bicID) {
             if (msg == "success") {
                 for (var i = 0; i < bicIDs.length; i++) {
                     d3.select("#" + bicIDs[i] + "_frame")
-                        .attr("fill", "rgba(255,0,0,0.4)");
+                        .attr("fill", "rgba(128,0,128,0.4)");
+
+                    if (bicIDs[i] == curBicID) {
+                        vis.setSvgBorderByID(curBicID + "_frame", "rgba(0, 0, 0, 0.9)", "3");
+                    }
                 }
 
                 for (var i = 0; i < entIDs.length; i++) {
                     d3.select("#" + entIDs[i] + "_frame")
-                        .attr("fill", "rgba(255,0,0,0.4)");
+                        .attr("fill", "rgba(128,0,128,0.4)");
                 }
 
                 for (var i = 0; i < edgeIDs.length; i++) {
                     d3.select("#" + edgeIDs[i])
-                        .style("stroke", "rgba(255,0,0,0.4)");
+                        .style("stroke", "rgba(128,0,128,0.4)");
                 }
 
 
@@ -2416,7 +2435,8 @@ biset.addBicListCtrl = function(lsts) {
             });
 
 
-        var preMode;
+        var initOption = $("#bListCtrl_" + lsts[i] + "_" + lsts[i + 1] + "	option:selected").val(),
+        	preMode = initOption.split("_")[0];
         $("#bListCtrl_" + lsts[i] + "_" + lsts[i + 1])
             .on('click', function() {
                 var preSelValue = this.value.split("_");
@@ -2430,7 +2450,6 @@ biset.addBicListCtrl = function(lsts) {
                     field2 = selValue[2],
                     // get the selected mode
                     selMode = selValue[0];
-
                 if (selMode.indexOf("cluster") < 0)
                     biset.connectionDisplayed(field1, field2, selMode, preMode);
             });
@@ -2444,6 +2463,12 @@ biset.addBicListCtrl = function(lsts) {
 
                 var metricVal = $("#metricSliderID_" + field1 + "_" + field2).val(),
                     megthreshold = selVal;
+
+                console.log("weight is:");
+                console.log(metricVal);
+                console.log("======");
+                console.log("threshold is:");
+                console.log(selVal)
 
                 // obtain the correspoing colom of bic
                 var cur_bic = biset.getBicsByField(field1, field2, allBics);
@@ -3772,7 +3797,7 @@ biset.objDrag = d3.behavior.drag()
         dragShareData = {};
 
         if (d.bicClass == "bic" && d.mergeOption == true) {
-            var threshold = 0.3,
+            var threshold = 0.25,
                 rfield = d.rowField,
                 cfield = d.colField,
                 bID = d.bicIDCmp,
