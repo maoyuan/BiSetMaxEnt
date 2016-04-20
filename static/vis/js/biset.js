@@ -202,6 +202,7 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
     // add controller for link list (e.g., bics and links)
     if (listNum < selectedLists.length) {
         var bListRGroupName = "bListCtrl_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum] + "__" + listNum,
+            bListSortGroup = "bListCtrl_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
             bicMode = "bic_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
             linkMode = "link_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
             HybridMode = "hybrid_" + selectedLists[listNum - 1] + "_" + selectedLists[listNum],
@@ -221,7 +222,7 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
             "<option value='" + HybridMode + "'>Hybrid</option>" +
             "</select>" +
 
-            "<select class='bListCtrlSortBic' id='" + bListRGroupName + "_sort_bic'>" +
+            "<select class='bListCtrlSortBic' id='" + bListSortGroup + "_sort_bic'>" +
             "<option value='ClusterSize'>Default</option>" +
             "<option value='" + ClusterMode + "'>sort by two</option>" +
             "<option value='" + ClusterModeLeft + "'>sort by left</option>" +
@@ -232,15 +233,34 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
             "<input type='range' id=" + threasholdSliderID + " min='0' max='1' value= '0.5' step='0.0001' class='threasholdSlider' style='display:inline; width:75px; margin-left:15px'/>" +
             "</div>");
 
-        if (studySetting != "biset") {
-        	$("#" + bListRGroupName).prop('disabled', 'disabled');
-        	$("#" + bListRGroupName).addClass("not-used");
+        // the study setting is jigsaw
+        switch (studySetting) {
+            case "jigsaw":
+                {
+                    $("#" + bListRGroupName).prop('disabled', 'disabled');
+                    $("#" + bListRGroupName).addClass("not-used");
 
-        	$("#" + bListRGroupName + "_sort_bic").prop('disabled', 'disabled');
-        	$("#" + bListRGroupName + "_sort_bic").addClass("not-used");
-        	
-        	$("#" + metricSliderID).hide();
-        	$("#" + threasholdSliderID).hide();
+                    $("#" + bListSortGroup + "_sort_bic").prop('disabled', 'disabled');
+                    $("#" + bListSortGroup + "_sort_bic").addClass("not-used");
+
+                    $("#" + metricSliderID).hide();
+                    $("#" + threasholdSliderID).hide();
+
+                    break;
+                }
+            case "closedBic":
+                {
+                    $("#" + bListRGroupName).prop('disabled', 'disabled');
+                    $("#" + bListRGroupName).addClass("not-used");
+
+                    $("#" + metricSliderID).hide();
+                    $("#" + threasholdSliderID).hide();
+                    break;
+                }
+            default:
+                {
+                    break;
+                }
         }
     }
 
@@ -2140,14 +2160,8 @@ function addSortCtrl(listView) {
  * @param lsts, a list of selected domains (e.g., people, location)
  */
 biset.addBicListCtrl = function(lsts) {
-    var sel = []
     for (var i = 0; i < lsts.length - 1; i++) {
-
         $("#bListCtrl_" + lsts[i] + "_" + lsts[i + 1] + "_sort_bic")
-            .on('click', function() {
-                var preSelValue = this.value.split("_");
-                preMode = preSelValue[0];
-            })
             .change(function() {
                 var selValue = $(this).val().split("_"),
                     // get the domain on the left

@@ -447,10 +447,10 @@ function loadVisHelper(resData) {
         addSortCtrl(aListView);
     }
 
-    if (studySetting == "biset") {
-        // add control fro bic list
-        biset.addBicListCtrl(selDims);
-    }
+    // if (studySetting == "biset") {
+    // add control fro bic list
+    biset.addBicListCtrl(selDims);
+    // }
 
 
     // add all bics with lines
