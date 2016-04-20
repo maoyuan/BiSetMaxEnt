@@ -452,7 +452,6 @@ function loadVisHelper(resData) {
     biset.addBicListCtrl(selDims);
     // }
 
-
     // add all bics with lines
     for (var i = 0; i < selDims.length - 1; i++) {
         var bicStartPos = biset.entList.width * (i + 1) + (biset.entList.gap * 2 + biset.bic.frameWidth / 2) * (2 * i + 1),
@@ -492,6 +491,40 @@ function loadVisHelper(resData) {
     //  console.log(oriLinks[i].oriLinkID);
     //  biset.setVisibility(oriLinks[i].oriLinkID, "hidden");
     // }
+
+    // control the visability of links and bics based on the study setting
+    for (i = 0; i < selDims.length - 1; i++) {
+        var ldomain = selDims[i],
+            rdomain = selDims[i + 1];
+
+        switch (studySetting) {
+            case "jigsaw":
+                {
+                    // hide original inbetween links
+                    biset.setVisibilityToOriLinksInBetween(ldomain, rdomain, "visible");
+                    // show inbetween bics
+                    biset.setVisibilityToBicsInBetween(ldomain, rdomain, "hidden");
+                    // show links connected with inbetween bics
+                    biset.setVisibilityToLinksInBetween(ldomain, rdomain, "hidden");
+                    break;
+                }
+            case "closedBic":
+                {
+                    // hide original inbetween links
+                    biset.setVisibilityToOriLinksInBetween(ldomain, rdomain, "hidden");
+                    // show inbetween bics
+                    biset.setVisibilityToBicsInBetween(ldomain, rdomain, "visible");
+                    // show links connected with inbetween bics
+                    biset.setVisibilityToLinksInBetween(ldomain, rdomain, "visible");
+                    break;
+                }
+            default:
+                {
+                    break;
+                }
+        }
+    }
+
 
 
     // load highlight entities

@@ -221,8 +221,10 @@ var addMenuToEnt = function(entClass) {
         target: '#ent-context-menu',
         onItem: function(context, e) {
             var thisID = context.attr("id"),
-                thisFrameID = thisID + "_frame";
-            console.log("ent menu!");
+                thisFrameID = thisID + "_frame",
+                selItem = $(e.target).attr("data-index");
+
+            console.log(selItem);
         }
     });
 }

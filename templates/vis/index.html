@@ -89,9 +89,9 @@
 
 			<div id="study-contorl">
 				<label>Study Control</label><br>
-				<input type="radio" name="study" value="jigsaw" disabled> Jigsaw<br>
+				<input type="radio" name="study" value="jigsaw" checked> Jigsaw<br>
 				<input type="radio" name="study" value="closedBic" disabled> Closed-Bic<br>
-				<input type="radio" name="study" value="partialBic" checked> Partial-Bic<br>
+				<input type="radio" name="study" value="partialBic" disabled> Partial-Bic<br>
 				<input type="radio" name="study" value="biset" disabled> BiSet<br>
 				<hr>
 			</div>
@@ -217,8 +217,13 @@
 		<div id="ent-context-menu">
 			<ul class="dropdown-menu" role="menu">
 				<li>
-					<a tabindex="-1" data-index="del">
-						<span class="glyphicon glyphicon-remove" data-index="del"></span> Remove
+					<a tabindex="-1" data-index="doc">
+						<span class="glyphicon glyphicon-file" data-index="doc"></span> Show Document
+					</a>
+				</li>
+				<li>
+					<a tabindex="-1" data-index="link">
+						<span class="glyphicon glyphicon-link" data-index="link"></span> Connect...
 					</a>
 				</li>
 			</ul>

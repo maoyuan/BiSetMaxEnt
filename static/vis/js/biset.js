@@ -140,8 +140,6 @@ var selData = $('#selDataSet').val(),
     // get the study setting (jigsaw, closed-bic, partial-bic or all funciton)
     studySetting = $('input[type="radio"]:checked').val();
 
-console.log(studySetting);
-
 /*
  * Add a list in a canvas and return this list
  * @param canvas, the canvas for adding a list
@@ -218,22 +216,21 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
         $("#biset_control").append("<div class='BiclistControlGroup'>" +
             "<select class='bListCtrl' id='" + bListRGroupName + "'>" +
             "<option value='" + bicMode + "'>Bic Only</option>" +
-            "<option value='" + linkMode + "'>Link Only</option>" +
+            // "<option value='" + linkMode + "'>Link Only</option>" +
             "<option value='" + HybridMode + "'>Hybrid</option>" +
             "</select>" +
 
             "<select class='bListCtrlSortBic' id='" + bListSortGroup + "_sort_bic'>" +
-            "<option value='ClusterSize'>Default</option>" +
-            "<option value='" + ClusterMode + "'>sort by two</option>" +
-            "<option value='" + ClusterModeLeft + "'>sort by left</option>" +
-            "<option value='" + ClusterModeRight + "'>sort by right</option>" +
+            "<option value='ClusterSize' disabled selected>Default</option>" +
+            "<option value='" + ClusterMode + "'>greedy</option>" +
+            // "<option value='" + ClusterModeLeft + "'>sort by left</option>" +
+            // "<option value='" + ClusterModeRight + "'>sort by right</option>" +
             "<option value='" + seriationMode + "'>seriation</option>" +
             "</select>" +
             "<input type='range' id=" + metricSliderID + " min='0' max='1' value= '0.5' step='0.0001' class='metrixSlider' style='display:inline; width:75px; margin-left:20px;'/>" +
             "<input type='range' id=" + threasholdSliderID + " min='0' max='1' value= '0.5' step='0.0001' class='threasholdSlider' style='display:inline; width:75px; margin-left:15px'/>" +
             "</div>");
 
-        // the study setting is jigsaw
         switch (studySetting) {
             case "jigsaw":
                 {
@@ -3215,7 +3212,6 @@ biset.connectionDisplayed = function(ldomain, rdomain, curMode, preMode) {
         if (preMode == "link") {
             // hide original inbetween links
             biset.setVisibilityToOriLinksInBetween(ldomain, rdomain, "hidden");
-
             // show inbetween bics
             biset.setVisibilityToBicsInBetween(ldomain, rdomain, "visible");
             // show links connected with inbetween bics
@@ -3232,14 +3228,12 @@ biset.connectionDisplayed = function(ldomain, rdomain, curMode, preMode) {
             biset.setVisibilityToBicsInBetween(ldomain, rdomain, "hidden");
             // hide links connected with inbetween bics
             biset.setVisibilityToLinksInBetween(ldomain, rdomain, "hidden");
-
             // show original inbetween links
             biset.setVisibilityToOriLinksInBetween(ldomain, rdomain, "visible");
         }
         if (preMode == "hybrid") {
             // show links belong to bics
             biset.setVisibilityToOriLinksInBics(ldomain, rdomain, "visible");
-
             // hide inbetween bics
             biset.setVisibilityToBicsInBetween(ldomain, rdomain, "hidden");
             // hide links connected with inbetween bics
@@ -3250,7 +3244,6 @@ biset.connectionDisplayed = function(ldomain, rdomain, curMode, preMode) {
         if (preMode == "link") {
             // hide links belong to bics
             biset.setVisibilityToOriLinksInBics(ldomain, rdomain, "hidden");
-
             // show inbetween bics
             biset.setVisibilityToBicsInBetween(ldomain, rdomain, "visible");
             // show links connected with inbetween bics
@@ -3259,7 +3252,6 @@ biset.connectionDisplayed = function(ldomain, rdomain, curMode, preMode) {
         if (preMode == "bic") {
             // show original inbetween links
             biset.setVisibilityToOriLinksInBetween(ldomain, rdomain, "visible");
-
             // hide links belong to bics
             biset.setVisibilityToOriLinksInBics(ldomain, rdomain, "hidden");
         }
