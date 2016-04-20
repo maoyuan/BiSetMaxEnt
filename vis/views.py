@@ -566,6 +566,7 @@ def loadVis(request):
         docs[thisDocID]["docName"] = row[1]
         docs[thisDocID]["docContent"] = row[3]
         docs[thisDocID]["bicRelevent"] = {}
+        docs[thisDocID]["docRelevent"] = {}        
         docs[thisDocID]["bicNum"] = 0
 
         gDocIDList.append(int(row[0]) - 1)
@@ -1126,6 +1127,7 @@ def mbicMaxEntModelFullPath(request):
     resultDict["maxScoredChain"] = allPaths[maxScoredChain]
     resultDict["maxChainEnts"] = list(overlaps["entIDs"])
     resultDict["maxChainEdges"] = overlaps["edgeIDs"]
+    resultDict["curBicID"] = searchterm
 
     return HttpResponse(json.dumps(resultDict), content_type = "application/json")
 
@@ -1224,6 +1226,7 @@ def maxEntModelFullPath(request):
     resultDict["maxScoredChain"] = allPaths[maxScoredChain]
     resultDict["maxChainEnts"] = list(overlaps["entIDs"])
     resultDict["maxChainEdges"] = overlaps["edgeIDs"]
+    resultDict["curBicID"] = searchterm
 
     # resultDict["minScoredChain"] = allPaths[minScoredChain]
     # resultDict["minChainEnts"] = list(minOverlaps["entIDs"])
@@ -1787,7 +1790,18 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
                 table1_item_dict[row[0]]['linkObjs'] = []
                 table1_item_dict[row[0]]['linkNotInBicIDs'] = []
                 table1_item_dict[row[0]]['linkNotInBicObjs'] = []
+                table1_item_dict[row[0]]['docs'] = []
 
+                # get docs associated with each entity
+                eltTableName = "datamng_" + table + "doc"
+                docOfTheElt = fetchAllInfoByID(eltTableName, table, str(row[0]))
+                for d in docOfTheElt:
+                    if table == "date" or table == "person":
+                        thisDocID = "Doc_" + str(d[2])
+                    else:
+                        thisDocID = "Doc_" + str(d[1])                        
+                    if thisDocID not in table1_item_dict[row[0]]['docs']:
+                        table1_item_dict[row[0]]['docs'].append(thisDocID)
 
                 if str(row[0]) in entLseredOrderDict:
                     table1_item_dict[row[0]]["entLseredOrder"] = int(entLseredOrderDict[str(row[0])])
@@ -2185,6 +2199,13 @@ def fetchAllInfo(tableName):
     sql_str = "SELECT * FROM " + tableName
     cursor.execute(sql_str)
     return cursor.fetchall()
+
+# fetach all related info from a table based on element id
+def fetchAllInfoByID(tableName, eltType, eltID):
+    cursor = connection.cursor()
+    sql_str = "SELECT * FROM " + tableName + " WHERE " + eltType + "_id=" + eltID
+    cursor.execute(sql_str)
+    return cursor.fetchall()    
 
 # get the unique value of two fields in a table
 def fetchUniquePair(tableName, field1, field2):
