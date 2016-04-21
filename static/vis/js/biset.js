@@ -1949,7 +1949,9 @@ biset.docViewUpdateByClick = function(docListItem, entList) {
         biset.docViewReFresh(thisDocTitle, content);
         //remove nested tags
         biset.nextedTagReplace("em");
+        // add evenet handler
         biset.entTextHoverHandler();
+        biset.entTextClickHandler();
     });
 }
 
@@ -1994,6 +1996,7 @@ biset.tagEntsInDoc = function(dContent, ents) {
     return taggedContent;
 }
 
+// hover envent handler for highlight text
 biset.entTextHoverHandler = function() {
     $(".ent-text-highlight").mouseover(function() {
         var curColor = $(this).css("background-color"),
@@ -2007,6 +2010,14 @@ biset.entTextHoverHandler = function() {
             colorComponent = curColor.split(","),
             newColor = colorComponent[0] + ", " + colorComponent[1] + ", " + colorComponent[2] + ", 0.35)";
         $(this).css("background-color", newColor);
+    });
+}
+
+// click event handler for highlight text
+biset.entTextClickHandler = function() {
+    $(".ent-text-highlight").click(function() {
+    	var thisEntID = $(this).attr("id").split("__")[0];
+        console.log(thisEntID);
     });
 }
 
