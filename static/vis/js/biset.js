@@ -1966,12 +1966,13 @@ biset.tagEntsInDoc = function(dContent, ents) {
         var tagColor = colorSet.group20;
     }
 
-    for (e in ents) {
-        var entType = ents[e].entType,
-            entVal = ents[e].entValue,
-            entID = ents[e].entityIDCmp;
+    var entsByText = biset.sortEntsByText(ents);
 
-        if (dContent.indexOf(entVal) > 0) {
+    for (var i = 0; i < entsByText.length; i++) {
+        var entType = entsByText[i].entType,
+            entVal = entsByText[i].entValue,
+            entID = entsByText[i].entityIDCmp;
+        if (dContent.indexOf(entVal) > -1) {
             var entColor = tagColor[uniqueTypes.indexOf(entType)],
                 entTag = "<em class= 'ent-text-highlight " + entType + "' id='" + entID + "'style='background-color:" + entColor + "'>" + entVal + "</em>";
             taggedContent = taggedContent.split(entVal).join(entTag);
@@ -1979,11 +1980,28 @@ biset.tagEntsInDoc = function(dContent, ents) {
     }
 
     //remove nested tags
-    // $("em").has("em").each(function() {
-    //     $(this).html($(this).text());
-    // });
+    $("em").has("em").each(function() {
+        $(this).html($(this).text());
+    });
 
     return taggedContent;
+}
+
+/*
+ * get all ent text
+ * @param ents, dictionary, with ent id as key
+ * @param entsText, array, all ents sorted by text
+ */
+biset.sortEntsByText = function(ents) {
+    var entsText = [];
+    for (e in ents) {
+        entsText.push(ents[e]);
+    }
+    // sort text from long to short
+    entsText.sort(function(a, b) {
+        return b.entValue.length - a.entValue.length;
+    });
+    return entsText;
 }
 
 /*
@@ -1998,18 +2016,6 @@ biset.getUniqueEntType = function(ents) {
     }
     return Array.from(types);
 }
-
-/*
- * separate ents into two groups: parent / children
- * @param ents, dictionary, a list of ents with id as key
- * @return
- */
-biset.sepEntsBySubString = function(ents) {
-	var res = {};
-	res.parentStrEnt = [];
-	res.childrenStrEnt = [];
-}
-
 
 /*
  * refreshe the content of the document view
