@@ -1934,21 +1934,49 @@ biset.bicFullPathModelEvaluate = function(bicID) {
     });
 }
 
-
-
 /*
  * update the document view by selecting a docID in the list
  * @param docListItem {string}, the css class of a doc list item
+ * @param entList, a list of entity
  */
-biset.docViewUpdateByClick = function(docListItem) {
+biset.docViewUpdateByClick = function(docListItem, entList) {
     $(docListItem).click(function(e) {
         var thisDocID = $(this).attr("data-index"),
             thisDocContent = allDocs[thisDocID].docContent,
             thisDocTitle = allDocs[thisDocID].docName;
 
-        biset.docViewReFresh(thisDocTitle, thisDocContent);
+        var content = biset.tagEntsInDoc(thisDocContent, entList);
+        biset.docViewReFresh(thisDocTitle, content);
     });
 }
+
+/*
+ * adding tag for recognized ents in a doc
+ * @param dContent, string, the content of a document
+ * @param ents, list, a list of ent object
+ * @param taggedContent, string, content with tags
+ */
+biset.tagEntsInDoc = function(dContent, ents) {
+    var taggedContent = dContent;
+
+    for (e in ents) {
+        var entType = ents[e].entType,
+            entVal = ents[e].entValue,
+            entID = ents[e].entityIDCmp;
+
+        if (dContent.indexOf(entVal) > 0) {
+            var entTag = "<em class= 'highlight " + entType + "' id='" + entID + "'>" + entVal + "</em>";
+            taggedContent = taggedContent.split(entVal).join(entTag);
+        }
+        //remove nested tags
+        $("em").has("em").each(function() {
+            $(this).html($(this).text());
+        });
+    }
+
+    return taggedContent;
+}
+
 
 /*
  * refreshe the content of the document view

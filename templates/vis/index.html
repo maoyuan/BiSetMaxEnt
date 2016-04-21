@@ -89,9 +89,9 @@
 
 			<div id="study-contorl">
 				<label>Study Control</label><br>
-				<input type="radio" name="study" value="jigsaw" checked> Jigsaw<br>
+				<input type="radio" name="study" value="jigsaw" disabled> Jigsaw<br>
 				<input type="radio" name="study" value="closedBic" disabled> Closed-Bic<br>
-				<input type="radio" name="study" value="partialBic" disabled> Partial-Bic<br>
+				<input type="radio" name="study" value="partialBic" checked> Partial-Bic<br>
 				<input type="radio" name="study" value="biset" disabled> BiSet<br>
 				<hr>
 			</div>
@@ -111,13 +111,13 @@
 			    	<div class="col-md-3" id="biset_doc_relevent_info">
 						<div class="panel panel-default biset_docView_panel" id="biset_doc_from_bic">
 							<div class="panel-heading biset_docView_panelTitle" id="biset_checked_bicID">
-								<h3 class="panel-title">Current Visited Bicluster</h3>
+								<h3 class="panel-title">Currently Visited</h3>
 							</div>
 							<div class="panel-body biset_doc_view_panel_body" id="biset_checked_bic_list">
-								<p id="bic_current_visit">Bicluster ID</p>
+								<p id="current_visit"></p>
 								<hr>
 								<p>Related Documents</p>
-								<p id="bic_related_docs"></p>
+								<p id="related_docs"></p>
 								<hr>
 								<p>Entities</p>
 								<p id="bic_related_ents"></p>
