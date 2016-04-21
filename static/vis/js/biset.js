@@ -1949,6 +1949,7 @@ biset.docViewUpdateByClick = function(docListItem, entList) {
         biset.docViewReFresh(thisDocTitle, content);
         //remove nested tags
         biset.nextedTagReplace("em");
+        biset.entTextHoverHandler();
     });
 }
 
@@ -1991,6 +1992,22 @@ biset.tagEntsInDoc = function(dContent, ents) {
         }
     }
     return taggedContent;
+}
+
+biset.entTextHoverHandler = function() {
+    $(".ent-text-highlight").mouseover(function() {
+        var curColor = $(this).css("background-color"),
+            colorComponent = curColor.split(","),
+            newColor = colorComponent[0] + ", " + colorComponent[1] + ", " + colorComponent[2] + ", 0.65)";
+        $(this).css("background-color", newColor);
+    });
+
+    $(".ent-text-highlight").mouseout(function() {
+        var curColor = $(this).css("background-color"),
+            colorComponent = curColor.split(","),
+            newColor = colorComponent[0] + ", " + colorComponent[1] + ", " + colorComponent[2] + ", 0.35)";
+        $(this).css("background-color", newColor);
+    });
 }
 
 /*

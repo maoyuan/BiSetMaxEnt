@@ -659,15 +659,9 @@ input[type=range]:focus::-ms-fill-upper {
     box-shadow: 1.5px 1.5px 1.5px #888888;
 }
 
-
 /*.ent-text-highlight:hover {*/
-
-
-/*background-color: "blue";
-
-cursor: pointer;
-border: 0.5px;
-border-style: solid;
-
-}
-*/
+    /*border: 0.01px;*/
+    /*border-style: solid;*/
+    /*opacity: 0.9;*/
+    /*font-weight: bold;*/
+/*}*/
