@@ -55,6 +55,7 @@ var addMenuToBic = function(bicCssClass) {
                 // update the document view
                 var dContent = biset.tagEntsInDoc(docNames[e].docContent, allEnts);
                 biset.docViewReFresh(docID, dContent);
+                biset.nextedTagReplace("em");
 
                 // append the bicluster ID
                 $("#current_visit").html("Bicluster ID: " + allBics[thisBicID].bicID);
@@ -83,6 +84,7 @@ var addMenuToBic = function(bicCssClass) {
 
                     var content = biset.tagEntsInDoc(thisDocContent, allEnts);
                     biset.docViewReFresh(thisDocName, content);
+                    biset.nextedTagReplace("em");
                 });
 
                 // add click event handler for each item in docID list
@@ -275,6 +277,7 @@ var addMenuToEnt = function(entClass) {
                         // update the document view
                         var dContent = biset.tagEntsInDoc(docNames[e].docContent, allEnts);
                         biset.docViewReFresh(docID, dContent);
+                        biset.nextedTagReplace("em");
 
                         // append the entity ID
                         $("#current_visit").html("Entity: " + allEnts[thisEntID].entValue);
@@ -303,6 +306,8 @@ var addMenuToEnt = function(entClass) {
 
                             var content = biset.tagEntsInDoc(thisDocContent, allEnts);
                             biset.docViewReFresh(thisDocName, content);
+                            //remove nested tags
+                            biset.nextedTagReplace("em");
                         });
                         // add click event handler for each item in docID list
                         biset.docViewUpdateByClick(".doc-list", allEnts);

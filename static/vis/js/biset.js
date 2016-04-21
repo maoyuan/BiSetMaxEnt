@@ -1947,6 +1947,18 @@ biset.docViewUpdateByClick = function(docListItem, entList) {
 
         var content = biset.tagEntsInDoc(thisDocContent, entList);
         biset.docViewReFresh(thisDocTitle, content);
+        //remove nested tags
+        biset.nextedTagReplace("em");
+    });
+}
+
+/*
+ * replace nested tag with normal text
+ * @param tName, string, the name of html tag
+ */
+biset.nextedTagReplace = function(tName) {
+    $(tName).has(tName).each(function() {
+        $(this).html($(this).text());
     });
 }
 
@@ -1974,16 +1986,10 @@ biset.tagEntsInDoc = function(dContent, ents) {
             entID = entsByText[i].entityIDCmp;
         if (dContent.indexOf(entVal) > -1) {
             var entColor = tagColor[uniqueTypes.indexOf(entType)],
-                entTag = "<em class= 'ent-text-highlight " + entType + "' id='" + entID + "'style='background-color:" + entColor + "'>" + entVal + "</em>";
+                entTag = "<em class= 'ent-text-highlight " + entType + "' id='" + entID + "__text' style='background-color:" + entColor + "'>" + entVal + "</em>";
             taggedContent = taggedContent.split(entVal).join(entTag);
         }
     }
-
-    //remove nested tags
-    $("em").has("em").each(function() {
-        $(this).html($(this).text());
-    });
-
     return taggedContent;
 }
 
