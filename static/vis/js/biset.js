@@ -1957,7 +1957,14 @@ biset.docViewUpdateByClick = function(docListItem, entList) {
  * @param taggedContent, string, content with tags
  */
 biset.tagEntsInDoc = function(dContent, ents) {
-    var taggedContent = dContent;
+    var taggedContent = dContent,
+        uniqueTypes = biset.getUniqueEntType(ents);
+
+    if (uniqueTypes.length <= 10) {
+        var tagColor = colorSet.group10;
+    } else {
+        var tagColor = colorSet.group20;
+    }
 
     for (e in ents) {
         var entType = ents[e].entType,
@@ -1965,16 +1972,42 @@ biset.tagEntsInDoc = function(dContent, ents) {
             entID = ents[e].entityIDCmp;
 
         if (dContent.indexOf(entVal) > 0) {
-            var entTag = "<em class= 'highlight " + entType + "' id='" + entID + "'>" + entVal + "</em>";
+            var entColor = tagColor[uniqueTypes.indexOf(entType)],
+                entTag = "<em class= 'ent-text-highlight " + entType + "' id='" + entID + "'style='background-color:" + entColor + "'>" + entVal + "</em>";
             taggedContent = taggedContent.split(entVal).join(entTag);
         }
-        //remove nested tags
-        $("em").has("em").each(function() {
-            $(this).html($(this).text());
-        });
     }
 
+    //remove nested tags
+    // $("em").has("em").each(function() {
+    //     $(this).html($(this).text());
+    // });
+
     return taggedContent;
+}
+
+/*
+ * get all unique types from an entity list
+ * @param ents, list, a list of entity
+ * @param types, array, a list of unique types
+ */
+biset.getUniqueEntType = function(ents) {
+    var types = new Set()
+    for (e in ents) {
+        types.add(ents[e].entType);
+    }
+    return Array.from(types);
+}
+
+/*
+ * separate ents into two groups: parent / children
+ * @param ents, dictionary, a list of ents with id as key
+ * @return
+ */
+biset.sepEntsBySubString = function(ents) {
+	var res = {};
+	res.parentStrEnt = [];
+	res.childrenStrEnt = [];
 }
 
 

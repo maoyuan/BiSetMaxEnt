@@ -651,3 +651,10 @@ input[type=range]:focus::-ms-fill-upper {
     color: #fff;
     border: 0px;
 }
+
+.ent-text-highlight {
+    cursor: pointer;
+    border-radius: 6px;
+    padding: 2px;
+    box-shadow: 2px 2px 2px #888888;
+}
