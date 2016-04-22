@@ -43,6 +43,7 @@ Initial preparation for the real-valued model
 
 # a global variable for all doc IDs
 gDocIDList = []
+gDocDict = {}
 # a glabal variable for all docIDs + each entID + ent fequency as python tiles
 glist_colTiles = []
 # a global variable for indiviual docID + domain based entIDs + ent frequency as python tiles 
@@ -340,6 +341,7 @@ def loadVis(request):
     
     # all the following variables used as global variables
     global gDocIDList
+    global gDocDict
     global glist_colTiles
     global glist_rowTiles
     global glist_domainTile
@@ -518,44 +520,6 @@ def loadVis(request):
 
         networkData[bicID] = tmpArray
 
-    # all all entities with their bics in the dictionary
-    for lst in lists:
-        listType = lst["listType"]
-        entities = lst["entities"]
-        rType = lst["rightType"]
-        lType = lst["leftType"]
-        for ent in entities:
-            entityID = str(listType) + "_" + str(ent["entityID"])
-            leftBics = ent["bicSetsLeft"]
-            rightBics = ent["bicSetsRight"]
-            tmpArray = []
-            if len(leftBics) != 0:
-                for lbic in leftBics:
-                    thisbicID = lType + "_" + listType + "_bic_" + str(lbic)
-                    tmpArray.append(thisbicID)
-                    if entityID > thisbicID:
-                        tmpLinkName = entityID + "__" + thisbicID
-                    else:
-                        tmpLinkName = thisbicID + "__" + entityID
-                    linkName.add(tmpLinkName)
-
-            if len(rightBics) != 0:
-                for rbic in rightBics:
-                    thisbicID = listType + "_" + rType + "_bic_" + str(rbic)
-                    tmpArray.append(thisbicID)
-                    if entityID > thisbicID:
-                        tmpLinkName = entityID + "__" + thisbicID
-                    else:
-                        tmpLinkName = thisbicID + "__" + entityID
-                    linkName.add(tmpLinkName)
-
-            if len(tmpArray) != 0:
-                networkData[entityID] = tmpArray
-
-    # for lst in lists:
-    #     print(lst["listType"])
-    print(listNames)
-
     # get data from doc table
     cursor = connection.cursor()
     sql_str = "SELECT * FROM datamng_docname"       
@@ -587,6 +551,52 @@ def loadVis(request):
                     entID = lst + "_" + str(r[2])
                 if row[0] == docID and entID not in docs[thisDocID]["entIDs"]:
                     docs[thisDocID]["entIDs"].append(entID)
+    gDocDict = docs
+
+
+    # all all entities with their bics in the dictionary
+    for lst in lists:
+        listType = lst["listType"]
+        entities = lst["entities"]
+        rType = lst["rightType"]
+        lType = lst["leftType"]
+        for ent in entities:
+            entityID = str(listType) + "_" + str(ent["entityID"])
+            leftBics = ent["bicSetsLeft"]
+            rightBics = ent["bicSetsRight"]
+            inDocs = ent["docs"]
+            tmpArray = []
+
+            # get co-occurred ent ids
+            for d in inDocs:
+                relEntIDs = gDocDict[d]["entIDs"]
+                for e in relEntIDs:
+                    if e != entityID and e not in ent["cooccuredEnts"]:
+                        ent["cooccuredEnts"].append(e)
+
+
+            if len(leftBics) != 0:
+                for lbic in leftBics:
+                    thisbicID = lType + "_" + listType + "_bic_" + str(lbic)
+                    tmpArray.append(thisbicID)
+                    if entityID > thisbicID:
+                        tmpLinkName = entityID + "__" + thisbicID
+                    else:
+                        tmpLinkName = thisbicID + "__" + entityID
+                    linkName.add(tmpLinkName)
+
+            if len(rightBics) != 0:
+                for rbic in rightBics:
+                    thisbicID = listType + "_" + rType + "_bic_" + str(rbic)
+                    tmpArray.append(thisbicID)
+                    if entityID > thisbicID:
+                        tmpLinkName = entityID + "__" + thisbicID
+                    else:
+                        tmpLinkName = thisbicID + "__" + entityID
+                    linkName.add(tmpLinkName)
+
+            if len(tmpArray) != 0:
+                networkData[entityID] = tmpArray
 
     # get relevent bics for each doc
     for bic in bics:
@@ -1808,6 +1818,7 @@ def getListDict(tableLeft, table, tableRight, leftClusCols, biclusDict):
                 table1_item_dict[row[0]]['linkNotInBicIDs'] = []
                 table1_item_dict[row[0]]['linkNotInBicObjs'] = []
                 table1_item_dict[row[0]]['docs'] = []
+                table1_item_dict[row[0]]['cooccuredEnts'] = []
 
                 # get docs associated with each entity
                 eltTableName = "datamng_" + table + "doc"
