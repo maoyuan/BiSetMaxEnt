@@ -552,6 +552,10 @@ def loadVis(request):
             if len(tmpArray) != 0:
                 networkData[entityID] = tmpArray
 
+    # for lst in lists:
+    #     print(lst["listType"])
+    print(listNames)
+
     # get data from doc table
     cursor = connection.cursor()
     sql_str = "SELECT * FROM datamng_docname"       
@@ -565,19 +569,32 @@ def loadVis(request):
         docs[thisDocID]["docID"] = thisDocID
         docs[thisDocID]["docName"] = row[1]
         docs[thisDocID]["docContent"] = row[3]
-        docs[thisDocID]["bicRelevent"] = {}
-        docs[thisDocID]["docRelevent"] = {}        
+        docs[thisDocID]["bics"] = {}
+        docs[thisDocID]["entIDs"] = []        
         docs[thisDocID]["bicNum"] = 0
 
         gDocIDList.append(int(row[0]) - 1)
+
+        # get all ent ids for each doc
+        for lst in listNames:
+            entTableRows = fetchAllInfo("datamng_" + lst + "doc")
+            for r in entTableRows:
+                if lst == "person" or lst == "date":
+                    docID = r[2]
+                    entID = lst + "_" + str(r[1])
+                else:
+                    docID = r[1]
+                    entID = lst + "_" + str(r[2])
+                if row[0] == docID and entID not in docs[thisDocID]["entIDs"]:
+                    docs[thisDocID]["entIDs"].append(entID)
 
     # get relevent bics for each doc
     for bic in bics:
         thisDocList = bics[bic]["docs"]
         for doc in thisDocList:
             docs[doc]["bicNum"] += 1
-            if not bic in docs[doc]["bicRelevent"]:
-                docs[doc]["bicRelevent"][bic] = bics[bic]
+            if not bic in docs[doc]["bics"]:
+                docs[doc]["bics"][bic] = bics[bic]
 
     # generate index of bic based on the number of its ents
     tBicNum = []

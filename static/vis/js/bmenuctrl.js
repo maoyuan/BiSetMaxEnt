@@ -53,7 +53,7 @@ var addMenuToBic = function(bicCssClass) {
                 }
 
                 // update the document view
-                var dContent = biset.tagEntsInDoc(docNames[e].docContent, allEnts);
+                var dContent = biset.tagEntsInDoc(docNames[docID].docContent, allEnts);
                 biset.docViewReFresh(docID, dContent);
                 biset.nextedTagReplace("em");
                 biset.entTextHoverHandler();
@@ -68,7 +68,7 @@ var addMenuToBic = function(bicCssClass) {
                 // append related entities
                 var tmpStr = rNameStr + cNameStr,
                     relEntNameStr = tmpStr.substr(0, tmpStr.length - 2);
-                $("#bic_related_ents").html(relEntNameStr);
+                $("#related_ents").html(relEntNameStr);
 
                 // show document view
                 if ($("#doc_vis").is(":hidden") == true) {
@@ -239,7 +239,6 @@ var addMenuToEnt = function(entClass) {
             switch (selItem) {
                 case "doc":
                     {
-
                         var relDocs = allEnts[thisEntID].docs;
                         // rType = allEnts[thisEntID].rowField,
                         // cType = allEnts[thisEntID].colField,
@@ -280,7 +279,7 @@ var addMenuToEnt = function(entClass) {
                         }
 
                         // update the document view
-                        var dContent = biset.tagEntsInDoc(docNames[e].docContent, allEnts);
+                        var dContent = biset.tagEntsInDoc(docNames[docID].docContent, allEnts);
                         biset.docViewReFresh(docID, dContent);
                         biset.nextedTagReplace("em");
                         biset.entTextHoverHandler();
@@ -295,7 +294,7 @@ var addMenuToEnt = function(entClass) {
                         // append related entities
                         // var tmpStr = rNameStr + cNameStr,
                         //     relEntNameStr = tmpStr.substr(0, tmpStr.length - 2);
-                        // $("#bic_related_ents").html(relEntNameStr);
+                        // $("#related_ents").html(relEntNameStr);
 
 
                         // show document view
@@ -315,7 +314,7 @@ var addMenuToEnt = function(entClass) {
                             biset.docViewReFresh(thisDocName, content);
                             //remove nested tags
                             biset.nextedTagReplace("em");
-                            
+
                             biset.entTextHoverHandler();
                             biset.entTextClickHandler();
                         });
