@@ -408,10 +408,22 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
                         thisID = d.entityIDCmp,
                         thisFrameID = thisID + "_frame";
 
+                    var hEnts = d.cooccuredEnts;
+                    hEnts.push(thisID);
+                    hEnts.forEach(function(e) {
+                        highlightEntSet.add(e);
+                        allEnts[e].numCoSelected += 1;
+                        highlightEntList[e] = allEnts[e].numCoSelected;
+                    });
+
+                    biset.entsUpdate(highlightEntSet, highlightEntList, "ent");
+
                     // add border to current ent
                     biset.barUpdate("#" + thisFrameID, "", biset.colors.entMouseOverBorder, biset.entity.moBorder);
                     // change the status to be mouseovered
                     d.mouseovered = true;
+                    // remove current ent
+                    hEnts.pop();
                 }
             }
         }
@@ -516,10 +528,28 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
                         thisID = d.entityIDCmp,
                         thisFrameID = thisID + "_frame";
 
+                    var hEnts = d.cooccuredEnts;
+                    // add current ent
+                    hEnts.push(thisID);
+
+                    hEnts.forEach(function(e) {
+                        allEnts[e].numCoSelected -= 1;
+                        if (allEnts[e].numCoSelected == 0) {
+                            highlightEntSet.delete(e);
+                        } else {
+                            highlightEntList[e] = allEnts[e].numCoSelected;
+                        }
+                    });
+
+                    biset.entsUpdate(highlightEntSet, highlightEntList, "ent");
+                    biset.entsBackToNormal(allEnts, "ent");
+
                     // update the border of current node
                     biset.barUpdate("#" + thisFrameID, "", biset.colors.entNormalBorder, biset.entity.nBorder);
                     // switch mouseover to off
                     d.mouseovered = false;
+                    // remove current ent
+                    hEnts.pop();
                 }
             }
         }
