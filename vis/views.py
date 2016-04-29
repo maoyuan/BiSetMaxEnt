@@ -1711,7 +1711,7 @@ def getLstsRelations(lstNames):
                 lnk = obj1ID + "__" + obj2ID
             else:
                 lnk = obj2ID + "__" + obj1ID
-            lstRelations.append({"oriLinkID": lnk, "obj1": obj1ID, "obj2": obj2ID, "docID": "Doc_" + str(row[2])})
+            lstRelations.append({"oriLinkID": lnk, "linkNumCoSelected": 0, "obj1": obj1ID, "obj2": obj2ID, "docID": "Doc_" + str(row[2])})
 
     return lstRelations
 
@@ -1743,7 +1743,7 @@ def getReducedLstsRelations(lstNames):
                 lnk = obj1ID + "__" + obj2ID
             else:
                 lnk = obj2ID + "__" + obj1ID
-            lstRelations.append({"oriLinkID": lnk, "obj1": obj1ID, "obj2": obj2ID, "oriLinkDisplayed": True})
+            lstRelations.append({"oriLinkID": lnk, "linkNumCoSelected": 0, "obj1": obj1ID, "obj2": obj2ID, "oriLinkDisplayed": True})
 
     return lstRelations              
 
