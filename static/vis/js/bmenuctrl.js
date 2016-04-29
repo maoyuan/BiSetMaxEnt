@@ -295,7 +295,7 @@ var addMenuToEnt = function(entClass) {
                         }
 
                         var entColor = tagColor[uniqueTypes.indexOf(thisEntType)],
-                            entStr = "Entity: <em class='visited ent-text-highlight " + thisEntType + "' id='visited__" + thisEntID + "' style='background-color:" + entColor + "'>" + allEnts[thisEntID].entValue + "</em>";
+                            entStr = "Entity: <em class='visited " + thisEntType + "' id='visited__" + thisEntID + "' style='background-color:" + entColor + "'>" + allEnts[thisEntID].entValue + "</em>";
 
                         // append the entity ID
                         $("#current_visit").html(entStr);
