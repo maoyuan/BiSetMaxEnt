@@ -2193,6 +2193,11 @@ biset.entTextClickHandler = function() {
             entFrameID = entID + "_frame";
 
         biset.entClickHandler(ent, entType, entID, entValue, entFrameID, relations);
+        if (ent.selected == true) {
+            $(this).css("border", "1.1px solid");
+        } else {
+            $(this).css("border", "0px solid");
+        }
     });
 }
 
