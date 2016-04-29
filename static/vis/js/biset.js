@@ -2157,6 +2157,14 @@ biset.entTextHoverHandler = function() {
             colorComponent = curColor.split(","),
             newColor = colorComponent[0] + ", " + colorComponent[1] + ", " + colorComponent[2] + ", 0.65)";
         $(this).css("background-color", newColor);
+
+        var entID = $(this).attr("id").split("__")[0],
+            ent = allEnts[entID],
+            entType = ent.entType,
+            entValue = ent.entValue,
+            entFrameID = entID + "_frame";
+
+        biset.entMouseOverHandler(ent, entType, entID, entFrameID, relations);
     });
 
     $(".ent-text-highlight").mouseout(function() {
@@ -2164,6 +2172,14 @@ biset.entTextHoverHandler = function() {
             colorComponent = curColor.split(","),
             newColor = colorComponent[0] + ", " + colorComponent[1] + ", " + colorComponent[2] + ", 0.35)";
         $(this).css("background-color", newColor);
+
+        var entID = $(this).attr("id").split("__")[0],
+            ent = allEnts[entID],
+            entType = ent.entType,
+            entValue = ent.entValue,
+            entFrameID = entID + "_frame";
+
+        biset.entMouseOutHandler(ent, entType, entID, entFrameID, relations);
     });
 }
 
