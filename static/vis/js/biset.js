@@ -338,136 +338,8 @@ biset.addList = function(canvas, listData, bicList, startPos, networkData) {
         var thisEntType = d.entType,
             thisID = d.entityIDCmp,
             thisFrameID = thisID + "_frame";
-        // for bicluster mode
-        if (studySetting != "jigsaw") {
-            // when dragging stops
-            if (draged == 0) {
-                if (d.mouseovered == true && d.selected == false) {
-                    // consider nodes with biclusters
-                    if (networkData[thisID] !== undefined) {
 
-                        // releated info for current node
-                        var relInfo = biset.findAllCons(thisID, networkData, entPathCaled),
-                            nodes = relInfo.ents,
-                            links = relInfo.paths;
-
-                        // unhighlight all relevent entities
-                        nodes.forEach(function(node) {
-                            if (node.indexOf("_bic_") > 0) {
-                                allBics[node].bicNumCoSelected -= 1;
-
-                                if (allBics[node].bicNumCoSelected == 0)
-                                    highlightBicSet.delete(node);
-                                else
-                                    highlightBicList[node] = allBics[node].bicNumCoSelected;
-                            } else {
-                                // if (!selEntSet.has(node))
-                                allEnts[node].numCoSelected -= 1;
-
-                                if (allEnts[node].numCoSelected == 0)
-                                    highlightEntSet.delete(node);
-                                else
-                                    highlightEntList[node] = allEnts[node].numCoSelected;
-                            }
-                        });
-
-                        links.forEach(function(lk) {
-                            allLinks[lk].linkNumCoSelected -= 1;
-                            if (allLinks[lk].linkNumCoSelected == 0)
-                                highlightLinkSet.delete(lk);
-                            else
-                                highlightLinkList[lk] = allLinks[lk].linkNumCoSelected;
-                        });
-
-                        // highlight related bics
-                        biset.entsUpdate(highlightBicSet, highlightBicList, "bic"); //bicBorder
-                        // unhighlight all unrelated bics
-                        biset.entsBackToNormal(allBics, "bic");
-
-                        // highlight ents those need to be highlighted
-                        biset.entsUpdate(highlightEntSet, highlightEntList, "ent"); // entColor
-                        // unhighlight the rest nodes
-                        biset.entsBackToNormal(allEnts, "ent");
-
-                        // update links
-                        biset.linksUpdate(highlightLinkSet, highlightLinkList);
-                        // unhighlight the rest links
-                        biset.linksBackToNormal(allLinks);
-                    }
-                    // update the border of current node
-                    biset.barUpdate("#" + thisFrameID, "", biset.colors.entNormalBorder, biset.entity.nBorder);
-                    // switch mouseover to off
-                    d.mouseovered = false;
-                }
-                // for clicked node
-                else if (d.mouseovered == true && d.selected == true) {
-                    if (networkData[thisID] !== undefined) {
-                        // all releated info (nodes + links) of current node
-                        var relInfo = biset.findAllCons(thisID, networkData, entPathCaled),
-                            nodes = relInfo.ents,
-                            links = relInfo.paths;
-
-                        nodes.forEach(function(e) {
-                            if (e.indexOf("_bic_") < 0)
-                                vis.setFontSize(e + "_text", nEntFontforPaper);
-                            vis.setSvgCssClass(e + "_text", lEntFontClass, false);
-                        });
-                    }
-                }
-            }
-        }
-        // for mimic jigsaw's behavior
-        else {
-            // when dragging stops
-            if (draged == 0) {
-                if (d.mouseovered == true && d.selected == false) {
-                    var hEnts = d.cooccuredEnts,
-                        hLinks = d.linkNotInBicIDs;
-                    // add current ent
-                    hEnts.push(thisID);
-                    hEnts.forEach(function(e) {
-                        allEnts[e].numCoSelected -= 1;
-                        if (allEnts[e].numCoSelected == 0) {
-                            highlightEntSet.delete(e);
-                        } else {
-                            highlightEntList[e] = allEnts[e].numCoSelected;
-                        }
-
-                        var thisLinkID = biset.genLinkID(thisID, e);
-                        if (hLinks.indexOf(thisLinkID) != -1) {
-                            allOriLinks[thisLinkID].linkNumCoSelected -= 1;
-                            if (allOriLinks[thisLinkID].linkNumCoSelected == 0) {
-                                highlightLinkSet.delete(thisLinkID);
-                            } else {
-                                highlightLinkList[thisLinkID] = allOriLinks[thisLinkID].linkNumCoSelected;
-                            }
-                        }
-                    });
-                    biset.entsUpdate(highlightEntSet, highlightEntList, "ent");
-                    biset.entsBackToNormal(allEnts, "ent");
-
-                    biset.linksUpdate(highlightLinkSet, highlightLinkList);
-                    biset.linksBackToNormal(allOriLinks);
-
-                    // update the border of current node
-                    biset.barUpdate("#" + thisFrameID, "", biset.colors.entNormalBorder, biset.entity.nBorder);
-                    // switch mouseover to off
-                    d.mouseovered = false;
-                    // remove current ent
-                    hEnts.pop();
-                }
-                // for clicked node
-                else if (d.mouseovered == true && d.selected == true) {
-                    var hEnts = d.cooccuredEnts;
-                    hEnts.push(thisID);
-                    hEnts.forEach(function(e) {
-                        vis.setFontSize(e + "_text", nEntFontforPaper);
-                        vis.setSvgCssClass(e + "_text", lEntFontClass, false);
-                    });
-                    hEnts.pop();
-                }
-            }
-        }
+        biset.entMouseOutHandler(d, thisEntType, thisID, thisFrameID, networkData);
     });
 
     // click event handler for entities
@@ -605,6 +477,148 @@ biset.entMouseOverHandler = function(e, eType, eId, eFrameId, entBicRel) {
                 hEnts.forEach(function(n) {
                     vis.setFontSize(n + "_text", hEntFontforPaper);
                     vis.setSvgCssClass(n + "_text", lEntFontClass, true);
+                });
+                hEnts.pop();
+            }
+        }
+    }
+}
+
+
+/*
+ * ent click funtion handler
+ * @param e, ent object
+ * @param eType, string, the type of this ent
+ * @param eId, string, the id of this ent
+ * @param eFrameId, string, the frame of this ent
+ * @param entBicRel, dictionary, relations of all ents and bics
+ */
+biset.entMouseOutHandler = function(e, eType, eId, eFrameId, entBicRel) {
+    // for bicluster mode
+    if (studySetting != "jigsaw") {
+        // when dragging stops
+        if (draged == 0) {
+            if (e.mouseovered == true && e.selected == false) {
+                // consider nodes with biclusters
+                if (entBicRel[eId] !== undefined) {
+
+                    // releated info for current node
+                    var relInfo = biset.findAllCons(eId, entBicRel, entPathCaled),
+                        nodes = relInfo.ents,
+                        links = relInfo.paths;
+
+                    // unhighlight all relevent entities
+                    nodes.forEach(function(node) {
+                        if (node.indexOf("_bic_") > 0) {
+                            allBics[node].bicNumCoSelected -= 1;
+
+                            if (allBics[node].bicNumCoSelected == 0)
+                                highlightBicSet.delete(node);
+                            else
+                                highlightBicList[node] = allBics[node].bicNumCoSelected;
+                        } else {
+                            // if (!selEntSet.has(node))
+                            allEnts[node].numCoSelected -= 1;
+
+                            if (allEnts[node].numCoSelected == 0)
+                                highlightEntSet.delete(node);
+                            else
+                                highlightEntList[node] = allEnts[node].numCoSelected;
+                        }
+                    });
+
+                    links.forEach(function(lk) {
+                        allLinks[lk].linkNumCoSelected -= 1;
+                        if (allLinks[lk].linkNumCoSelected == 0)
+                            highlightLinkSet.delete(lk);
+                        else
+                            highlightLinkList[lk] = allLinks[lk].linkNumCoSelected;
+                    });
+
+                    // highlight related bics
+                    biset.entsUpdate(highlightBicSet, highlightBicList, "bic"); //bicBorder
+                    // unhighlight all unrelated bics
+                    biset.entsBackToNormal(allBics, "bic");
+
+                    // highlight ents those need to be highlighted
+                    biset.entsUpdate(highlightEntSet, highlightEntList, "ent"); // entColor
+                    // unhighlight the rest nodes
+                    biset.entsBackToNormal(allEnts, "ent");
+
+                    // update links
+                    biset.linksUpdate(highlightLinkSet, highlightLinkList);
+                    // unhighlight the rest links
+                    biset.linksBackToNormal(allLinks);
+                }
+                // update the border of current node
+                biset.barUpdate("#" + eFrameId, "", biset.colors.entNormalBorder, biset.entity.nBorder);
+                // switch mouseover to off
+                e.mouseovered = false;
+            }
+            // for clicked node
+            else if (e.mouseovered == true && e.selected == true) {
+                if (entBicRel[eId] !== undefined) {
+                    // all releated info (nodes + links) of current node
+                    var relInfo = biset.findAllCons(eId, entBicRel, entPathCaled),
+                        nodes = relInfo.ents,
+                        links = relInfo.paths;
+
+                    nodes.forEach(function(n) {
+                        if (n.indexOf("_bic_") < 0)
+                            vis.setFontSize(n + "_text", nEntFontforPaper);
+                        vis.setSvgCssClass(n + "_text", lEntFontClass, false);
+                    });
+                }
+            }
+        }
+    }
+    // for mimic jigsaw's behavior
+    else {
+        // when dragging stops
+        if (draged == 0) {
+            if (e.mouseovered == true && e.selected == false) {
+                var hEnts = e.cooccuredEnts,
+                    hLinks = e.linkNotInBicIDs;
+                // add current ent
+                hEnts.push(eId);
+                hEnts.forEach(function(n) {
+                    allEnts[n].numCoSelected -= 1;
+                    if (allEnts[n].numCoSelected == 0) {
+                        highlightEntSet.delete(n);
+                    } else {
+                        highlightEntList[n] = allEnts[n].numCoSelected;
+                    }
+
+                    var thisLinkID = biset.genLinkID(eId, n);
+                    if (hLinks.indexOf(thisLinkID) != -1) {
+                        allOriLinks[thisLinkID].linkNumCoSelected -= 1;
+                        if (allOriLinks[thisLinkID].linkNumCoSelected == 0) {
+                            highlightLinkSet.delete(thisLinkID);
+                        } else {
+                            highlightLinkList[thisLinkID] = allOriLinks[thisLinkID].linkNumCoSelected;
+                        }
+                    }
+                });
+                biset.entsUpdate(highlightEntSet, highlightEntList, "ent");
+                biset.entsBackToNormal(allEnts, "ent");
+
+                biset.linksUpdate(highlightLinkSet, highlightLinkList);
+                biset.linksBackToNormal(allOriLinks);
+
+                // update the border of current node
+                biset.barUpdate("#" + eFrameId, "", biset.colors.entNormalBorder, biset.entity.nBorder);
+                // switch mouseover to off
+                e.mouseovered = false;
+                // remove current ent
+                hEnts.pop();
+            }
+            // for clicked node
+            else if (e.mouseovered == true && e.selected == true) {
+                var hEnts = e.cooccuredEnts;
+                hEnts.push(eId);
+                hEnts.forEach(function(n) {
+                    vis.setFontSize(n + "_text", nEntFontforPaper);
+                    vis.setSvgCssClass(n + "_text", lEntFontClass, false);
                 });
                 hEnts.pop();
             }
