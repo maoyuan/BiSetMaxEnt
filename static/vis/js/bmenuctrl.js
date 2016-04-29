@@ -285,8 +285,20 @@ var addMenuToEnt = function(entClass) {
                         biset.entTextHoverHandler();
                         biset.entTextClickHandler();
 
+                        var thisEntType = allEnts[thisEntID].entType,
+                            uniqueTypes = biset.getUniqueEntType(allEnts);
+
+                        if (uniqueTypes.length <= 10) {
+                            var tagColor = colorSet.group10;
+                        } else {
+                            var tagColor = colorSet.group20;
+                        }
+
+                        var entColor = tagColor[uniqueTypes.indexOf(thisEntType)],
+                            entStr = "Entity: <em class='visited ent-text-highlight " + thisEntType + "' id='visited__" + thisEntID + "' style='background-color:" + entColor + "'>" + allEnts[thisEntID].entValue + "</em>";
+
                         // append the entity ID
-                        $("#current_visit").html("Entity: " + allEnts[thisEntID].entValue);
+                        $("#current_visit").html(entStr);
 
                         // append related documents
                         $("#related_docs").html(docNameStr);
