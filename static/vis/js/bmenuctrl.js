@@ -375,6 +375,9 @@ var addMenuToMbic = function(mbClass) {
                     // flag this individual bic is not merged
                     thisBicData.merged = false;
                 }
+
+                biset.updateLink(connections);
+                
             }
             // user choose to do stepwise evaluations
             if (selItem == "modelEvaStep") {

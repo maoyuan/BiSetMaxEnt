@@ -1360,6 +1360,8 @@ biset.addBics = function(preListCanvas, bicListCanvas, listData, bicList, bicSta
                 biset.placeEntNearSimilarBics(rfield, cfield, tmpBics, d.yPos);
             }
         }
+
+        biset.updateLink(connections);
     });
 
     // add links between bic and ent
